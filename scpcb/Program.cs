@@ -1,9 +1,12 @@
 ﻿using System.Numerics;
+using Assimp;
 using scpcb;
 using scpcb.Graphics;
 using scpcb.Shaders;
 using Veldrid;
 using Veldrid.StartupUtilities;
+using Matrix4x4 = System.Numerics.Matrix4x4;
+using Quaternion = System.Numerics.Quaternion;
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -44,9 +47,12 @@ using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, modelShader.CreateMater
         new(new(-1f, -1f, 0), new(1, 1)),
         new(new(1f, -1f, 0), new(0, 1)),
     },
-    new ushort[] { 2, 1, 0, 1, 2, 3 });
+    new ushort[] { 0, 1, 2, 3, 2, 1 });
 
-using var scp = new TestAssimpMaterial();
+using var assimp = new AssimpContext();
+var scene = assimp.ImportFile("Assets/173_2.b3d");
+using var scp = new TestAssimpMaterial(gfx, modelShader, coolTexture);
+var mesh2 = scp.ConvertMesh(gfx, scene.Meshes[0]);
 
 modelShader.VertexConstants.View = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
 modelShader.VertexConstants.Projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)WIDTH / HEIGHT, 0.1f, 10000f);
@@ -85,10 +91,11 @@ while (window.Exists) {
     if (dir != Vector2.Zero) {
         controller.HandleMove(Vector2.Normalize(dir), delta);
     }
-    
+
     modelShader.VertexConstants.Model = new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(-mesh.Position.X / 100, 0, 0), Vector3.One).GetMatrix();
     mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
     mesh.Render(commandsList);
+    mesh2.Render(commandsList);
     testmesh.Render(commandsList);
     commandsList.End();
     gfx.SubmitCommands(commandsList);

@@ -11,6 +11,7 @@ public class CBMesh<TVertex> : Disposable, ICBMesh where TVertex : unmanaged {
     private readonly ICBMaterial<TVertex> _mat;
     private readonly DeviceBuffer _vertexBuffer;
     private readonly DeviceBuffer _indexBuffer;
+    private readonly uint _indexCount;
 
     public CBMesh(GraphicsDevice gfx, ICBMaterial<TVertex> mat, TVertex[] vertices, ushort[] indices) {
         _mat = mat;
@@ -18,7 +19,8 @@ public class CBMesh<TVertex> : Disposable, ICBMesh where TVertex : unmanaged {
         _vertexBuffer = gfx.ResourceFactory.CreateVertexBuffer<TVertex>((uint)vertices.Length);
         gfx.UpdateBuffer(_vertexBuffer, 0, vertices);
 
-        _indexBuffer = gfx.ResourceFactory.CreateBuffer(new((uint)indices.Length * sizeof(ushort), BufferUsage.IndexBuffer));
+        _indexCount = (uint)indices.Length;
+        _indexBuffer = gfx.ResourceFactory.CreateBuffer(new(_indexCount * sizeof(ushort), BufferUsage.IndexBuffer));
         gfx.UpdateBuffer(_indexBuffer, 0, indices);
     }
 
@@ -35,7 +37,7 @@ public class CBMesh<TVertex> : Disposable, ICBMesh where TVertex : unmanaged {
         _mat.Apply(commands);
         commands.SetVertexBuffer(0, _vertexBuffer);
         commands.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
-        commands.DrawIndexed(6, 1, 0, 0, 0);
+        commands.DrawIndexed(_indexCount, 1, 0, 0, 0);
     }
 
     protected override void DisposeImpl() {

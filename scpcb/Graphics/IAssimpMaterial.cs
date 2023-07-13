@@ -32,9 +32,9 @@ public abstract class AssimpMaterial<TVertex> : CBMaterial<TVertex>, IAssimpMate
                 Position = mesh.Vertices[i].ToCS(),
                 TexCoords = textureCoords,
                 VertexColors = vertexColors,
-                Normal = mesh.Normals[i].ToCS(),
-                Tangent = mesh.Tangents[i].ToCS(),
-                Bitangent = mesh.BiTangents[i].ToCS(),
+                Normal = mesh.HasNormals ? mesh.Normals[i].ToCS() : Vector3.Zero,
+                Tangent = mesh.HasTangentBasis ? mesh.Tangents[i].ToCS() : Vector3.Zero,
+                Bitangent = mesh.HasTangentBasis ? mesh.BiTangents[i].ToCS() : Vector3.Zero,
             };
             verts[i] = ConvertVertex(sv);
         }

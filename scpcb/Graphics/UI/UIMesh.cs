@@ -20,7 +20,7 @@ public class UIMesh : Disposable {
                 new(new(-0.5f * texture.Width, -0.5f * texture.Height), new(0, 1)),
                 new(new(0.5f * texture.Width, -0.5f * texture.Height), new(1, 1)),
             },
-            new ushort[] {0, 1, 2, 3, 2, 1});
+            new ushort[] {2, 1, 0, 1, 2, 3});
     }
 
     public void Render(CommandList commands) {
