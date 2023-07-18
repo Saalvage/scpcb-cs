@@ -39,7 +39,7 @@ public abstract class AssimpMaterial<TVertex> : CBMaterial<TVertex>, IAssimpMate
             verts[i] = ConvertVertex(sv);
         }
 
-        return new CBMesh<TVertex>(gfx, this, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt16));
+        return new CBMesh<TVertex>(gfx, this, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32));
     }
 
     protected abstract TVertex ConvertVertex(Model.SuperVertex vert);

@@ -75,12 +75,12 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
                 if (propertySize != 0 && propertySize != sizeof(T)) { // TODO: Deal with 0
                     throw new InvalidOperationException("Size of struct does not equal sum of properties");
                 }
-                return gfx.ResourceFactory.CreateBuffer(new(RoundTo16Bytes(propertySize), BufferUsage.UniformBuffer));
+                return gfx.ResourceFactory.CreateBuffer(new(RoundTo32Bytes(propertySize), BufferUsage.UniformBuffer));
 
-                static uint RoundTo16Bytes(int num) {
-                    uint run = 16;
+                static uint RoundTo32Bytes(int num) {
+                    uint run = 32;
                     while (run < num) {
-                        run += 16;
+                        run += 32;
                     }
                     return run;
                 }

@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33015.44
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scpcb", "scpcb\scpcb.csproj", "{7D21F335-8A79-4108-9093-2CDB12E3A67D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scpcb", "scpcb\scpcb.csproj", "{7D21F335-8A79-4108-9093-2CDB12E3A67D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderGen", "submodules\ShaderGen\src\ShaderGen\ShaderGen.csproj", "{4F2DD341-7572-4EF8-839E-B0C28CB18CDD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderGen.Primitives", "submodules\ShaderGen\src\ShaderGen.Primitives\ShaderGen.Primitives.csproj", "{A7C4A34F-40CD-4935-AAE6-5F14E4D389D0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderGen.Build", "submodules\ShaderGen\src\ShaderGen.Build\ShaderGen.Build.csproj", "{1B69CC33-86BF-47FC-A166-C4255A5E947E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderGen.App", "submodules\ShaderGen\src\ShaderGen.App\ShaderGen.App.csproj", "{38B313E1-4A12-414E-8CF9-A823DF524049}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +23,22 @@ Global
 		{7D21F335-8A79-4108-9093-2CDB12E3A67D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D21F335-8A79-4108-9093-2CDB12E3A67D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D21F335-8A79-4108-9093-2CDB12E3A67D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F2DD341-7572-4EF8-839E-B0C28CB18CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F2DD341-7572-4EF8-839E-B0C28CB18CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F2DD341-7572-4EF8-839E-B0C28CB18CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F2DD341-7572-4EF8-839E-B0C28CB18CDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7C4A34F-40CD-4935-AAE6-5F14E4D389D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7C4A34F-40CD-4935-AAE6-5F14E4D389D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7C4A34F-40CD-4935-AAE6-5F14E4D389D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7C4A34F-40CD-4935-AAE6-5F14E4D389D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B69CC33-86BF-47FC-A166-C4255A5E947E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B69CC33-86BF-47FC-A166-C4255A5E947E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B69CC33-86BF-47FC-A166-C4255A5E947E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B69CC33-86BF-47FC-A166-C4255A5E947E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38B313E1-4A12-414E-8CF9-A823DF524049}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38B313E1-4A12-414E-8CF9-A823DF524049}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38B313E1-4A12-414E-8CF9-A823DF524049}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38B313E1-4A12-414E-8CF9-A823DF524049}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

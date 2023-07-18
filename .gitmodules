@@ -1,0 +1,3 @@
+[submodule "submodules/ShaderGen"]
+	path = submodules/ShaderGen
+	url = https://github.com/Saalvage/ShaderGen

@@ -1,30 +1,91 @@
 ﻿using System.Numerics;
+using System.Reflection;
+using System.Text;
 using Assimp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
 using scpcb;
 using scpcb.Graphics;
+using scpcb.RoomProviders;
 using scpcb.Shaders;
+using ShaderGen;
+using ShaderGen.Hlsl;
 using Veldrid;
 using Veldrid.StartupUtilities;
 using Matrix4x4 = System.Numerics.Matrix4x4;
 using Quaternion = System.Numerics.Quaternion;
 
+// Generate shader using ShaderGen
+var compilation = CSharpCompilation.Create(null, new[] { CSharpSyntaxTree.ParseText(SourceText.From(
+    """
+    using ShaderGen;
+    using System.Numerics;
+    using static ShaderGen.ShaderBuiltins;
+
+    [assembly: ShaderSet("Test2.MinExample", "Test2.MinExample.VertexShaderFunc", "Test2.MinExample.FragmentShaderFunc")]
+
+    namespace Test2;
+
+    public class MinExample
+    {
+        public Matrix4x4 Projection;
+        public Matrix4x4 View;
+        public Matrix4x4 World;
+        public Texture2DResource SurfaceTexture;
+        public SamplerResource Sampler;
+
+        public struct VertexInput
+        {
+            [PositionSemantic] public Vector3 Position;
+            [TextureCoordinateSemantic] public Vector2 TextureCoord;
+        }
+
+        public struct FragmentInput
+        {
+            [SystemPositionSemanticAttribute] public Vector4 Position;
+            [TextureCoordinateSemantic] public Vector2 TextureCoord;
+        }
+
+        [VertexShader]
+        public FragmentInput VertexShaderFunc(VertexInput input)
+        {
+            FragmentInput output;
+            Vector4 worldPosition = Mul(World, new Vector4(input.Position, 1));
+            Vector4 viewPosition = Mul(View, worldPosition);
+            output.Position = Mul(Projection, viewPosition);
+            output.TextureCoord = input.TextureCoord;
+            return output;
+        }
+
+        [FragmentShader]
+        public Vector4 FragmentShaderFunc(FragmentInput input)
+        {
+            return Sample(SurfaceTexture, Sampler, input.TextureCoord);
+        }
+    }
+    """
+
+))}, Assembly.GetEntryAssembly().GetReferencedAssemblies().AsEnumerable()
+        .Concat(AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "netstandard").Select(x => x.GetName()))
+        .Append(typeof(Attribute).Assembly.GetName())
+        .Select(x => MetadataReference.CreateFromFile(Assembly.Load(x).Location)),
+    options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+var testrfff = compilation.GetDiagnostics();
+
+var aa = Assembly.GetEntryAssembly().GetReferencedAssemblies();
+
+var test22 = compilation.GetTypeByMetadataName("MinExample");
+
+var backend = new HlslBackend(compilation);
+
+var test = new ShaderGenerator(compilation, backend).GenerateShaders();
+
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 
-VeldridStartup.CreateWindowAndGraphicsDevice(new() {
-    WindowWidth = WIDTH,
-    WindowHeight = HEIGHT,
-    X = 100,
-    Y = 100,
-    WindowTitle = "SCP-087-B",
-}, new() {
-    Debug = true,
-    PreferStandardClipSpaceYDirection = true,
-    PreferDepthRangeZeroToOne = true,
-}, out var window, out var _gfx);
-window.CursorVisible = false;
-
-using var gfx = _gfx;
+using var gfxRes = new GraphicsResources(WIDTH, HEIGHT);
+var gfx = gfxRes.GraphicsDevice;
 
 var factory = gfx.ResourceFactory;
 
@@ -47,7 +108,7 @@ using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, modelShader.CreateMater
         new(new(-1f, -1f, 0), new(1, 1)),
         new(new(1f, -1f, 0), new(0, 1)),
     },
-    new ushort[] { 0, 1, 2, 3, 2, 1 });
+    new uint[] { 0, 1, 2, 3, 2, 1 });
 
 using var assimp = new AssimpContext();
 var scene = assimp.ImportFile("Assets/173_2.b3d");
@@ -63,9 +124,13 @@ var controller = new CharacterController();
 
 var KeysDown = new Dictionary<Key, bool>();
 
+var window = gfxRes.Window;
 window.KeyDown += x => KeysDown[x.Key] = true;
 window.KeyUp += x => KeysDown[x.Key] = false;
 bool KeyDown(Key x) => KeysDown.TryGetValue(x, out var y) && y;
+
+var r = new RMeshRoomProvider();
+var aaa = r.Test("Assets/008_opt.rmesh", gfx, scp);
 
 var now = DateTime.UtcNow;
 while (window.Exists) {
@@ -77,7 +142,9 @@ while (window.Exists) {
     modelShader.VertexConstants.View = controller.Camera.ViewMatrix;
     commandsList.Begin();
     commandsList.SetFramebuffer(gfx.SwapchainFramebuffer);
-    commandsList.ClearColorTarget(0, RgbaFloat.Black);
+    commandsList.ClearColorTarget(0, RgbaFloat.Grey);
+    commandsList.ClearDepthStencil(1);
+
     var oldNow = now;
     now = DateTime.UtcNow;
     var delta = (float)(now - oldNow).TotalSeconds / 16;
@@ -97,6 +164,9 @@ while (window.Exists) {
     mesh.Render(commandsList);
     mesh2.Render(commandsList);
     testmesh.Render(commandsList);
+    foreach (var meshh in aaa) {
+        meshh.Render(commandsList);
+    }
     commandsList.End();
     gfx.SubmitCommands(commandsList);
     gfx.SwapBuffers();
