@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Reflection;
-using System.Text;
 using Assimp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,7 +11,6 @@ using scpcb.Shaders;
 using ShaderGen;
 using ShaderGen.Hlsl;
 using Veldrid;
-using Veldrid.StartupUtilities;
 using Matrix4x4 = System.Numerics.Matrix4x4;
 using Quaternion = System.Numerics.Quaternion;
 
@@ -100,7 +98,8 @@ using var commandsList = factory.CreateCommandList();
 var countingTo = DateTimeOffset.Now;
 var fps = 0;
 
-using var modelShader = new ModelShader(gfx);
+var modelShader = gfxRes.ShaderCache.GetShader<ModelShader>();
+var rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShader>();
 using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, modelShader.CreateMaterial(coolTexture),
     new ModelShader.Vertex[] {
         new(new(-1f, 1f, 0), new(1, 0)),
@@ -115,8 +114,10 @@ var scene = assimp.ImportFile("Assets/173_2.b3d");
 using var scp = new TestAssimpMaterial(gfx, modelShader, coolTexture);
 var mesh2 = scp.ConvertMesh(gfx, scene.Meshes[0]);
 
-modelShader.VertexConstants.View = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
-modelShader.VertexConstants.Projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)WIDTH / HEIGHT, 0.1f, 10000f);
+modelShader.VertexConstants.View = rMeshShader.VertexConstants.View
+    = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
+modelShader.VertexConstants.Projection = rMeshShader.VertexConstants.Projection
+    = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)WIDTH / HEIGHT, 0.1f, 10000f);
 
 Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
 
@@ -130,7 +131,7 @@ window.KeyUp += x => KeysDown[x.Key] = false;
 bool KeyDown(Key x) => KeysDown.TryGetValue(x, out var y) && y;
 
 var r = new RMeshRoomProvider();
-var aaa = r.Test("Assets/008_opt.rmesh", gfx, scp);
+var aaa = r.Test("Assets/008_opt.rmesh", gfxRes);
 
 var now = DateTime.UtcNow;
 while (window.Exists) {
@@ -139,7 +140,7 @@ while (window.Exists) {
         controller.HandleMouse(window.MouseDelta * 0.01f);
     }
 
-    modelShader.VertexConstants.View = controller.Camera.ViewMatrix;
+    modelShader.VertexConstants.View = rMeshShader.VertexConstants.View = controller.Camera.ViewMatrix;
     commandsList.Begin();
     commandsList.SetFramebuffer(gfx.SwapchainFramebuffer);
     commandsList.ClearColorTarget(0, RgbaFloat.Grey);
@@ -159,7 +160,8 @@ while (window.Exists) {
         controller.HandleMove(Vector2.Normalize(dir), delta);
     }
 
-    modelShader.VertexConstants.Model = new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(-mesh.Position.X / 100, 0, 0), Vector3.One).GetMatrix();
+    modelShader.VertexConstants.Model = rMeshShader.VertexConstants.Model
+        = new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(-mesh.Position.X / 100, 0, 0), Vector3.One).GetMatrix();
     mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
     mesh.Render(commandsList);
     mesh2.Render(commandsList);

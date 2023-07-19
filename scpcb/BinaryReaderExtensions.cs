@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using SharpDX.Text;
-using StringBuilder = System.Text.StringBuilder;
 
 namespace scpcb; 
 

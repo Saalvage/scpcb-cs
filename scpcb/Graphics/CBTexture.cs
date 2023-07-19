@@ -1,4 +1,5 @@
-﻿using StbImageSharp;
+﻿using System.Drawing;
+using StbImageSharp;
 using Veldrid;
 
 namespace scpcb;
@@ -15,16 +16,16 @@ public class CBTexture : Disposable, ICBTexture {
     public uint Width { get; }
     public uint Height { get; }
 
-    public CBTexture(GraphicsDevice gfx) {
-        Width = 100;
-        Height = 100;
-        _texture = gfx.ResourceFactory.CreateTexture(new(100, 100, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled, TextureType.Texture2D));
-        var bytes = new byte[100 * 100 * 4];
-        Array.Fill<byte>(bytes, 255);
-        for (var i = 0; i < bytes.Length; i ++) {
-            bytes[i] = (byte)((double)i / bytes.Length * 256);
-        }
-        gfx.UpdateTexture(_texture, bytes, 0, 0, 0, 100, 100, 1, 0, 0);
+    public CBTexture(GraphicsDevice gfx, Color color) {
+        Width = 1;
+        Height = 1;
+        _texture = gfx.ResourceFactory.CreateTexture(new(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled, TextureType.Texture2D));
+        Span<byte> bytes = stackalloc byte[4];
+        bytes[0] = color.R;
+        bytes[1] = color.G;
+        bytes[2] = color.B;
+        bytes[3] = color.A;
+        gfx.UpdateTexture(_texture, bytes, 0, 0, 0, 1, 1, 1, 0, 0);
         View = gfx.ResourceFactory.CreateTextureView(_texture);
     }
 

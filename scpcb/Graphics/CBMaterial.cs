@@ -15,8 +15,11 @@ public class CBMaterial<TVertex> : Disposable, ICBMaterial<TVertex> {
     private readonly ResourceSet? _set;
     private readonly ICBShader<TVertex> _shader;
 
+    private readonly ICBTexture[] _textures; // Keep alive TODO: Needed? Garbage collection was a mistake!
+
     public CBMaterial(GraphicsDevice gfx, ICBShader<TVertex> shader, ResourceLayout? layout, params ICBTexture[] textures) {
         _shader = shader;
+        _textures = textures;
         if (layout != null) {
             _set = gfx.ResourceFactory.CreateResourceSet(new(layout, textures
                 .Select(t => (BindableResource)t.View)

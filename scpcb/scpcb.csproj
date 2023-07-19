@@ -25,10 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Assets\008_opt.rmesh" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\submodules\ShaderGen\src\ShaderGen\ShaderGen.csproj" />
     <ProjectReference Include="..\submodules\ShaderGen\src\ShaderGen.Build\ShaderGen.Build.csproj" />
     <ProjectReference Include="..\submodules\ShaderGen\src\ShaderGen.App\ShaderGen.App.csproj" />

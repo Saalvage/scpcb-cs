@@ -1,7 +1,6 @@
 ﻿using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
-using Vulkan.Xlib;
 
 namespace scpcb.Graphics; 
 
@@ -9,6 +8,7 @@ public class GraphicsResources : Disposable {
     public GraphicsDevice GraphicsDevice { get; }
 
     public ShaderCache ShaderCache { get; }
+    public TextureCache TextureCache { get; }
 
     public Sdl2Window Window { get; }
 
@@ -30,6 +30,7 @@ public class GraphicsResources : Disposable {
         Window = window;
         GraphicsDevice = gfx;
         ShaderCache = new(gfx);
+        TextureCache = new(gfx);
     }
 
     protected override void DisposeImpl() {

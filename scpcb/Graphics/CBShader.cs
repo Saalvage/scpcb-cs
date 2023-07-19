@@ -90,7 +90,7 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
         _shaders = gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertexCode), "main"),
             new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragmentCode), "main"));
         _pipeline = gfx.ResourceFactory.CreateGraphicsPipeline(new() {
-            BlendState = BlendStateDescription.SingleOverrideBlend,
+            BlendState = BlendStateDescription.SingleAlphaBlend,
             DepthStencilState = new(true, true, ComparisonKind.LessEqual),
             RasterizerState = new(FaceCullMode.Back, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
             PrimitiveTopology = PrimitiveTopology.TriangleList,

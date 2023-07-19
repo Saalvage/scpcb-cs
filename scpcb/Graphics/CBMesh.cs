@@ -13,7 +13,7 @@ public class CBMesh<TVertex> : Disposable, ICBMesh where TVertex : unmanaged {
     private readonly DeviceBuffer _indexBuffer;
     private readonly uint _indexCount;
 
-    public CBMesh(GraphicsDevice gfx, ICBMaterial<TVertex> mat, TVertex[] vertices, uint[] indices) {
+    public CBMesh(GraphicsDevice gfx, ICBMaterial<TVertex> mat, ReadOnlySpan<TVertex> vertices, ReadOnlySpan<uint> indices) {
         _mat = mat;
         
         _vertexBuffer = gfx.ResourceFactory.CreateVertexBuffer<TVertex>((uint)vertices.Length);
