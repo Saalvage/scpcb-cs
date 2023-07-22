@@ -1,4 +1,4 @@
-﻿using scpcb.Shaders;
+﻿using scpcb.Graphics.Shaders;
 using Veldrid;
 
 namespace scpcb.Graphics;

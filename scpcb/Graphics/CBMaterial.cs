@@ -1,6 +1,6 @@
 ﻿using Veldrid;
 
-namespace scpcb;
+namespace scpcb.Graphics;
 
 public interface ICBMaterial {
     void Apply(CommandList commands);

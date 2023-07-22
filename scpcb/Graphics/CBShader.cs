@@ -1,9 +1,8 @@
 ﻿using System.Runtime.InteropServices;
-using System.Text;
 using Veldrid;
 using Veldrid.SPIRV;
 
-namespace scpcb;
+namespace scpcb.Graphics;
 
 public interface ICBShader {
     ICBMaterial CreateMaterial(ICBTexture[] textures);
@@ -18,9 +17,9 @@ public interface ICBShader<TVertex> : ICBShader {
 public record struct Empty;
 
 public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICBShader<TVertex>
-    where TVertex : unmanaged
-    where TVertConstants : unmanaged, IEquatable<TVertConstants>
-    where TFragConstants : unmanaged, IEquatable<TFragConstants> {
+        where TVertex : unmanaged
+        where TVertConstants : unmanaged, IEquatable<TVertConstants>
+        where TFragConstants : unmanaged, IEquatable<TFragConstants> {
     private readonly GraphicsDevice _gfx;
 
     private readonly Shader[] _shaders;
@@ -40,7 +39,10 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
 
     private readonly int _textureCount;
 
-    public unsafe CBShader(GraphicsDevice gfx, string vertexCode, string fragmentCode, int textureCount) {
+    public CBShader(GraphicsDevice gfx, string vertexFile, string fragmentFile, int textureCount)
+        : this(gfx, File.ReadAllBytes(vertexFile), File.ReadAllBytes(fragmentFile), textureCount) { }
+
+    public unsafe CBShader(GraphicsDevice gfx, byte[] vertexCode, byte[] fragmentCode, int textureCount, bool inputIsSpirV = false) {
         _gfx = gfx;
         _textureCount = textureCount;
         var hasVertConsts = typeof(TVertConstants) != typeof(Empty);
@@ -51,14 +53,14 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
             if (hasVertConsts) {
                 _vertexConstantBuffer = CreateBuffer<TVertConstants>();
                 consts.Add(_vertexConstantBuffer);
-                // TODO: Don't hardcode names, get them from reflection?
-                layouts.Add(new("constants", ResourceKind.UniformBuffer, ShaderStages.Vertex));
+                // TODO: Don't hardcode names, get them as a parameter?
+                layouts.Add(new("VConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex));
             }
 
             if (hasFragConsts) {
                 _fragmentConstantBuffer = CreateBuffer<TFragConstants>();
                 consts.Add(_fragmentConstantBuffer);
-                layouts.Add(new("constants", ResourceKind.UniformBuffer, ShaderStages.Fragment));
+                layouts.Add(new("FConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment));
             }
 
             _constLayout = gfx.ResourceFactory.CreateResourceLayout(new(layouts.ToArray()));
@@ -67,6 +69,7 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
                     .Select(x => new ResourceLayoutElementDescription($"texture{x}", ResourceKind.TextureReadOnly, ShaderStages.Fragment))
                     .Append(new("samper", ResourceKind.Sampler, ShaderStages.Fragment))
                     .ToArray()));
+                // TODO: Do not hardcode these names, although it seems like it currently does not break things!
             }
             _set = gfx.ResourceFactory.CreateResourceSet(new(_constLayout, consts.ToArray()));
 
@@ -87,8 +90,16 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
             }
         }
 
-        _shaders = gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertexCode), "main"),
-            new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragmentCode), "main"));
+        _shaders = inputIsSpirV
+            ? gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "main"),
+                new ShaderDescription(ShaderStages.Fragment, fragmentCode, "main"))
+            : _shaders = new[] {
+                gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode,
+                    gfx.BackendType == GraphicsBackend.Vulkan ? "main" : "VS", true)), // TODO: Why is this now??
+                gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode,
+                    gfx.BackendType == GraphicsBackend.Vulkan ? "main" : "FS", true)),
+            };
+
         _pipeline = gfx.ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleAlphaBlend,
             DepthStencilState = new(true, true, ComparisonKind.LessEqual),

@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
 using Veldrid;
 
-namespace scpcb.Shaders;
+namespace scpcb.Graphics.Shaders;
 
-public class RMeshShader : CBShader<RMeshShader.Vertex, RMeshShader.VertUniforms, RMeshShader.FragUniforms> {
+public class RMeshShader : CBShader<RMeshShader.Vertex, RMeshShader.VertUniforms, RMeshShader.FragUniforms>, ISimpleShader<RMeshShader> {
     public record struct Vertex(Vector3 Position, Vector2 Uv);
     public record struct VertUniforms(Matrix4x4 Projection, Matrix4x4 View, Matrix4x4 Model);
     public record struct FragUniforms;
@@ -25,7 +25,7 @@ layout(location = 0) out vec2 fsin_Uv;
 void main() {
     gl_Position = constants.Projection * constants.View * constants.Model * vec4(Position, 1);
     fsin_Uv = Uv;
-}",
+}"u8.ToArray(),
         @"
 #version 450
 
@@ -38,7 +38,9 @@ layout(set = 1, binding = 1) uniform sampler samper;
 
 void main() {
     fsout_Color = texture(sampler2D(texture0, samper), fsin_Uv);
-}", 1) {
+}"u8.ToArray(), 1) {
 
     }
+
+    public static RMeshShader Create(GraphicsResources gfxRes) => new(gfxRes.GraphicsDevice);
 }

@@ -1,44 +1,52 @@
-﻿using System.Numerics;
-using Veldrid;
+﻿using ShaderGen;
+using System.Numerics;
+using static ShaderGen.ShaderBuiltins;
 
-namespace scpcb.Shaders; 
+[assembly: ShaderSet("scpcb.Graphics.Shaders.ModelShader", "scpcb.Graphics.Shaders.ModelShader.VS", "scpcb.Graphics.Shaders.ModelShader.FS")]
 
-public class ModelShader : CBShader<ModelShader.Vertex, ModelShader.VertUniforms, ModelShader.FragUniforms> {
-    public record struct Vertex(Vector3 Position, Vector2 Uv);
-    public record struct VertUniforms(Matrix4x4 Projection, Matrix4x4 View, Matrix4x4 Model);
-    public record struct FragUniforms;
+namespace scpcb.Graphics.Shaders;
 
-    public ModelShader(GraphicsDevice gfx) : base(gfx, @"
-#version 450
+public class ModelShader {
+    public record struct VertexConstants(Matrix4x4 Projection, Matrix4x4 View, Matrix4x4 Model);
 
-layout(set = 0, binding = 0) uniform Idfdkk {
-    mat4 Projection;
-    mat4 View;
-    mat4 Model;
-} constants;
+    public VertexConstants VConstants;
 
-layout(location = 0) in vec3 Position;
-layout(location = 1) in vec2 Uv;
+    [ResourceSet(1)]
+    public Texture2DResource SurfaceTexture;
+    [ResourceSet(1)]
+    public SamplerResource Sampler;
 
-layout(location = 0) out vec2 fsin_Uv;
+    public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
 
-void main() {
-    gl_Position = constants.Projection * constants.View * constants.Model * vec4(Position, 1);
-    fsin_Uv = Uv;
-}",
-        @"
-#version 450
-
-layout(location = 0) in vec2 fsin_Uv;
-
-layout(location = 0) out vec4 fsout_Color;
-
-layout(set = 1, binding = 0) uniform texture2D texture0;
-layout(set = 1, binding = 1) uniform sampler samper;
-
-void main() {
-    fsout_Color = texture(sampler2D(texture0, samper), fsin_Uv);
-}", 1) {
-
+    public struct FragmentInput {
+        [SystemPositionSemantic] public Vector4 Position;
+        [TextureCoordinateSemantic] public Vector2 TextureCoord;
     }
+
+    [VertexShader]
+    public FragmentInput VS(Vertex input) {
+        FragmentInput output;
+        Vector4 worldPosition = Mul(VConstants.Model, new Vector4(input.Position, 1));
+        Vector4 viewPosition = Mul(VConstants.View, worldPosition);
+        output.Position = Mul(VConstants.Projection, viewPosition);
+        output.TextureCoord = input.TextureCoord;
+        return output;
+    }
+
+    [FragmentShader]
+    public Vector4 FS(FragmentInput input) {
+        return Sample(SurfaceTexture, Sampler, input.TextureCoord);
+    }
+}
+
+// TODO: Look into whether merging these makes sense.
+// ShaderGen would need to be modified to be able to see the VS and FS constants in the base class,
+// it'd allow for removing quite some boilerplate!
+// Sadly, we can't do template crazyness to get the correct amount of textures in the base class,
+// so we'd need a way to know their name.
+public class ModelShaderGenerated : GeneratedShader<ModelShader, ModelShader.Vertex, ModelShader.VertexConstants, Empty>,
+        ISimpleShader<ModelShaderGenerated> {
+    private ModelShaderGenerated(GraphicsResources gfxRes) : base(gfxRes) { }
+
+    public static ModelShaderGenerated Create(GraphicsResources gfxRes) => new(gfxRes);
 }

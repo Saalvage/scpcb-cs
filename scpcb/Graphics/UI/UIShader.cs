@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
 using Veldrid;
-using static scpcb.Shaders.UIShader;
 
-namespace scpcb.Shaders; 
+namespace scpcb.Graphics.UI;
 
-public class UIShader : CBShader<UIShader.Vertex, VertUniforms, FragUniforms> {
+public class UIShader : CBShader<UIShader.Vertex, UIShader.VertUniforms, UIShader.FragUniforms> {
     public record struct Vertex(Vector2 Position, Vector2 Uv);
 
     public UIShader(GraphicsDevice gfx) : base(gfx, @"
@@ -24,7 +23,7 @@ layout(location = 0) out vec2 fsin_Uv;
 void main() {
     gl_Position = constants.Projection * vec4(Position * constants.Scale + constants.Position, -1, 1);
     fsin_Uv = Uv;
-}",
+}"u8.ToArray(),
         @"
 #version 450
 
@@ -37,7 +36,7 @@ layout(set = 1, binding = 1) uniform sampler samper;
 
 void main() {
     fsout_Color = texture(sampler2D(texture0, samper), fsin_Uv);
-}", 1) {
+}"u8.ToArray(), 1) {
         VertexConstants.Scale = Vector2.One;
     }
 

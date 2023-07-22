@@ -1,7 +1,6 @@
-﻿using Assimp;
-using Veldrid;
+﻿using Veldrid;
 
-namespace scpcb;
+namespace scpcb.Graphics;
 
 public interface ICBMesh {
     public void Render(CommandList commands);

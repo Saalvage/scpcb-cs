@@ -2,7 +2,7 @@
 using Assimp;
 using Veldrid;
 
-namespace scpcb;
+namespace scpcb.Graphics;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
 public interface IAssimpMaterial {

@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using SharpDX.Text;
+using System.Text;
 
 namespace scpcb; 
 

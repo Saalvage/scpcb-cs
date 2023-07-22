@@ -1,5 +1,5 @@
 ﻿using scpcb.Graphics;
-using scpcb.Shaders;
+using scpcb.Graphics.Shaders;
 
 namespace scpcb.RoomProviders; 
 

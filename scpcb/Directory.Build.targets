@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="..\submodules\ShaderGen\bin\$(Configuration)\ShaderGen.App\netcoreapp3.1\ShaderGen.Build.SourceRef.targets" />
+</Project>

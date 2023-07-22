@@ -4,6 +4,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.4.33015.44
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scpcb", "scpcb\scpcb.csproj", "{7D21F335-8A79-4108-9093-2CDB12E3A67D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1B69CC33-86BF-47FC-A166-C4255A5E947E} = {1B69CC33-86BF-47FC-A166-C4255A5E947E}
+		{38B313E1-4A12-414E-8CF9-A823DF524049} = {38B313E1-4A12-414E-8CF9-A823DF524049}
+		{4F2DD341-7572-4EF8-839E-B0C28CB18CDD} = {4F2DD341-7572-4EF8-839E-B0C28CB18CDD}
+		{A7C4A34F-40CD-4935-AAE6-5F14E4D389D0} = {A7C4A34F-40CD-4935-AAE6-5F14E4D389D0}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderGen", "submodules\ShaderGen\src\ShaderGen\ShaderGen.csproj", "{4F2DD341-7572-4EF8-839E-B0C28CB18CDD}"
 EndProject
@@ -12,6 +18,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderGen.Build", "submodules\ShaderGen\src\ShaderGen.Build\ShaderGen.Build.csproj", "{1B69CC33-86BF-47FC-A166-C4255A5E947E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderGen.App", "submodules\ShaderGen\src\ShaderGen.App\ShaderGen.App.csproj", "{38B313E1-4A12-414E-8CF9-A823DF524049}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{B68CB44F-F5B7-4FC5-82B7-12CE8691A907}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShaderGen", "ShaderGen", "{1883018D-9AE5-44D8-AB63-DBBDDBC284DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +52,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4F2DD341-7572-4EF8-839E-B0C28CB18CDD} = {1883018D-9AE5-44D8-AB63-DBBDDBC284DA}
+		{A7C4A34F-40CD-4935-AAE6-5F14E4D389D0} = {1883018D-9AE5-44D8-AB63-DBBDDBC284DA}
+		{1B69CC33-86BF-47FC-A166-C4255A5E947E} = {1883018D-9AE5-44D8-AB63-DBBDDBC284DA}
+		{38B313E1-4A12-414E-8CF9-A823DF524049} = {1883018D-9AE5-44D8-AB63-DBBDDBC284DA}
+		{1883018D-9AE5-44D8-AB63-DBBDDBC284DA} = {B68CB44F-F5B7-4FC5-82B7-12CE8691A907}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {667B5072-1B3E-4E55-9917-7835542735AB}

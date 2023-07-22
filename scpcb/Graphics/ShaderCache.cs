@@ -1,14 +1,14 @@
-﻿using Veldrid;
+﻿using scpcb.Graphics.Shaders;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics;
 
 public class ShaderCache : Disposable {
     private readonly Dictionary<Type, ICBShader> _shaders = new();
 
-    private readonly GraphicsDevice _gfx;
+    private readonly GraphicsResources _gfxRes;
 
-    public ShaderCache(GraphicsDevice gfx) {
-        _gfx = gfx;
+    public ShaderCache(GraphicsResources gfxRes) {
+        _gfxRes = gfxRes;
     }
 
     /// <summary>
@@ -16,19 +16,14 @@ public class ShaderCache : Disposable {
     /// </summary>
     /// <typeparam name="TShader"></typeparam>
     /// <returns></returns>
-    public TShader GetShader<TShader>() where TShader : ICBShader {
+    public TShader GetShader<TShader>() where TShader : ICBShader, ISimpleShader<TShader> {
         var type = typeof(TShader);
 
         if (_shaders.TryGetValue(type, out var shader)) {
             return (TShader)shader;
         }
 
-        var ctor = type.GetConstructor(new[] { typeof(GraphicsDevice) });
-        if (ctor is null) {
-            throw new ArgumentException($"{type.FullName} does not feature a constructor only taking a GraphicsDevice");
-        }
-
-        var newShader = (TShader)ctor.Invoke(new object?[] { _gfx });
+        var newShader = TShader.Create(_gfxRes);
         _shaders.Add(typeof(TShader), newShader);
         return newShader;
     }

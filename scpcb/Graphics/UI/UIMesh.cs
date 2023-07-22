@@ -1,8 +1,7 @@
 ﻿using System.Numerics;
-using scpcb.Shaders;
 using Veldrid;
 
-namespace scpcb; 
+namespace scpcb.Graphics.UI; 
 
 public class UIMesh : Disposable {
     private readonly UIShader _shader;

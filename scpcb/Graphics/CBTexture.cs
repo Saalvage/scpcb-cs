@@ -2,7 +2,7 @@
 using StbImageSharp;
 using Veldrid;
 
-namespace scpcb;
+namespace scpcb.Graphics;
 
 public interface ICBTexture {
     TextureView View { get; }

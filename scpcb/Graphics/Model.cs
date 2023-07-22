@@ -2,7 +2,7 @@
 using Assimp;
 using Veldrid;
 
-namespace scpcb;
+namespace scpcb.Graphics;
 
 public class Model {
     public ref struct SuperVertex {

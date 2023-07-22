@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using ShaderGen;
 using Veldrid;
 
 namespace scpcb; 
@@ -27,15 +29,25 @@ public static class Helpers {
         throw new NotImplementedException();
     }
 
+    private static VertexElementSemantic PropertyToSemantic(PropertyInfo property) {
+        var attr = property.GetCustomAttribute<VertexSemanticAttribute>();
+        if (attr != null) {
+            // TODO: This is fine for now, but why are they separate?
+            return (VertexElementSemantic)attr.Type-1;
+        }
+
+        return (VertexElementSemantic)(property.DeclaringType.GetConstructors().Single().GetParameters()
+            .First(x => x.Name == property.Name).GetCustomAttribute<VertexSemanticAttribute>().Type-1);
+    }
+
     public static unsafe VertexLayoutDescription GetDescriptionFromType<T>() where T : unmanaged {
         var properties = typeof(T).GetProperties();
         if (properties.Sum(x => Marshal.SizeOf(x.PropertyType)) != sizeof(T)) {
             throw new InvalidOperationException("Size of struct does not equal sum of properties");
         }
         return new(properties
-            .Select(x =>
-                new VertexElementDescription(x.Name, TypeToFormat(x.PropertyType).Format,
-                    VertexElementSemantic.TextureCoordinate))
+            .Select(x => new VertexElementDescription(x.Name, TypeToFormat(x.PropertyType).Format, PropertyToSemantic(x)))
+            // If this continues causing issues, look into implementing the offset
             .ToArray());
     }
 
