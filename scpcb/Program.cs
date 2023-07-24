@@ -1,77 +1,12 @@
 ﻿using System.Numerics;
-using System.Reflection;
 using Assimp;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Text;
 using scpcb;
 using scpcb.Graphics;
 using scpcb.Graphics.Shaders;
 using scpcb.RoomProviders;
-using ShaderGen;
-using ShaderGen.Hlsl;
 using Veldrid;
 using Matrix4x4 = System.Numerics.Matrix4x4;
 using Quaternion = System.Numerics.Quaternion;
-
-// Generate shader using ShaderGen
-var compilation = CSharpCompilation.Create(null, new[] { CSharpSyntaxTree.ParseText(SourceText.From(
-    """
-    using ShaderGen;
-    using System.Numerics;
-    using static ShaderGen.ShaderBuiltins;
-
-    [assembly: ShaderSet("Test2.MinExample", "Test2.MinExample.VS", "Test2.MinExample.FS")]
-
-    namespace Test2;
-
-    public class MinExample
-    {
-        public record struct VertexConstants(Matrix4x4 Projection, Matrix4x4 View, Matrix4x4 World);
-
-        public VertexConstants VConstants;
-
-        public Texture2DResource SurfaceTexture;
-        public SamplerResource Sampler;
-
-        public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
-
-        public struct FragmentInput {
-            [SystemPositionSemantic] public Vector4 Position;
-            [TextureCoordinateSemantic] public Vector2 TextureCoord;
-        }
-
-        [VertexShader]
-        public FragmentInput VS(Vertex input) {
-            FragmentInput output = default;
-            Vector4 worldPosition = Mul(VConstants.World, new Vector4(input.Position, 1));
-            Vector4 viewPosition = Mul(VConstants.View, worldPosition);
-            output.Position = Mul(VConstants.Projection, viewPosition);
-            output.TextureCoord = input.TextureCoord;
-            return output;
-        }
-
-        [FragmentShader]
-        public Vector4 FS(FragmentInput input) {
-            return Sample(SurfaceTexture, Sampler, input.TextureCoord);
-        }
-    }
-    """
-
-))}, Assembly.GetEntryAssembly().GetReferencedAssemblies().AsEnumerable()
-        .Concat(AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "netstandard").Select(x => x.GetName()))
-        .Append(typeof(Attribute).Assembly.GetName())
-        .Select(x => MetadataReference.CreateFromFile(Assembly.Load(x).Location)),
-    options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-var testrfff = compilation.GetDiagnostics();
-
-var aa = Assembly.GetEntryAssembly().GetReferencedAssemblies();
-
-var test22 = compilation.GetTypeByMetadataName("MinExample");
-
-var backend = new HlslBackend(compilation);
-
-var test = new ShaderGenerator(compilation, backend).GenerateShaders();
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;

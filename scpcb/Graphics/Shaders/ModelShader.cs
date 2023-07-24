@@ -2,10 +2,9 @@
 using System.Numerics;
 using static ShaderGen.ShaderBuiltins;
 
-[assembly: ShaderSet("scpcb.Graphics.Shaders.ModelShader", "scpcb.Graphics.Shaders.ModelShader.VS", "scpcb.Graphics.Shaders.ModelShader.FS")]
-
 namespace scpcb.Graphics.Shaders;
 
+[ShaderClass]
 public class ModelShader {
     public record struct VertexConstants(Matrix4x4 Projection, Matrix4x4 View, Matrix4x4 Model);
 

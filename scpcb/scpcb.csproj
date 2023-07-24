@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
+    <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -25,8 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- TODO: Remove -->
-    <ProjectReference Include="..\submodules\ShaderGen\src\ShaderGen\ShaderGen.csproj" />
+    <ProjectReference Include="..\submodules\ShaderGen\src\ShaderGen.Primitives\ShaderGen.Primitives.csproj" />
   </ItemGroup>
 
 </Project>
