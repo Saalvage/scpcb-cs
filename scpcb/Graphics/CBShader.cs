@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using scpcb.Graphics.Shaders.ShaderConstants;
 using Veldrid;
 using Veldrid.SPIRV;
 
@@ -18,8 +20,8 @@ public record struct Empty;
 
 public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICBShader<TVertex>
         where TVertex : unmanaged
-        where TVertConstants : unmanaged, IEquatable<TVertConstants>
-        where TFragConstants : unmanaged, IEquatable<TFragConstants> {
+        where TVertConstants : unmanaged
+        where TFragConstants : unmanaged {
     private readonly GraphicsDevice _gfx;
 
     private readonly Shader[] _shaders;
@@ -117,15 +119,43 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
         // TODO: OPT Only set pipeline when necessary?
         commands.SetPipeline(_pipeline);
         if (_set != null) {
-            if (!VertexConstants.Equals(_lastVertConstants)) {
-                _lastVertConstants = VertexConstants;
-                // TODO: OPT Only update necessary data?
-                commands.UpdateBuffer(_vertexConstantBuffer, 0, ref VertexConstants);
-            }
+            UpdateBuffer(commands, _vertexConstantBuffer, ref VertexConstants, ref _lastVertConstants);
+            UpdateBuffer(commands, _fragmentConstantBuffer, ref FragmentConstants, ref _lastFragConstants);
 
-            if (!FragmentConstants.Equals(_lastFragConstants)) {
-                _lastFragConstants = FragmentConstants;
-                commands.UpdateBuffer(_fragmentConstantBuffer, 0, ref FragmentConstants);
+            // This is a pretty hot path (on avg. 1 invocation per shader per frame) so further optimizations might be warranted.
+            // See Span's SequenceEqual.
+            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            static unsafe void UpdateBuffer<T>(CommandList commands, DeviceBuffer? buffer, ref T curr, ref T prev) where T : unmanaged {
+                if (buffer == null) {
+                    return;
+                }
+
+                fixed (T* currPtr = &curr) {
+                    fixed (T* prevPtr = &prev) {
+                        var currBytes = (byte*)currPtr;
+                        var prevBytes = (byte*)prevPtr;
+
+                        var offset = 0;
+                        for (; offset < sizeof(T); offset++) {
+                            if (currBytes[offset] != prevBytes[offset]) {
+                                break;
+                            }
+                        }
+
+                        var differentUntil = sizeof(T) - 1;
+                        for (; differentUntil > offset; differentUntil--) {
+                            if (currBytes[differentUntil] == prevBytes[differentUntil]) {
+                                break;
+                            }
+                        }
+
+                        if (offset != sizeof(T)) {
+                            var dataToUpdate = new Span<byte>(currBytes + offset, differentUntil - offset + 1);
+                            commands.UpdateBuffer(buffer, (uint)offset, dataToUpdate);
+                            prev = curr;
+                        }
+                    }
+                }
             }
 
             commands.SetGraphicsResourceSet(0, _set);
