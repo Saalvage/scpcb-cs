@@ -3,17 +3,26 @@
 namespace scpcb.Graphics;
 
 public interface ICBMesh {
+    public ICBMaterial Material { get; }
+
     public void Render(CommandList commands);
 }
 
-public class CBMesh<TVertex> : Disposable, ICBMesh where TVertex : unmanaged {
-    private readonly ICBMaterial<TVertex> _mat;
+public interface ICBMesh<TVertex> : ICBMesh where TVertex : unmanaged {
+    public ICBMaterial<TVertex> Material { get; }
+
+    ICBMaterial ICBMesh.Material => Material;
+}
+
+public class CBMesh<TVertex> : Disposable, ICBMesh<TVertex> where TVertex : unmanaged {
+    public ICBMaterial<TVertex> Material { get; }
+
     private readonly DeviceBuffer _vertexBuffer;
     private readonly DeviceBuffer _indexBuffer;
     private readonly uint _indexCount;
 
     public CBMesh(GraphicsDevice gfx, ICBMaterial<TVertex> mat, ReadOnlySpan<TVertex> vertices, ReadOnlySpan<uint> indices) {
-        _mat = mat;
+        Material = mat;
         
         _vertexBuffer = gfx.ResourceFactory.CreateVertexBuffer<TVertex>((uint)vertices.Length);
         gfx.UpdateBuffer(_vertexBuffer, 0, vertices);
@@ -24,7 +33,7 @@ public class CBMesh<TVertex> : Disposable, ICBMesh where TVertex : unmanaged {
     }
 
     public void Render(CommandList commands) {
-        _mat.Apply(commands);
+        Material.Apply(commands);
         commands.SetVertexBuffer(0, _vertexBuffer);
         commands.SetIndexBuffer(_indexBuffer, IndexFormat.UInt32);
         commands.DrawIndexed(_indexCount, 1, 0, 0, 0);

@@ -5,16 +5,12 @@ using Veldrid;
 namespace scpcb.Graphics;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
-public interface IAssimpMaterial {
-    ICBMesh ConvertMesh(GraphicsDevice gfx, Mesh mesh);
+public interface IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
+    ICBMesh ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat);
 }
 
-public abstract class AssimpMaterial<TVertex> : CBMaterial<TVertex>, IAssimpMaterial where TVertex : unmanaged {
-    protected AssimpMaterial(GraphicsDevice gfx, ICBShader<TVertex> shader, ResourceLayout? layout, params ICBTexture[] textures) : base(gfx, shader, layout, textures) {
-        
-    }
-
-    public ICBMesh ConvertMesh(GraphicsDevice gfx, Mesh mesh) {
+public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
+    public ICBMesh ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat) {
         Span<Vector3> textureCoords = stackalloc Vector3[mesh.TextureCoordinateChannelCount];
         Span<Vector4> vertexColors = stackalloc Vector4[mesh.VertexColorChannelCount];
 
@@ -28,7 +24,7 @@ public abstract class AssimpMaterial<TVertex> : CBMaterial<TVertex>, IAssimpMate
                 vertexColors[j] = mesh.VertexColorChannels[j][i].ToCS();
             }
 
-            var sv = new Model.SuperVertex {
+            var sv = new AssimpVertex {
                 Position = mesh.Vertices[i].ToCS(),
                 TexCoords = textureCoords,
                 VertexColors = vertexColors,
@@ -39,8 +35,8 @@ public abstract class AssimpMaterial<TVertex> : CBMaterial<TVertex>, IAssimpMate
             verts[i] = ConvertVertex(sv);
         }
 
-        return new CBMesh<TVertex>(gfx, this, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32));
+        return new CBMesh<TVertex>(gfx, mat, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32));
     }
 
-    protected abstract TVertex ConvertVertex(Model.SuperVertex vert);
+    protected abstract TVertex ConvertVertex(AssimpVertex vert);
 }

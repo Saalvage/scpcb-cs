@@ -1,25 +1,21 @@
 ﻿using System.Numerics;
-using Assimp;
+using scpcb.Entities;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using Veldrid;
 
-namespace scpcb.Graphics;
+namespace scpcb.Graphics; 
 
-public class Model {
-    public ref struct SuperVertex {
-        public Vector3 Position;
-        public Span<Vector3> TexCoords;
-        public Span<Vector4> VertexColors;
-        public Vector3 Normal;
-        public Vector3 Tangent;
-        public Vector3 Bitangent;
+public class Model : IUpdatable, IEntity {
+    private readonly ICBMesh _mesh;
+
+    public Transform WorldTransform { get; set; } = new();
+
+    public Model(ICBMesh mesh) {
+        _mesh = mesh;
     }
-    
-    private ICBMesh[] _meshes;
 
-    public Model(GraphicsDevice gfx, Func<Material, IAssimpMaterial> matConverter, string file) {
-        using var assimp = new AssimpContext();
-        var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality);
-        var mats = scene.Materials.Select(matConverter).ToArray();
-        _meshes = scene.Meshes.Select(x => mats[x.MaterialIndex].ConvertMesh(gfx, x)).ToArray();
+    public void Render(CommandList commands, double interpolation) {
+        _mesh.Material.Shader.SetConstantValue<IWorldMatrixConstantMember, Matrix4x4>(WorldTransform.GetMatrix());
+        _mesh.Render(commands);
     }
 }

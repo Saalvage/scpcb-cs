@@ -3,22 +3,27 @@
 namespace scpcb.Graphics;
 
 public interface ICBMaterial {
+    ICBShader Shader { get; }
+    IReadOnlyList<ICBTexture> Textures { get; }
+
     void Apply(CommandList commands);
-    Type GetVertexType();
 }
 
 public interface ICBMaterial<TVertex> : ICBMaterial {
-    Type ICBMaterial.GetVertexType() => typeof(TVertex);
+    ICBShader<TVertex> Shader { get; }
+
+    ICBShader ICBMaterial.Shader => Shader;
 }
 
 public class CBMaterial<TVertex> : Disposable, ICBMaterial<TVertex> {
     private readonly ResourceSet? _set;
-    private readonly ICBShader<TVertex> _shader;
+    public ICBShader<TVertex> Shader { get; }
 
-    private readonly ICBTexture[] _textures; // Keep alive TODO: Needed? Garbage collection was a mistake!
+    private readonly ICBTexture[] _textures;
+    public IReadOnlyList<ICBTexture> Textures => _textures;
 
     public CBMaterial(GraphicsDevice gfx, ICBShader<TVertex> shader, ResourceLayout? layout, params ICBTexture[] textures) {
-        _shader = shader;
+        Shader = shader;
         _textures = textures;
         if (layout != null) {
             _set = gfx.ResourceFactory.CreateResourceSet(new(layout, textures
@@ -29,7 +34,7 @@ public class CBMaterial<TVertex> : Disposable, ICBMaterial<TVertex> {
     }
 
     public void Apply(CommandList commands) {
-        _shader.Apply(commands);
+        Shader.Apply(commands);
         if (_set != null) {
             commands.SetGraphicsResourceSet(1, _set);
         }
