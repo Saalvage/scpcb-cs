@@ -1,12 +1,17 @@
 ﻿using ShaderGen;
 using System.Numerics;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using static ShaderGen.ShaderBuiltins;
 
 namespace scpcb.Graphics.Shaders;
 
 [ShaderClass]
 public class ModelShader {
-    public record struct VertexConstants(Matrix4x4 Projection, Matrix4x4 View, Matrix4x4 Model);
+    public struct VertexConstants : IWorldMatrixConstantMember {
+        public Matrix4x4 Projection { get; set; }
+        public Matrix4x4 View { get; set; }
+        public Matrix4x4 WorldMatrix { get; set; }
+    }
 
     public VertexConstants VConstants;
 
@@ -25,7 +30,7 @@ public class ModelShader {
     [VertexShader]
     public FragmentInput VS(Vertex input) {
         FragmentInput output;
-        Vector4 worldPosition = Mul(VConstants.Model, new Vector4(input.Position, 1));
+        Vector4 worldPosition = Mul(VConstants.WorldMatrix, new Vector4(input.Position, 1));
         Vector4 viewPosition = Mul(VConstants.View, worldPosition);
         output.Position = Mul(VConstants.Projection, viewPosition);
         output.TextureCoord = input.TextureCoord;

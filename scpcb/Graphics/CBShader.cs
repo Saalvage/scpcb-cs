@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using scpcb.Graphics.Shaders.ShaderConstants;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using Veldrid;
 using Veldrid.SPIRV;
 
@@ -9,6 +9,9 @@ namespace scpcb.Graphics;
 public interface ICBShader {
     ICBMaterial CreateMaterial(ICBTexture[] textures);
     void Apply(CommandList commands);
+
+    void SetVertexConstantValue<T, TV>(TV val) where T : IConstantMember<TV> where TV : unmanaged;
+    void SetFragmentConstantValue<T, TV>(TV val) where T : IConstantMember<TV> where TV : unmanaged;
 }
 
 public interface ICBShader<TVertex> : ICBShader {
@@ -34,10 +37,12 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
     private readonly ResourceSet? _set;
 
     private TVertConstants _lastVertConstants;
-    public TVertConstants VertexConstants;
+    private readonly object _vertexConstantsBoxed = default(TVertConstants);
+    public ref TVertConstants VertexConstants => ref Unsafe.Unbox<TVertConstants>(_vertexConstantsBoxed);
 
     private TFragConstants _lastFragConstants;
-    public TFragConstants FragmentConstants;
+    private readonly object _fragmentConstantsBoxed = default(TFragConstants);
+    public ref TFragConstants FragmentConstants => ref Unsafe.Unbox<TFragConstants>(_fragmentConstantsBoxed);
 
     private readonly int _textureCount;
 
@@ -167,6 +172,18 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
             throw new ArgumentException("Incorrect number of textures");
         }
         return new CBMaterial<TVertex>(_gfx, this, _textureLayout, textures);
+    }
+
+    public void SetVertexConstantValue<T, TV>(TV val) where T : IConstantMember<TV> where TV : unmanaged {
+        if (_vertexConstantsBoxed is T t) {
+            t.Value = val;
+        }
+    }
+
+    public void SetFragmentConstantValue<T, TV>(TV val) where T : IConstantMember<TV> where TV : unmanaged {
+        if (_fragmentConstantsBoxed is T t) {
+            t.Value = val;
+        }
     }
 
     protected override void DisposeImpl() {

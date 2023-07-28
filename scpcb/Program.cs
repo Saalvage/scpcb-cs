@@ -3,6 +3,7 @@ using Assimp;
 using scpcb;
 using scpcb.Graphics;
 using scpcb.Graphics.Shaders;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.RoomProviders;
 using Veldrid;
 using Matrix4x4 = System.Numerics.Matrix4x4;
@@ -89,9 +90,9 @@ while (window.Exists) {
     if (dir != Vector2.Zero) {
         controller.HandleMove(Vector2.Normalize(dir), delta);
     }
-
-    modelShader.VertexConstants.Model /*= rMeshShader.VertexConstants.Model*/
-        = new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(0 / 100, 0, 0), Vector3.One).GetMatrix();
+    
+    modelShader.SetVertexConstantValue<IWorldMatrixConstantMember, Matrix4x4>(
+        new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(0 / 100, 0, 0), Vector3.One).GetMatrix());
     //mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
     //mesh.Render(commandsList);
     //mesh2.Render(commandsList);
