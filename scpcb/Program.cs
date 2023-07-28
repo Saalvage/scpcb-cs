@@ -2,6 +2,7 @@
 using Assimp;
 using scpcb;
 using scpcb.Graphics;
+using scpcb.Graphics.Assimp;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.RoomProviders;
@@ -31,7 +32,8 @@ var fps = 0;
 var modelShader = gfxRes.ShaderCache.GetShader<ModelShaderGenerated>();
 
 //var rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShader>();
-using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, modelShader.CreateMaterial(coolTexture),
+var logoMat = modelShader.CreateMaterial(coolTexture);
+using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, logoMat,
     new ModelShader.Vertex[] {
         new(new(-1f, 1f, 0), new(1, 0)),
         new(new(1f, 1f, 0), new(0, 0)),
@@ -40,10 +42,8 @@ using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, modelShader.CreateMater
     },
     new uint[] { 0, 1, 2, 3, 2, 1 });
 
-using var assimp = new AssimpContext();
-var scene = assimp.ImportFile("Assets/173_2.b3d");
-var scp = new TestAssimpMeshConverter();
-var mesh2 = scp.ConvertMesh(gfx, scene.Meshes[0], modelShader.CreateMaterial(coolTexture));
+var model2 = new TestAssimpMeshConverter(logoMat).CreateModel(gfx, "Assets/173_2.b3d");
+model2.WorldTransform = model2.WorldTransform with { Position = new(0, 0, 5) };
 
 modelShader.VertexConstants.ViewMatrix /*= rMeshShader.VertexConstants.View*/
     = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
@@ -67,7 +67,6 @@ var r = new RMeshRoomProvider();
 var modelA = new Model(testmesh);
 var modelB = new Model(testmesh);
 modelB.WorldTransform = modelB.WorldTransform with { Position = new(2, 0, -0.1f), Scale = new(0.5f) };
-var model173 = new Model(mesh2) { WorldTransform = new() { Position = new(0, 0, 5) } };
 
 var now = DateTime.UtcNow;
 while (window.Exists) {
@@ -100,9 +99,9 @@ while (window.Exists) {
         new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(0 / 100, 0, 0), Vector3.One).GetMatrix());
     //mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
     //mesh.Render(commandsList);
+    model2.Render(commandsList, 0f);
     modelA.Render(commandsList, 0f);
     modelB.Render(commandsList, 0f);
-    model173.Render(commandsList, 0f);
     //foreach (var meshh in aaa) {
     //    meshh.Render(commandsList);
     //}
