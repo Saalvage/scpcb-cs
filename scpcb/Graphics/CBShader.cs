@@ -10,10 +10,8 @@ public interface ICBShader {
     ICBMaterial CreateMaterial(ICBTexture[] textures);
     void Apply(CommandList commands);
 
-    bool HasVertexConstant<T>() where T : IConstantMember;
-    bool HasFragmentConstant<T>() where T : IConstantMember;
-    void SetVertexConstantValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged;
-    void SetFragmentConstantValue<T, TV>(TV val) where T : IConstantMember<T, TV> where TV : unmanaged;
+    bool HasConstant<T>() where T : IConstantMember<T>;
+    void SetConstantValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged;
 }
 
 public interface ICBShader<TVertex> : ICBShader {
@@ -176,21 +174,15 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
         return new CBMaterial<TVertex>(_gfx, this, _textureLayout, textures);
     }
 
-    public bool HasVertexConstant<T>() where T : IConstantMember
-        => _vertexConstantsBoxed is T;
+    public bool HasConstant<T>() where T : IConstantMember<T>
+        => _vertexConstantsBoxed is T || _fragmentConstantsBoxed is T;
 
-    public bool HasFragmentConstant<T>() where T : IConstantMember
-        => _fragmentConstantsBoxed is T;
-
-    public void SetVertexConstantValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged {
-        if (_vertexConstantsBoxed is T t) {
-            t.Value = val;
+    public void SetConstantValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged {
+        if (_vertexConstantsBoxed is T tVert) {
+            tVert.Value = val;
         }
-    }
-
-    public void SetFragmentConstantValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged {
-        if (_fragmentConstantsBoxed is T t) {
-            t.Value = val;
+        if (_fragmentConstantsBoxed is T tFrag) {
+            tFrag.Value = val;
         }
     }
 

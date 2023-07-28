@@ -91,7 +91,7 @@ while (window.Exists) {
         controller.HandleMove(Vector2.Normalize(dir), delta);
     }
     
-    modelShader.SetVertexConstantValue<IWorldMatrixConstantMember, Matrix4x4>(
+    modelShader.SetConstantValue<IWorldMatrixConstantMember, Matrix4x4>(
         new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(0 / 100, 0, 0), Vector3.One).GetMatrix());
     //mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
     //mesh.Render(commandsList);

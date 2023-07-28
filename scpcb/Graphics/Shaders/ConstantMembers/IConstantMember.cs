@@ -1,7 +1,7 @@
 ﻿namespace scpcb.Graphics.Shaders.ConstantMembers; 
 
-public interface IConstantMember { }
+public interface IConstantMember<T> { }
 
-public interface IConstantMember<TImpl, T> : IConstantMember where T : unmanaged where TImpl : IConstantMember<TImpl, T> {
-    public T Value { set; }
+public interface IConstantMember<T, TVal> : IConstantMember<T> where TVal : unmanaged where T : IConstantMember<T, TVal> {
+    public TVal Value { set; }
 }
