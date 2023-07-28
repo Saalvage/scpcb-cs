@@ -7,9 +7,9 @@ namespace scpcb.Graphics.Shaders;
 
 [ShaderClass]
 public class ModelShader {
-    public struct VertexConstants : IWorldMatrixConstantMember {
-        public Matrix4x4 Projection { get; set; }
-        public Matrix4x4 View { get; set; }
+    public struct VertexConstants : ICommonMatricesConstantMembers {
+        public Matrix4x4 ProjectionMatrix { get; set; }
+        public Matrix4x4 ViewMatrix { get; set; }
         public Matrix4x4 WorldMatrix { get; set; }
     }
 
@@ -31,8 +31,8 @@ public class ModelShader {
     public FragmentInput VS(Vertex input) {
         FragmentInput output;
         Vector4 worldPosition = Mul(VConstants.WorldMatrix, new Vector4(input.Position, 1));
-        Vector4 viewPosition = Mul(VConstants.View, worldPosition);
-        output.Position = Mul(VConstants.Projection, viewPosition);
+        Vector4 viewPosition = Mul(VConstants.ViewMatrix, worldPosition);
+        output.Position = Mul(VConstants.ProjectionMatrix, viewPosition);
         output.TextureCoord = input.TextureCoord;
         return output;
     }

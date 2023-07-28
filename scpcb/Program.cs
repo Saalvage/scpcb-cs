@@ -45,9 +45,9 @@ var scene = assimp.ImportFile("Assets/173_2.b3d");
 using var scp = new TestAssimpMaterial(gfx, modelShader, coolTexture);
 var mesh2 = scp.ConvertMesh(gfx, scene.Meshes[0]);
 
-modelShader.VertexConstants.View /*= rMeshShader.VertexConstants.View*/
+modelShader.VertexConstants.ViewMatrix /*= rMeshShader.VertexConstants.View*/
     = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
-modelShader.VertexConstants.Projection /*= rMeshShader.VertexConstants.Projection*/
+modelShader.VertexConstants.ProjectionMatrix /*= rMeshShader.VertexConstants.Projection*/
     = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)WIDTH / HEIGHT, 0.1f, 10000f);
 
 Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
@@ -71,7 +71,7 @@ while (window.Exists) {
         controller.HandleMouse(window.MouseDelta * 0.01f);
     }
 
-    modelShader.VertexConstants.View /*= rMeshShader.VertexConstants.View*/ = controller.Camera.ViewMatrix;
+    modelShader.VertexConstants.ViewMatrix /*= rMeshShader.VertexConstants.View*/ = controller.Camera.ViewMatrix;
     commandsList.Begin();
     commandsList.SetFramebuffer(gfx.SwapchainFramebuffer);
     commandsList.ClearColorTarget(0, RgbaFloat.Grey);
