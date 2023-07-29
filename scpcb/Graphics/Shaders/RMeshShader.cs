@@ -1,46 +1,44 @@
 ﻿using System.Numerics;
-using Veldrid;
+using scpcb.Graphics.Shaders.ConstantMembers;
+using ShaderGen;
+using static ShaderGen.ShaderBuiltins;
 
 namespace scpcb.Graphics.Shaders;
 
-public class RMeshShader : CBShader<RMeshShader.Vertex, RMeshShader.VertUniforms, RMeshShader.FragUniforms>, ISimpleShader<RMeshShader> {
-    public record struct Vertex(Vector3 Position, Vector2 Uv);
-    public record struct VertUniforms(Matrix4x4 Projection, Matrix4x4 View, Matrix4x4 Model);
-    public record struct FragUniforms;
+[ShaderClass]
+public class RMeshShader {
+    public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 Uv);
+    public record struct Fragment([SystemPositionSemantic] Vector4 Position, [TextureCoordinateSemantic] Vector2 Uv);
 
-    public RMeshShader(GraphicsDevice gfx) : base(gfx, @"
-#version 450
+    public struct VertUniforms : ICommonMatricesConstantMembers {
+        public Matrix4x4 WorldMatrix { get; set; }
+        public Matrix4x4 ViewMatrix { get; set; }
+        public Matrix4x4 ProjectionMatrix { get; set; }
+    }
+    public VertUniforms VConstants;
 
-layout(set = 0, binding = 0) uniform Idfdkk {
-    mat4 Projection;
-    mat4 View;
-    mat4 Model;
-} constants;
+    [ResourceSet(1)]
+    public Texture2DResource SurfaceTexture;
+    [ResourceSet(1)]
+    public SamplerResource Sampler;
 
-layout(location = 0) in vec3 Position;
-layout(location = 1) in vec2 Uv;
-
-layout(location = 0) out vec2 fsin_Uv;
-
-void main() {
-    gl_Position = constants.Projection * constants.View * constants.Model * vec4(Position, 1);
-    fsin_Uv = Uv;
-}"u8.ToArray(),
-        @"
-#version 450
-
-layout(location = 0) in vec2 fsin_Uv;
-
-layout(location = 0) out vec4 fsout_Color;
-
-layout(set = 1, binding = 0) uniform texture2D texture0;
-layout(set = 1, binding = 1) uniform sampler samper;
-
-void main() {
-    fsout_Color = texture(sampler2D(texture0, samper), fsin_Uv);
-}"u8.ToArray(), 1) {
-
+    [VertexShader]
+    public Fragment VS(Vertex vert) {
+        Fragment frag = default;
+        frag.Position = Mul(VConstants.ProjectionMatrix, Mul(VConstants.ViewMatrix, Mul(VConstants.WorldMatrix, new Vector4(vert.Position, 1))));
+        frag.Uv = vert.Uv;
+        return frag;
     }
 
-    public static RMeshShader Create(GraphicsResources gfxRes) => new(gfxRes.GraphicsDevice);
+    [FragmentShader]
+    public Vector4 FS(Fragment frag) {
+        return Sample(SurfaceTexture, Sampler, frag.Uv);
+    }
+}
+
+public class RMeshShaderGenerated : GeneratedShader<RMeshShader, RMeshShader.Vertex, RMeshShader.VertUniforms, Empty>,
+        ISimpleShader<RMeshShaderGenerated> {
+    public RMeshShaderGenerated(GraphicsResources gfxRes) : base(gfxRes) { }
+
+    public static RMeshShaderGenerated Create(GraphicsResources gfxRes) => new(gfxRes);
 }

@@ -31,7 +31,7 @@ var fps = 0;
 
 var modelShader = gfxRes.ShaderCache.GetShader<ModelShaderGenerated>();
 
-//var rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShader>();
+var rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>();
 var logoMat = modelShader.CreateMaterial(coolTexture);
 using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, logoMat,
     new ModelShader.Vertex[] {
@@ -45,9 +45,9 @@ using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, logoMat,
 var model2 = new TestAssimpMeshConverter(logoMat).CreateModel(gfx, "Assets/173_2.b3d");
 model2.WorldTransform = model2.WorldTransform with { Position = new(0, 0, 5) };
 
-modelShader.VertexConstants.ViewMatrix /*= rMeshShader.VertexConstants.View*/
+modelShader.VertexConstants.ViewMatrix = rMeshShader.VertexConstants.ViewMatrix
     = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
-modelShader.VertexConstants.ProjectionMatrix /*= rMeshShader.VertexConstants.Projection*/
+modelShader.VertexConstants.ProjectionMatrix = rMeshShader.VertexConstants.ProjectionMatrix
     = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)WIDTH / HEIGHT, 0.1f, 10000f);
 
 Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
@@ -62,7 +62,7 @@ window.KeyUp += x => KeysDown[x.Key] = false;
 bool KeyDown(Key x) => KeysDown.TryGetValue(x, out var y) && y;
 
 var r = new RMeshRoomProvider();
-//var aaa = r.Test("Assets/008_opt.rmesh", gfxRes);
+var aaa = r.Test("Assets/008_opt.rmesh", gfxRes);
 
 var modelA = new Model(testmesh);
 var modelB = new Model(testmesh);
@@ -75,7 +75,7 @@ while (window.Exists) {
         controller.HandleMouse(window.MouseDelta * 0.01f);
     }
 
-    modelShader.VertexConstants.ViewMatrix /*= rMeshShader.VertexConstants.View*/ = controller.Camera.ViewMatrix;
+    modelShader.VertexConstants.ViewMatrix = rMeshShader.VertexConstants.ViewMatrix = controller.Camera.ViewMatrix;
     commandsList.Begin();
     commandsList.SetFramebuffer(gfx.SwapchainFramebuffer);
     commandsList.ClearColorTarget(0, RgbaFloat.Grey);
@@ -102,9 +102,10 @@ while (window.Exists) {
     model2.Render(commandsList, 0f);
     modelA.Render(commandsList, 0f);
     modelB.Render(commandsList, 0f);
-    //foreach (var meshh in aaa) {
-    //    meshh.Render(commandsList);
-    //}
+    foreach (var meshh in aaa) {
+        rMeshShader.SetConstantValue<IWorldMatrixConstantMember, Matrix4x4>(new Transform().GetMatrix());
+        meshh.Render(commandsList);
+    }
     commandsList.End();
     gfx.SubmitCommands(commandsList);
     gfx.SwapBuffers();

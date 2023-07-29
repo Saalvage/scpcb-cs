@@ -48,7 +48,8 @@ public class RMeshRoomProvider : IRoomProvider {
                         Console.WriteLine($"Texture {lightmapFile} not found!");
                         fileLocation = "Assets/Textures/Missing.png";
                     }
-                    mat = gfxRes.ShaderCache.GetShader<RMeshShader>().CreateMaterial(gfxRes.TextureCache.GetTexture(fileLocation));
+                    Console.WriteLine(fileLocation + "  " + lightmapFlags);
+                    mat = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>().CreateMaterial(gfxRes.TextureCache.GetTexture(fileLocation));
                 }
             }
 
@@ -56,8 +57,8 @@ public class RMeshRoomProvider : IRoomProvider {
             var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);
             for (var j = 0; j < vertices.Length; j++) {
                 var pos = reader.ReadVector3();
+                pos.X = -pos.X;
                 var uv1 = reader.ReadVector2();
-                //uv1.X = 1f - uv1.X; TODO: Fix UVs
 
                 var uv2 = reader.ReadVector2();
 
@@ -69,7 +70,7 @@ public class RMeshRoomProvider : IRoomProvider {
 
             var triangleCount = reader.ReadInt32();
             var indices = GetBufferedSpan(triangleCount * 3, indexStackBuffer, ref indexHeapBuffer);
-            for (var j = 0; j < indices.Length; j++) {
+            for (var j = indices.Length - 1; j >= 0; j--) {
                 indices[j] = reader.ReadUInt32();
             }
 
