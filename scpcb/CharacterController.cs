@@ -37,7 +37,7 @@ public class CharacterController : ICharacterController {
         var d = Vector3.Transform(new(dir.X, 0, dir.Y), Camera.Rotation);
         if (!Noclip) {
             d.Y = 0;
-            d = Vector3.Normalize(d) * dir.Length();
+            d = Extensions.SafeNormalize(d) * dir.Length();
         }
         Camera.Position += d * delta * Speed;
     }

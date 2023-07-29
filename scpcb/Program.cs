@@ -1,12 +1,14 @@
 ﻿using System.Numerics;
 using Assimp;
 using scpcb;
+using scpcb.Collision;
 using scpcb.Graphics;
 using scpcb.Graphics.Assimp;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.RoomProviders;
 using Veldrid;
+using static System.Net.Mime.MediaTypeNames;
 using Matrix4x4 = System.Numerics.Matrix4x4;
 using Quaternion = System.Numerics.Quaternion;
 
@@ -62,11 +64,23 @@ window.KeyUp += x => KeysDown[x.Key] = false;
 bool KeyDown(Key x) => KeysDown.TryGetValue(x, out var y) && y;
 
 var r = new RMeshRoomProvider();
-var aaa = r.Test("Assets/008_opt.rmesh", gfxRes);
+var aaa = r.LoadRoom("Assets/008_opt.rmesh", gfxRes);
+var aaaMesh = new Model(aaa.Meshes);
+var aaaColl = new CollisionMeshCollection(aaa.CollisionMeshes);
 
 var modelA = new Model(testmesh);
 var modelB = new Model(testmesh);
 modelB.WorldTransform = modelB.WorldTransform with { Position = new(2, 0, -0.1f), Scale = new(0.5f) };
+
+var p1 = new Vector3( 288, 1, - 704);
+var p2 = new Vector3(288, 0, - 704);
+var p3 = new Vector3(288, 0, -704);
+
+var cross = Vector3.Cross(p3 - p1, p2 - p1);
+    
+var testetstset = CollideRRR.TriangleCollide(
+    new(-10.205289f, 184.80672f, -812.53687f), new(-4.2100883f, 182.80685f, -712.73676f), 150, 10f,
+    new Vector3(-200, 0, -704), new (288, 320, -704), new Vector3(288, 0, -704));
 
 var now = DateTime.UtcNow;
 while (window.Exists) {
@@ -92,20 +106,26 @@ while (window.Exists) {
     if (KeyDown(Key.D)) dir -= Vector2.UnitX;
 
     if (dir != Vector2.Zero) {
+        var oldPos = controller.Camera.Position;
         controller.HandleMove(Vector2.Normalize(dir), delta);
+        var newPos = CollideRRR.TryMove(oldPos * 1000, controller.Camera.Position * 1000, 150f, 10f, aaaColl) * 0.001f;
+        if (newPos.X != newPos.X) {
+            CollideRRR.TryMove(oldPos * 1000, controller.Camera.Position * 1000, 150f, 10f, aaaColl);
+        }
+        controller.Camera.Position = newPos;
     }
-    
+
+    Console.WriteLine(aaaColl.Collide(controller.Camera.Position * 1000, 1000 * controller.Camera.Position + Vector3.Transform(new(0, 0, 100), controller.Camera.Rotation), 150f, 10f).Hit);
+
     modelShader.SetConstantValue<IWorldMatrixConstantMember, Matrix4x4>(
         new Transform(new(0, 0, 0), Quaternion.CreateFromYawPitchRoll(0 / 100, 0, 0), Vector3.One).GetMatrix());
     //mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
     //mesh.Render(commandsList);
+    model2.WorldTransform = model2.WorldTransform with { Position = CollisionMeshCollection.Hit };
     model2.Render(commandsList, 0f);
     modelA.Render(commandsList, 0f);
     modelB.Render(commandsList, 0f);
-    foreach (var meshh in aaa) {
-        rMeshShader.SetConstantValue<IWorldMatrixConstantMember, Matrix4x4>(new Transform().GetMatrix());
-        meshh.Render(commandsList);
-    }
+    aaaMesh.Render(commandsList, 0f);
     commandsList.End();
     gfx.SubmitCommands(commandsList);
     gfx.SwapBuffers();
@@ -116,4 +136,5 @@ while (window.Exists) {
         fps = 0;
         countingTo = noww.AddSeconds(1);
     }
+    Thread.Sleep(1000 / 60);
 }

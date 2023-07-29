@@ -1,4 +1,7 @@
-﻿using scpcb.Graphics;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+using scpcb.Collision;
+using scpcb.Graphics;
 using scpcb.Graphics.Shaders;
 
 namespace scpcb.RoomProviders; 
@@ -6,7 +9,7 @@ namespace scpcb.RoomProviders;
 public class RMeshRoomProvider : IRoomProvider {
     public string[] SupportedExtensions { get; } = { "rmesh" };
 
-    public List<CBMesh<RMeshShader.Vertex>> Test(string filename, GraphicsResources gfxRes) {
+    public RoomInfo LoadRoom(string filename, GraphicsResources gfxRes) {
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
 
@@ -28,8 +31,9 @@ public class RMeshRoomProvider : IRoomProvider {
                 throw new ArgumentException($"{filename} is not a valid .rmesh file!");
         }
 
-        List<CBMesh<RMeshShader.Vertex>> meshes = new();
         var meshCount = reader.ReadInt32();
+        var meshes = new ICBMesh[meshCount];
+        var collisionMeshes = new CollisionMesh[meshCount];
         for (var i = 0; i < meshCount; i++) {
             ICBMaterial<RMeshShader.Vertex> mat = null;
 
@@ -74,10 +78,15 @@ public class RMeshRoomProvider : IRoomProvider {
                 indices[j] = reader.ReadUInt32();
             }
 
-            meshes.Add(new(gfxRes.GraphicsDevice, mat, vertices, indices));
+            meshes[i] = new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, mat, vertices, indices);
+            var collVerts = new Vector3[vertices.Length];
+            for (var k = 0; k < collVerts.Length; k++) {
+                collVerts[k] = vertices[k].Position * 1000;
+            }
+            collisionMeshes[i] = new(collVerts, indices.ToArray());
         }
 
-        return meshes;
+        return new(meshes, collisionMeshes);
     }
 
     private Span<T> GetBufferedSpan<T>(int count, Span<T> stackBuffer, ref T[] heapBuffer)
