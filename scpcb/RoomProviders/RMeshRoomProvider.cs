@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using BepuPhysics.Collidables;
-using BepuUtilities.Memory;
 using scpcb.Graphics;
 using scpcb.Graphics.Shaders;
 using scpcb.Physics;

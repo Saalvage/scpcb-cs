@@ -4,9 +4,9 @@ using BepuPhysics.Collidables;
 using BepuUtilities;
 using BepuUtilities.Memory;
 
-namespace scpcb.Physics; 
+namespace scpcb.Physics;
 
-public class PhysicsResources {
+public class PhysicsResources : Disposable {
     public Simulation Simulation { get; }
 
     public BufferPool BufferPool { get; } = new();
@@ -50,5 +50,11 @@ public class PhysicsResources {
 
     public void Update(float delta) {
         Simulation.Timestep(delta * 10, ThreadDispatcher);
+    }
+
+    protected override void DisposeImpl() {
+        ThreadDispatcher.Dispose();
+        Simulation.Dispose();
+        BufferPool.Clear();
     }
 }
