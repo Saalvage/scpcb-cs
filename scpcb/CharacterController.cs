@@ -18,7 +18,7 @@ public class CharacterController : ICharacterController {
     private float _pitch;
 
     public bool Noclip { get; set; } = true;
-    public float Speed { get; set; } = 25f;
+    public float Speed { get; set; } = 250f;
 
     public CharacterController() {
         Camera = new PerspectiveCamera {

@@ -1,12 +1,16 @@
-﻿using scpcb.Graphics;
+﻿using System.Numerics;
+using BepuPhysics.Collidables;
+using BepuUtilities.Memory;
+using scpcb.Graphics;
 using scpcb.Graphics.Shaders;
+using scpcb.Physics;
 
-namespace scpcb.RoomProviders; 
+namespace scpcb.RoomProviders;
 
 public class RMeshRoomProvider : IRoomProvider {
     public string[] SupportedExtensions { get; } = { "rmesh" };
 
-    public List<CBMesh<RMeshShader.Vertex>> Test(string filename, GraphicsResources gfxRes) {
+    public unsafe (List<CBMesh<RMeshShader.Vertex>>, Mesh) Test(string filename, GraphicsResources gfxRes, PhysicsResources physRes) {
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
 
@@ -30,6 +34,9 @@ public class RMeshRoomProvider : IRoomProvider {
 
         List<CBMesh<RMeshShader.Vertex>> meshes = new();
         var meshCount = reader.ReadInt32();
+        // TODO: Estimate number of tris per mesh better
+        physRes.BufferPool.TakeAtLeast<Triangle>(meshCount * 100, out var triBuffer);
+        var totalTriCount = 0;
         for (var i = 0; i < meshCount; i++) {
             ICBMaterial<RMeshShader.Vertex> mat = null;
 
@@ -62,27 +69,32 @@ public class RMeshRoomProvider : IRoomProvider {
 
                 var uv2 = reader.ReadVector2();
 
-                vertices[j] = new(pos / 1000f, uv1);
+                vertices[j] = new(pos / 100, uv1);
                 reader.ReadByte();
                 reader.ReadByte();
                 reader.ReadByte();
             }
 
             var triangleCount = reader.ReadInt32();
+            physRes.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triangleCount, totalTriCount);
             var indices = GetBufferedSpan(triangleCount * 3, indexStackBuffer, ref indexHeapBuffer);
-            for (var j = indices.Length - 1; j >= 0; j--) {
-                indices[j] = reader.ReadUInt32();
+            for (var j = 0; j < indices.Length; j += 3) {
+                var i1 = indices[j + 2] = reader.ReadUInt32();
+                var i2 = indices[j + 1] = reader.ReadUInt32();
+                var i3 = indices[j + 0] = reader.ReadUInt32();
+                triBuffer[totalTriCount] = new(vertices[(int)i1].Position, vertices[(int)i2].Position, vertices[(int)i3].Position);
+                totalTriCount++;
             }
 
             meshes.Add(new(gfxRes.GraphicsDevice, mat, vertices, indices));
         }
-
-        return meshes;
+        
+        return (meshes, Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physRes.BufferPool));
     }
 
     private Span<T> GetBufferedSpan<T>(int count, Span<T> stackBuffer, ref T[] heapBuffer)
         => count <= stackBuffer.Length ? stackBuffer[..count]
-        : new (count <= heapBuffer.Length
+        : new(count <= heapBuffer.Length
             ? heapBuffer
             : heapBuffer = new T[count],
         0, count);

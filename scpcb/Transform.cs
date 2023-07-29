@@ -3,6 +3,7 @@
 namespace scpcb;
 
 public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Scale) {
+    public Transform(Vector3 position, Quaternion rotation) : this(position, rotation, Vector3.One) { }
     public Transform() : this(Vector3.Zero, Quaternion.Identity, Vector3.One) { }
 
     public Matrix4x4 GetMatrix()

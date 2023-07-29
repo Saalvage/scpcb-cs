@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
-using Assimp;
+using BepuPhysics;
 using scpcb;
 using scpcb.Graphics;
 using scpcb.Graphics.Assimp;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Physics;
 using scpcb.RoomProviders;
 using Veldrid;
 using Matrix4x4 = System.Numerics.Matrix4x4;
@@ -42,8 +43,7 @@ using var testmesh = new CBMesh<ModelShader.Vertex>(gfx, logoMat,
     },
     new uint[] { 0, 1, 2, 3, 2, 1 });
 
-var model2 = new TestAssimpMeshConverter(logoMat).CreateModel(gfx, "Assets/173_2.b3d");
-model2.WorldTransform = model2.WorldTransform with { Position = new(0, 0, 5) };
+var scp173 = new TestAssimpMeshConverter(logoMat).LoadMeshes(gfx, "Assets/173_2.b3d");
 
 modelShader.VertexConstants.ViewMatrix = rMeshShader.VertexConstants.ViewMatrix
     = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
@@ -61,12 +61,30 @@ window.KeyDown += x => KeysDown[x.Key] = true;
 window.KeyUp += x => KeysDown[x.Key] = false;
 bool KeyDown(Key x) => KeysDown.TryGetValue(x, out var y) && y;
 
+var physics = new PhysicsResources();
+
 var r = new RMeshRoomProvider();
-var aaa = r.Test("Assets/008_opt.rmesh", gfxRes);
+var (aaa, aaaShape) = r.Test("Assets/008_opt.rmesh", gfxRes, physics);
 
 var modelA = new Model(testmesh);
 var modelB = new Model(testmesh);
 modelB.WorldTransform = modelB.WorldTransform with { Position = new(2, 0, -0.1f), Scale = new(0.5f) };
+
+var tIndex = physics.Simulation.Shapes.Add(aaaShape);
+physics.Simulation.Statics.Add(new(new(), tIndex));
+
+var physicsModels = physics.Bodies.Select(x => new PhysicsModel(x, scp173)).ToList();
+
+window.KeyDown += x => {
+    if (x.Key == Key.Space) {
+        var refff = physics.Simulation.Bodies.Add(BodyDescription.CreateDynamic(
+                controller.Camera.Position, new(100 * Vector3.Transform(new(0, 0, 1), controller.Camera.Rotation)),
+            PhysicsResources.BoxInertia, physics.BoxIndex, 0.01f));
+        var reff = physics.Simulation.Bodies.GetBodyReference(refff);
+        physics.Bodies.Add(reff);
+        physicsModels.Add(new(reff, scp173));
+    }
+};
 
 var now = DateTime.UtcNow;
 while (window.Exists) {
@@ -105,6 +123,10 @@ while (window.Exists) {
     foreach (var meshh in aaa) {
         rMeshShader.SetConstantValue<IWorldMatrixConstantMember, Matrix4x4>(new Transform().GetMatrix());
         meshh.Render(commandsList);
+    }
+    physics.Update(delta);
+    foreach (var reff in physicsModels) {
+        reff.Render(commandsList, 0f);
     }
     commandsList.End();
     gfx.SubmitCommands(commandsList);

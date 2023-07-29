@@ -6,12 +6,13 @@ namespace scpcb.Graphics.Assimp;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
 public interface IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
-    ICBMesh ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat);
+    ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat);
+    ICBMesh<TVertex>[] LoadMeshes(GraphicsDevice gfx, string file);
     Model CreateModel(GraphicsDevice gfx, string file);
 }
 
 public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
-    public ICBMesh ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat) {
+    public ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat) {
         // TODO: Upper limit to stackalloc size
         Span<Vector3> textureCoords = stackalloc Vector3[mesh.TextureCoordinateChannelCount];
         Span<Vector4> vertexColors = stackalloc Vector4[mesh.VertexColorChannelCount];
@@ -27,7 +28,7 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
             }
 
             var sv = new AssimpVertex {
-                Position = mesh.Vertices[i].ToCS(),
+                Position = mesh.Vertices[i].ToCS() / 10,
                 TexCoords = textureCoords,
                 VertexColors = vertexColors,
                 Normal = mesh.HasNormals ? mesh.Normals[i].ToCS() : Vector3.Zero,
@@ -40,12 +41,15 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
         return new CBMesh<TVertex>(gfx, mat, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32));
     }
 
-    public Model CreateModel(GraphicsDevice gfx, string file) {
+    public ICBMesh<TVertex>[] LoadMeshes(GraphicsDevice gfx, string file) {
         using var assimp = new AssimpContext();
         var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality);
         var mats = scene.Materials.Select(ConvertMaterial).ToArray();
-        return new(scene.Meshes.Select(x => ConvertMesh(gfx, x, mats[x.MaterialIndex])).ToArray());
+        return scene.Meshes.Select(x => ConvertMesh(gfx, x, mats[x.MaterialIndex])).ToArray();
     }
+
+    public Model CreateModel(GraphicsDevice gfx, string file) 
+        => new(LoadMeshes(gfx, file));
 
     protected abstract TVertex ConvertVertex(AssimpVertex vert);
     protected abstract ICBMaterial<TVertex> ConvertMaterial(Material mat);
