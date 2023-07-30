@@ -57,8 +57,6 @@ public class MainScene : Disposable , IScene {
 
         var window = gfxRes.Window;
 
-        _modelShader.VertexConstants.ViewMatrix = _rMeshShader.VertexConstants.ViewMatrix
-            = Matrix4x4.CreateLookAt(new(0, 0, -5), Vector3.UnitZ, Vector3.UnitY);
         _modelShader.VertexConstants.ProjectionMatrix = _rMeshShader.VertexConstants.ProjectionMatrix
             = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 10000f);
 

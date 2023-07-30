@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 
 namespace scpcb;
 
@@ -11,10 +12,12 @@ public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Sc
          * Matrix4x4.CreateFromQuaternion(Rotation) 
          * Matrix4x4.CreateTranslation(Position);
 
-    public Transform Lerp(Transform other, float amount)
-        => new(
-            Vector3.Lerp(Position, other.Position, amount),
-            Quaternion.Slerp(Rotation, other.Rotation, amount),
-            Vector3.Lerp(Scale, other.Scale, amount)
+    public static Transform Lerp(Transform a, Transform b, float amount) {
+        Debug.Assert(amount is >= 0 and <= 1);
+        return new(
+            Vector3.Lerp(a.Position, b.Position, amount),
+            Quaternion.Slerp(a.Rotation, b.Rotation, amount),
+            Vector3.Lerp(a.Scale, b.Scale, amount)
         );
+    }
 }
