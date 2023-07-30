@@ -46,12 +46,9 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
 
     private readonly int _textureCount;
 
-    public CBShader(GraphicsDevice gfx, string vertexFile, string fragmentFile, int textureCount)
-        : this(gfx, File.ReadAllBytes(vertexFile), File.ReadAllBytes(fragmentFile), textureCount) { }
-
-    public unsafe CBShader(GraphicsDevice gfx, byte[] vertexCode, byte[] fragmentCode, int textureCount, bool inputIsSpirV = false) {
+    public unsafe CBShader(GraphicsDevice gfx, byte[] vertexCode, byte[] fragmentCode, IEnumerable<string> textureNames, IEnumerable<string> samplerNames, bool inputIsSpirV = false) {
         _gfx = gfx;
-        _textureCount = textureCount;
+        _textureCount = textureNames.Count();
         var hasVertConsts = typeof(TVertConstants) != typeof(Empty);
         var hasFragConsts = typeof(TFragConstants) != typeof(Empty);
         if (hasVertConsts || hasFragConsts) {
@@ -71,10 +68,11 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
             }
 
             _constLayout = gfx.ResourceFactory.CreateResourceLayout(new(layouts.ToArray()));
-            if (textureCount > 0) {
-                _textureLayout = gfx.ResourceFactory.CreateResourceLayout(new(Enumerable.Range(0, textureCount)
-                    .Select(x => new ResourceLayoutElementDescription($"texture{x}", ResourceKind.TextureReadOnly, ShaderStages.Fragment))
-                    .Append(new("samper", ResourceKind.Sampler, ShaderStages.Fragment))
+            if (_textureCount > 0) {
+                _textureLayout = gfx.ResourceFactory.CreateResourceLayout(new(textureNames
+                    .Select(x => new ResourceLayoutElementDescription(x, ResourceKind.TextureReadOnly, ShaderStages.Fragment))
+                    .Concat(samplerNames
+                        .Select(x => new ResourceLayoutElementDescription(x, ResourceKind.Sampler, ShaderStages.Fragment)))
                     .ToArray()));
                 // TODO: Do not hardcode these names, although it seems like it currently does not break things!
             }

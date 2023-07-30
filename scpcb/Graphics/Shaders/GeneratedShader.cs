@@ -10,7 +10,8 @@ public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants> :
     private const string SHADER_PATH_FORMAT = "Assets/Shaders/{0}-{1}.{2}";
 
     public GeneratedShader(GraphicsResources gfxRes) : base(gfxRes.GraphicsDevice,
-        string.Format(SHADER_PATH_FORMAT, typeof(TShader).Name, "vertex", gfxRes.ShaderFileExtension),
-        string.Format(SHADER_PATH_FORMAT, typeof(TShader).Name, "fragment", gfxRes.ShaderFileExtension),
-        typeof(TShader).GetRuntimeFields().Count(x => x.FieldType == typeof(Texture2DResource))) { }
+        File.ReadAllBytes(string.Format(SHADER_PATH_FORMAT, typeof(TShader).Name, "vertex", gfxRes.ShaderFileExtension)),
+        File.ReadAllBytes(string.Format(SHADER_PATH_FORMAT, typeof(TShader).Name, "fragment", gfxRes.ShaderFileExtension)),
+        typeof(TShader).GetFields().Where(x => x.FieldType == typeof(Texture2DResource)).Select(x => x.Name),
+        typeof(TShader).GetFields().Where(x => x.FieldType == typeof(SamplerResource)).Select(x => x.Name)) { }
 }

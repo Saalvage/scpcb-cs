@@ -34,8 +34,8 @@ public class GraphicsResources : Disposable {
 
         gfx.GetOpenGLInfo(out var info);
         ShaderFileExtension = gfx.BackendType switch {
-            GraphicsBackend.Direct3D11 => "hlsl", // + ".bytes" // TODO: YET ANOTHER THING THAT SEEMS BROKEN!!!
             GraphicsBackend.OpenGL => "330.glsl", //TODO: Reinvestigate?
+            GraphicsBackend.Direct3D11 => "hlsl.bytes",
                 //GetOpenGLShaderVersion() >= 450
                 //? "450.glsl" + (/*info.Extensions.Contains("GL_ARB_gl_spirv") ? ".spv" :*/ "")
                 //: "330.glsl",
@@ -47,6 +47,24 @@ public class GraphicsResources : Disposable {
 
         int GetOpenGLShaderVersion()
             => int.Parse(info.ShadingLanguageVersion[..info.ShadingLanguageVersion.IndexOf(' ')].Replace(".", ""));
+    }
+
+    public string GetShaderFile(string shaderName, out bool needsToUseSpirVBridge) {
+        needsToUseSpirVBridge = false;
+
+        var preferredFile = _preferredShaderFileExtension
+            .Select(x => shaderName + x)
+            .FirstOrDefault(File.Exists);
+
+        if (preferredFile != null) {
+            return preferredFile;
+        }
+
+        needsToUseSpirVBridge = true;
+
+        var fallbackFile = _fallbackShaderFileExtension
+            .Select(x => shaderName + x)
+            .FirstOrDefault(File.Exists);
     }
 
     protected override void DisposeImpl() {
