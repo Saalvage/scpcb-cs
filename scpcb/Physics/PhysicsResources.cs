@@ -49,7 +49,7 @@ public class PhysicsResources : Disposable {
     }
 
     public void Update(float delta) {
-        Simulation.Timestep(delta * 10, ThreadDispatcher);
+        Simulation.Timestep(delta, ThreadDispatcher);
     }
 
     protected override void DisposeImpl() {

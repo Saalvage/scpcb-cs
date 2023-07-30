@@ -1,4 +1,5 @@
-﻿using scpcb.Graphics;
+﻿using System.Diagnostics;
+using scpcb.Graphics;
 using Veldrid;
 
 namespace scpcb; 
@@ -25,8 +26,8 @@ public class Game : Disposable {
         _commandsList = Graphics.GraphicsDevice.ResourceFactory.CreateCommandList();
     }
 
-    private const int TICK_RATE = 60;
-    private const int MILLIS_PER_TICK = 1000 / TICK_RATE;
+    public const int TICK_RATE = 60;
+    private const int TICK_GOAL = (int)(TimeSpan.TicksPerSecond / TICK_RATE);
 
     public void Run() {
         var gfx = Graphics.GraphicsDevice;
@@ -35,34 +36,37 @@ public class Game : Disposable {
         var now = DateTimeOffset.UtcNow;
         var tickAccu = 0;
         while (Graphics.Window.Exists) {
-            while (tickAccu < MILLIS_PER_TICK) {
+            while (tickAccu < TICK_GOAL) {
                 Graphics.Window.PumpEvents();
+
                 var newNow = DateTimeOffset.UtcNow;
                 var diff = newNow - now;
+                now = newNow;
+
                 _scene.Update(diff.TotalSeconds);
 
                 _commandsList.Begin();
                 _commandsList.SetFramebuffer(gfx.SwapchainFramebuffer);
                 _commandsList.ClearColorTarget(0, RgbaFloat.Grey);
                 _commandsList.ClearDepthStencil(1);
-                _scene.Render(_commandsList, (float)tickAccu / MILLIS_PER_TICK);
+                var interp = (float)(tickAccu % TICK_GOAL) / TICK_GOAL;
+                Debug.Assert(interp is >= 0 and <= 1);
+                _scene.Render(_commandsList, interp);
                 _commandsList.End();
                 gfx.SubmitCommands(_commandsList);
                 gfx.SwapBuffers();
 
-                tickAccu += diff.Milliseconds;
+                tickAccu += (int)diff.Ticks;
 
                 fps++;
                 if (now > countingTo) {
                     countingTo = countingTo.AddSeconds(1);
-                    Console.WriteLine(fps);
+                    Console.WriteLine($"{fps} {tickAccu / TICK_GOAL}");
                     fps = 0;
                 }
-
-                now = newNow;
             }
             _scene.Tick();
-            tickAccu -= MILLIS_PER_TICK;
+            tickAccu -= TICK_GOAL;
         }
     }
 

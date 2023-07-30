@@ -9,7 +9,7 @@ using System.Numerics;
 using BepuPhysics.Collidables;
 using Veldrid;
 
-namespace scpcb; 
+namespace scpcb;
 
 public class MainScene : Disposable , IScene {
     public PhysicsResources Physics { get; } = new();
@@ -111,7 +111,7 @@ public class MainScene : Disposable , IScene {
     }
 
     public void Tick() {
-        Physics.Update(0.001f);
+        Physics.Update(1f / Game.TICK_RATE);
     }
 
     public void Render(CommandList commandsList, float interp) {

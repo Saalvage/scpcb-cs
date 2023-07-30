@@ -10,4 +10,11 @@ public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Sc
         => Matrix4x4.CreateScale(Scale) 
          * Matrix4x4.CreateFromQuaternion(Rotation) 
          * Matrix4x4.CreateTranslation(Position);
+
+    public Transform Lerp(Transform other, float amount)
+        => new(
+            Vector3.Lerp(Position, other.Position, amount),
+            Quaternion.Slerp(Rotation, other.Rotation, amount),
+            Vector3.Lerp(Scale, other.Scale, amount)
+        );
 }

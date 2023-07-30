@@ -1,9 +1,11 @@
 ﻿using System.Numerics;
 using BepuPhysics;
+using scpcb.Graphics;
+using scpcb.Graphics.Shaders;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Physics;
 
-public class PhysicsModel : Model {
+public class PhysicsModel : InterpolatedModel {
     private readonly BodyReference _body;
 
     public PhysicsModel(BodyReference body, params ICBMesh[] meshes) : base(meshes) {

@@ -10,12 +10,14 @@ public class Model : IUpdatable, IEntity {
 
     public virtual Transform WorldTransform { get; set; } = new();
 
+    protected virtual Transform GetUsedTransform(double interpolation) => WorldTransform;
+
     public Model(params ICBMesh[] meshes) {
         _meshes = meshes;
     }
 
-    public void Render(CommandList commands, double interpolation) {
-        var matrix = WorldTransform.GetMatrix();
+    public virtual void Render(CommandList commands, double interpolation) {
+        var matrix = GetUsedTransform(interpolation).GetMatrix();
         foreach (var mesh in _meshes) {
             mesh.Material.Shader.SetConstantValue<IWorldMatrixConstantMember, Matrix4x4>(matrix);
             mesh.Render(commands);
