@@ -12,8 +12,6 @@ public class GraphicsResources : Disposable {
 
     public Sdl2Window Window { get; }
 
-    public string ShaderFileExtension { get; }
-
     public GraphicsResources(int width, int height) {
         VeldridStartup.CreateWindowAndGraphicsDevice(new() {
             WindowWidth = width,
@@ -33,15 +31,15 @@ public class GraphicsResources : Disposable {
         TextureCache = new(gfx);
 
         gfx.GetOpenGLInfo(out var info);
-        ShaderFileExtension = gfx.BackendType switch {
-            GraphicsBackend.OpenGL => "330.glsl", //TODO: Reinvestigate?
-            GraphicsBackend.Direct3D11 => "hlsl.bytes",
+        _preferredShaderFileExtension = gfx.BackendType switch {
+            GraphicsBackend.Direct3D11 => new [] { "hlsl.bytes", "hlsl" },
+            GraphicsBackend.OpenGL => new[] { "330.glsl" }, //TODO: Reinvestigate?
                 //GetOpenGLShaderVersion() >= 450
                 //? "450.glsl" + (/*info.Extensions.Contains("GL_ARB_gl_spirv") ? ".spv" :*/ "")
                 //: "330.glsl",
-            GraphicsBackend.OpenGLES => "300.glsles",
-            GraphicsBackend.Vulkan => "450.glsl.spv",
-            GraphicsBackend.Metal => "metallib",
+            GraphicsBackend.OpenGLES => new[] { "300.glsles" },
+            GraphicsBackend.Vulkan => new [] { "450.glsl.spv" },
+            GraphicsBackend.Metal => new [] { "metallib" },
             _ => throw new NotImplementedException(),
         };
 
@@ -49,22 +47,32 @@ public class GraphicsResources : Disposable {
             => int.Parse(info.ShadingLanguageVersion[..info.ShadingLanguageVersion.IndexOf(' ')].Replace(".", ""));
     }
 
-    public string GetShaderFile(string shaderName, out bool needsToUseSpirVBridge) {
-        needsToUseSpirVBridge = false;
+    private readonly string[] _preferredShaderFileExtension;
+    // TODO: We can probably support HLSL here as well.
+    // Can we support other GLSL versions?
+    private static readonly string[] _fallbackShaderFileExtension = { "450.glsl.spv", "330.glsl" };
 
-        var preferredFile = _preferredShaderFileExtension
-            .Select(x => shaderName + x)
-            .FirstOrDefault(File.Exists);
+    /// <summary>
+    /// Gets the best supported extension for the given shader.
+    /// Vertex and fragment shader are guaranteed to exist for the extension.
+    /// </summary>
+    /// <param name="shaderName">E.g. "MyShader", "MyShader-vertex.hlsl" etc. will be checked</param>
+    /// <param name="needsSpirVBridge">Whether transpilation to SPIR-V is required (via veldrid-spirv)</param>
+    /// <returns></returns>
+    public string GetShaderFileExtension(string shaderName, out bool needsSpirVBridge) {
+        var t = _preferredShaderFileExtension
+            .Select(x => (Extension: x, RequiresSpirVBridge: false))
+            .Concat(_fallbackShaderFileExtension.Select(x => (Extension: x, RequiresSpirVBridge: true)))
+            .FirstOrDefault(x
+                => File.Exists($"{shaderName}-vertex.{x.Extension}")
+                && File.Exists($"{shaderName}-fragment.{x.Extension}"));
 
-        if (preferredFile != null) {
-            return preferredFile;
+        if (t == default) {
+            throw new($"Shader {shaderName} not found with suitable extension!");
         }
 
-        needsToUseSpirVBridge = true;
-
-        var fallbackFile = _fallbackShaderFileExtension
-            .Select(x => shaderName + x)
-            .FirstOrDefault(File.Exists);
+        needsSpirVBridge = t.RequiresSpirVBridge;
+        return t.Extension;
     }
 
     protected override void DisposeImpl() {

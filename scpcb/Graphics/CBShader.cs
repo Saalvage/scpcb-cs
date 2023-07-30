@@ -46,9 +46,10 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
 
     private readonly int _textureCount;
 
-    public unsafe CBShader(GraphicsDevice gfx, byte[] vertexCode, byte[] fragmentCode, IEnumerable<string> textureNames, IEnumerable<string> samplerNames, bool inputIsSpirV = false) {
+    public unsafe CBShader(GraphicsDevice gfx, byte[] vertexCode, byte[] fragmentCode, string? vertConstantNames, string? fragConstantNames,
+            IReadOnlyList<string> textureNames, IReadOnlyList<string> samplerNames, bool inputIsSpirV = false) {
         _gfx = gfx;
-        _textureCount = textureNames.Count();
+        _textureCount = textureNames.Count;
         var hasVertConsts = typeof(TVertConstants) != typeof(Empty);
         var hasFragConsts = typeof(TFragConstants) != typeof(Empty);
         if (hasVertConsts || hasFragConsts) {
@@ -58,13 +59,13 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
                 _vertexConstantBuffer = CreateBuffer<TVertConstants>();
                 consts.Add(_vertexConstantBuffer);
                 // TODO: Don't hardcode names, get them as a parameter?
-                layouts.Add(new("VConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex));
+                layouts.Add(new(vertConstantNames, ResourceKind.UniformBuffer, ShaderStages.Vertex));
             }
 
             if (hasFragConsts) {
                 _fragmentConstantBuffer = CreateBuffer<TFragConstants>();
                 consts.Add(_fragmentConstantBuffer);
-                layouts.Add(new("FConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment));
+                layouts.Add(new(fragConstantNames, ResourceKind.UniformBuffer, ShaderStages.Fragment));
             }
 
             _constLayout = gfx.ResourceFactory.CreateResourceLayout(new(layouts.ToArray()));
@@ -105,6 +106,7 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
                     gfx.BackendType == GraphicsBackend.Vulkan ? "main" : "FS", true)),
             };
 
+        // TODO: Spir-V bridge doesn't seem to work?
         _pipeline = gfx.ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleAlphaBlend,
             DepthStencilState = new(true, true, ComparisonKind.LessEqual),

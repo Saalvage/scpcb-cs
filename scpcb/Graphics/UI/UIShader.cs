@@ -36,7 +36,7 @@ layout(set = 1, binding = 1) uniform sampler samper;
 
 void main() {
     fsout_Color = texture(sampler2D(texture0, samper), fsin_Uv);
-}"u8.ToArray(), new[] { "texture0" }, new [] { "samper" }) {
+}"u8.ToArray(), "constants", null, new[] { "texture0" }, new [] { "samper" }) {
         VertexConstants.Scale = Vector2.One;
     }
 
