@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using BepuPhysics.Collidables;
+using BepuPhysics.Trees;
 using scpcb.Graphics;
 using scpcb.Graphics.Shaders;
 using scpcb.Physics;
@@ -9,7 +10,7 @@ namespace scpcb.RoomProviders;
 public class RMeshRoomProvider : IRoomProvider {
     public string[] SupportedExtensions { get; } = { "rmesh" };
 
-    public unsafe (List<CBMesh<RMeshShader.Vertex>>, Mesh) Test(string filename, GraphicsResources gfxRes, PhysicsResources physRes) {
+    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, string filename) {
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
 
@@ -30,9 +31,9 @@ public class RMeshRoomProvider : IRoomProvider {
             default:
                 throw new ArgumentException($"{filename} is not a valid .rmesh file!");
         }
-
-        List<CBMesh<RMeshShader.Vertex>> meshes = new();
+        
         var meshCount = reader.ReadInt32();
+        var meshes = new ICBMesh[meshCount];
         // TODO: Estimate number of tris per mesh better
         physRes.BufferPool.TakeAtLeast<Triangle>(meshCount * 100, out var triBuffer);
         var totalTriCount = 0;
@@ -68,10 +69,10 @@ public class RMeshRoomProvider : IRoomProvider {
 
                 var uv2 = reader.ReadVector2();
 
-                vertices[j] = new(pos / 100, uv1);
-                reader.ReadByte();
-                reader.ReadByte();
-                reader.ReadByte();
+                var r = reader.ReadByte() / 255f;
+                var g = reader.ReadByte() / 255f;
+                var b = reader.ReadByte() / 255f;
+                vertices[j] = new(pos / 100, uv1, new(r, g, b));
             }
 
             var triangleCount = reader.ReadInt32();
@@ -85,10 +86,10 @@ public class RMeshRoomProvider : IRoomProvider {
                 totalTriCount++;
             }
 
-            meshes.Add(new(gfxRes.GraphicsDevice, mat, vertices, indices));
+            meshes[i] = new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, mat, vertices, indices);
         }
-        
-        return (meshes, Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physRes.BufferPool));
+
+        return new(meshes, Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physRes.BufferPool));
     }
 
     private Span<T> GetBufferedSpan<T>(int count, Span<T> stackBuffer, ref T[] heapBuffer)

@@ -67,7 +67,7 @@ public class MainScene : Disposable , IScene {
 
         var r = new RMeshRoomProvider();
         Mesh aaaShape;
-        (_aaa, aaaShape) = r.Test("Assets/008_opt.rmesh", gfxRes, Physics);
+        (_aaa, aaaShape) = r.LoadRoom(gfxRes, Physics, "Assets/008_opt.rmesh");
 
         _modelA = new(testMesh);
         _modelB = new(testMesh);
