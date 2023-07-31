@@ -79,7 +79,7 @@ public class MainScene : Disposable , IScene {
         var tIndex = sim.Shapes.Add(aaaShape);
         sim.Statics.Add(new(new(), tIndex));
 
-        _physicsModels = Physics.Bodies.Select(x => new PhysicsModel(Physics, x, scp173)).ToList();
+        _physicsModels = new();
 
         window.KeyDown += x => {
             if (x.Key == Key.Space) {
@@ -87,7 +87,6 @@ public class MainScene : Disposable , IScene {
                         _controller.Camera.Position, new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
                     1, sim.Shapes, hull));
                 var reff = sim.Bodies.GetBodyReference(refff);
-                Physics.Bodies.Add(reff);
                 _physicsModels.Add(new(Physics, reff, scp173));
             }
         };

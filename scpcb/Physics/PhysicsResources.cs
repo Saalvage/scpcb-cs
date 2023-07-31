@@ -11,11 +11,7 @@ public class PhysicsResources : Disposable {
 
     public BufferPool BufferPool { get; } = new();
     
-    private readonly ThreadDispatcher ThreadDispatcher;
-
-    // TODO vvv Remove vvv
-    public List<BodyReference> Bodies { get; } = new();
-    // TODO ^^^ Remove ^^^
+    private readonly ThreadDispatcher _threadDispatcher;
 
     public event Action BeforeUpdate;
     public event Action AfterUpdate;
@@ -24,19 +20,19 @@ public class PhysicsResources : Disposable {
         Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), new(4, 2));
 
         var targetThreadCount = int.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
-        ThreadDispatcher = new(targetThreadCount);
+        _threadDispatcher = new(targetThreadCount);
 
         Simulation.Statics.Add(new(new Vector3(0, -0.5f, 0), Simulation.Shapes.Add(new Box(2500, 1, 2500))));
     }
 
     public void Update(float delta) {
         BeforeUpdate?.Invoke();
-        Simulation.Timestep(delta, ThreadDispatcher);
+        Simulation.Timestep(delta, _threadDispatcher);
         AfterUpdate?.Invoke();
     }
 
     protected override void DisposeImpl() {
-        ThreadDispatcher.Dispose();
+        _threadDispatcher.Dispose();
         Simulation.Dispose();
         BufferPool.Clear();
     }
