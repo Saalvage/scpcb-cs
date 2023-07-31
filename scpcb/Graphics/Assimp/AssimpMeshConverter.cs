@@ -1,18 +1,23 @@
 ﻿using System.Numerics;
 using Assimp;
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using scpcb.Physics;
 using Veldrid;
+using Mesh = Assimp.Mesh;
 
 namespace scpcb.Graphics.Assimp;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
 public interface IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
-    ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat);
-    ICBMesh<TVertex>[] LoadMeshes(GraphicsDevice gfx, string file);
-    Model CreateModel(GraphicsDevice gfx, string file);
+    ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 middle);
+    ConvexHull ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset);
+    (ICBMesh<TVertex>[], ConvexHull) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file);
+    PhysicsModel CreateModel(GraphicsDevice gfx, PhysicsResources physics, string file);
 }
 
 public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
-    public ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat) {
+    public ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 middle) {
         // TODO: Upper limit to stackalloc size
         Span<Vector3> textureCoords = stackalloc Vector3[mesh.TextureCoordinateChannelCount];
         Span<Vector4> vertexColors = stackalloc Vector4[mesh.VertexColorChannelCount];
@@ -28,7 +33,7 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
             }
 
             var sv = new AssimpVertex {
-                Position = mesh.Vertices[i].ToCS() / 10,
+                Position = mesh.Vertices[i].ToCS() / 10 - middle, // TODO: Better way to handle this :(
                 TexCoords = textureCoords,
                 VertexColors = vertexColors,
                 Normal = mesh.HasNormals ? mesh.Normals[i].ToCS() : Vector3.Zero,
@@ -41,15 +46,27 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
         return new CBMesh<TVertex>(gfx, mat, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32));
     }
 
-    public ICBMesh<TVertex>[] LoadMeshes(GraphicsDevice gfx, string file) {
-        using var assimp = new AssimpContext();
-        var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality);
-        var mats = scene.Materials.Select(ConvertMaterial).ToArray();
-        return scene.Meshes.Select(x => ConvertMesh(gfx, x, mats[x.MaterialIndex])).ToArray();
+    public ConvexHull ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset) {
+        ConvexHullHelper.CreateShape(meshes
+            .SelectMany(x => x.Vertices)
+            .Select(x => x.ToCS() / 10)
+            .ToArray(), physics.BufferPool, out offset, out var hull);
+        return hull;
     }
 
-    public Model CreateModel(GraphicsDevice gfx, string file) 
-        => new(LoadMeshes(gfx, file));
+    public (ICBMesh<TVertex>[], ConvexHull) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+        using var assimp = new AssimpContext();
+        var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality);
+        var hull = ConvertToConvexHull(physics, scene.Meshes, out var middle);
+        var mats = scene.Materials.Select(ConvertMaterial).ToArray();
+        return (scene.Meshes.Select(x => ConvertMesh(gfx, x, mats[x.MaterialIndex], middle)).ToArray(), hull);
+    }
+
+    public PhysicsModel CreateModel(GraphicsDevice gfx, PhysicsResources physics, string file) {
+        var (meshes, hull) = LoadMeshes(gfx, physics, file);
+        var hullId = physics.Simulation.Shapes.Add(hull);
+        return new(physics.Simulation.Bodies.GetBodyReference(physics.Simulation.Bodies.Add(BodyDescription.CreateDynamic(RigidPose.Identity, hull.ComputeInertia(1), hullId, 0.01f))), meshes);
+    }
 
     protected abstract TVertex ConvertVertex(AssimpVertex vert);
     protected abstract ICBMaterial<TVertex> ConvertMaterial(Material mat);

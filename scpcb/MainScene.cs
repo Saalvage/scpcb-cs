@@ -53,7 +53,8 @@ public class MainScene : Disposable , IScene {
             },
             new uint[] { 0, 1, 2, 3, 2, 1 });
 
-        var scp173 = new TestAssimpMeshConverter(logoMat).LoadMeshes(gfx, "Assets/173_2.b3d");
+        var (scp173, hull) = new TestAssimpMeshConverter(logoMat).LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
+        var hullIndex = Physics.Simulation.Shapes.Add(hull);
 
         var window = gfxRes.Window;
 
@@ -82,9 +83,9 @@ public class MainScene : Disposable , IScene {
 
         window.KeyDown += x => {
             if (x.Key == Key.Space) {
-                var refff = sim.Bodies.Add(BodyDescription.CreateDynamic(
-                        _controller.Camera.Position, new(100 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
-                    PhysicsResources.BoxInertia, Physics.BoxIndex, 0.01f));
+                var refff = sim.Bodies.Add(BodyDescription.CreateConvexDynamic(
+                        _controller.Camera.Position, new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
+                    1, sim.Shapes, hull));
                 var reff = sim.Bodies.GetBodyReference(refff);
                 Physics.Bodies.Add(reff);
                 _physicsModels.Add(new(reff, scp173));
