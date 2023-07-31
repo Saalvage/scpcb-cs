@@ -97,13 +97,11 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
         }
 
         _shaders = inputIsSpirV
-            ? gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "main"),
-                new ShaderDescription(ShaderStages.Fragment, fragmentCode, "main"))
+            ? gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "VS"),
+                new ShaderDescription(ShaderStages.Fragment, fragmentCode, "FS"))
             : _shaders = new[] {
-                gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode,
-                    gfx.BackendType == GraphicsBackend.Vulkan ? "main" : "VS", true)), // TODO: Why is this now??
-                gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode,
-                    gfx.BackendType == GraphicsBackend.Vulkan ? "main" : "FS", true)),
+                gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode, "VS", true)),
+                gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode, "FS", true))
             };
 
         // TODO: Spir-V bridge doesn't seem to work?

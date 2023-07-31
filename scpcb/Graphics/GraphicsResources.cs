@@ -13,26 +13,27 @@ public class GraphicsResources : Disposable {
     public Sdl2Window Window { get; }
 
     public GraphicsResources(int width, int height) {
-        VeldridStartup.CreateWindowAndGraphicsDevice(new() {
+        Window = VeldridStartup.CreateWindow(new() {
             WindowWidth = width,
             WindowHeight = height,
             X = 100,
             Y = 100,
             WindowTitle = "SCP-087-B",
-        }, new() {
+        });
+
+        Window.CursorVisible = false;
+
+        GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new() {
             Debug = true,
             SwapchainDepthFormat = PixelFormat.R16_UNorm,
-        }, out var window, out var gfx);
-        window.CursorVisible = false;
+        }, GraphicsBackend.Direct3D11);
 
-        Window = window;
-        GraphicsDevice = gfx;
         ShaderCache = new(this);
-        TextureCache = new(gfx);
+        TextureCache = new(GraphicsDevice);
 
-        gfx.GetOpenGLInfo(out var info);
-        _preferredShaderFileExtension = gfx.BackendType switch {
-            GraphicsBackend.Direct3D11 => new [] { "hlsl.bytes", "hlsl" },
+        GraphicsDevice.GetOpenGLInfo(out var info);
+        _preferredShaderFileExtension = GraphicsDevice.BackendType switch {
+            GraphicsBackend.Direct3D11 => new [] { "hlsl.dxbc", "hlsl" },
             GraphicsBackend.OpenGL => new[] { "330.glsl" }, //TODO: Reinvestigate?
                 //GetOpenGLShaderVersion() >= 450
                 //? "450.glsl" + (/*info.Extensions.Contains("GL_ARB_gl_spirv") ? ".spv" :*/ "")
@@ -40,7 +41,6 @@ public class GraphicsResources : Disposable {
             GraphicsBackend.OpenGLES => new[] { "300.glsles" },
             GraphicsBackend.Vulkan => new [] { "450.glsl.spv" },
             GraphicsBackend.Metal => new [] { "metallib" },
-            _ => throw new NotImplementedException(),
         };
 
         int GetOpenGLShaderVersion()
@@ -50,7 +50,7 @@ public class GraphicsResources : Disposable {
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.
     // Can we support other GLSL versions?
-    private static readonly string[] _fallbackShaderFileExtension = { "450.glsl.spv", "330.glsl" };
+    private static readonly string[] _fallbackShaderFileExtension = { "450.glsl.spv", "450.glsl" };
 
     /// <summary>
     /// Gets the best supported extension for the given shader.
