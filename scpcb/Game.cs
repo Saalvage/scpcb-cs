@@ -65,8 +65,10 @@ public class Game : Disposable {
                     fps = 0;
                 }
             }
-            _scene.Tick();
-            tickAccu -= TICK_GOAL;
+            while (tickAccu >= TICK_GOAL) {
+                _scene.Tick();
+                tickAccu -= TICK_GOAL;
+            }
         }
     }
 
