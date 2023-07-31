@@ -6,10 +6,13 @@ using scpcb.Graphics.Shaders;
 namespace scpcb.Physics;
 
 public class PhysicsModel : InterpolatedModel {
+    private readonly PhysicsResources _physics;
     private readonly BodyReference _body;
 
-    public PhysicsModel(BodyReference body, params ICBMesh[] meshes) : base(meshes) {
+    public PhysicsModel(PhysicsResources physics, BodyReference body, params ICBMesh[] meshes) : base(meshes) {
+        _physics = physics;
         _body = body;
+        physics.AfterUpdate += UpdateTransform;
     }
 
     public override Transform WorldTransform {
@@ -20,5 +23,9 @@ public class PhysicsModel : InterpolatedModel {
             }
             _body.Pose = new(value.Position, value.Rotation);
         }
+    }
+
+    ~PhysicsModel() {
+        _physics.AfterUpdate -= UpdateTransform; // TODO: Implement IDisposable?
     }
 }

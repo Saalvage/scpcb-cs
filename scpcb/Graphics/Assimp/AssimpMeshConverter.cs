@@ -65,7 +65,7 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
     public PhysicsModel CreateModel(GraphicsDevice gfx, PhysicsResources physics, string file) {
         var (meshes, hull) = LoadMeshes(gfx, physics, file);
         var hullId = physics.Simulation.Shapes.Add(hull);
-        return new(physics.Simulation.Bodies.GetBodyReference(physics.Simulation.Bodies.Add(BodyDescription.CreateDynamic(RigidPose.Identity, hull.ComputeInertia(1), hullId, 0.01f))), meshes);
+        return new(physics, physics.Simulation.Bodies.GetBodyReference(physics.Simulation.Bodies.Add(BodyDescription.CreateDynamic(RigidPose.Identity, hull.ComputeInertia(1), hullId, 0.01f))), meshes);
     }
 
     protected abstract TVertex ConvertVertex(AssimpVertex vert);

@@ -8,13 +8,25 @@ public class InterpolatedModel : Model {
         // TODO: The values used for interpolation start out wrongly.
     }
 
+    /// <summary>
+    /// Intended for non-smooth transformations as to not affect interpolation.
+    /// </summary>
+    /// <param name="trans"></param>
+    public void Teleport(Transform trans) {
+        WorldTransform = trans;
+        _previousWorldTransform = trans;
+        _currentWorldTransform = trans;
+    }
+
+    /// <summary>
+    /// To be called after the transform has been updated.
+    /// </summary>
+    protected void UpdateTransform() {
+        _previousWorldTransform = _currentWorldTransform;
+        _currentWorldTransform = WorldTransform;
+    }
+
     protected override Transform GetUsedTransform(double interpolation) {
-        // Alternatively, this COULD be done in the Tick method, but that would require
-        // the transform origin to tick before this, lest it lags behind by one frame.
-        if (WorldTransform != _currentWorldTransform) {
-            _previousWorldTransform = _currentWorldTransform;
-            _currentWorldTransform = WorldTransform;
-        }
-        return Transform.Lerp(_previousWorldTransform, WorldTransform, (float)interpolation);
+        return Transform.Lerp(_previousWorldTransform, _currentWorldTransform, (float)interpolation);
     }
 }

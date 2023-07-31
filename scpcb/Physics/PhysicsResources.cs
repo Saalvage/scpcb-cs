@@ -17,6 +17,9 @@ public class PhysicsResources : Disposable {
     public List<BodyReference> Bodies { get; } = new();
     // TODO ^^^ Remove ^^^
 
+    public event Action BeforeUpdate;
+    public event Action AfterUpdate;
+
     public PhysicsResources() {
         Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), new(4, 2));
 
@@ -27,7 +30,9 @@ public class PhysicsResources : Disposable {
     }
 
     public void Update(float delta) {
+        BeforeUpdate?.Invoke();
         Simulation.Timestep(delta, ThreadDispatcher);
+        AfterUpdate?.Invoke();
     }
 
     protected override void DisposeImpl() {
