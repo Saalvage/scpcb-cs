@@ -5,7 +5,7 @@ using scpcb.Graphics.Shaders;
 
 namespace scpcb.Physics;
 
-public class PhysicsModel : InterpolatedModel {
+public sealed class PhysicsModel : InterpolatedModel {
     private readonly PhysicsResources _physics;
     private readonly BodyReference _body;
 
@@ -13,10 +13,11 @@ public class PhysicsModel : InterpolatedModel {
         _physics = physics;
         _body = body;
         physics.AfterUpdate += UpdateTransform;
+        Teleport(WorldTransform);
     }
 
     public override Transform WorldTransform {
-        get => new(_body.Pose.Position, _body.Pose.Orientation);
+        get => _body.Pose.ToTransform();
         set {
             if (value.Scale != Vector3.One) {
                 throw new ArgumentException("Scale must be 1", nameof(value));

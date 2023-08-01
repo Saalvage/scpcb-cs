@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Assimp;
+using BepuPhysics;
 
 namespace scpcb; 
 
@@ -19,4 +20,6 @@ public static class Extensions {
     public static Vector2 XY(this Vector3 vec) => new(vec.X, vec.Y);
     public static Vector2 XY(this Vector4 vec) => new(vec.X, vec.Y);
     public static Vector3 XYZ(this Vector4 vec) => new(vec.X, vec.Y, vec.Z);
+
+    public static Transform ToTransform(this RigidPose pose) => new(pose.Position, pose.Orientation);
 }

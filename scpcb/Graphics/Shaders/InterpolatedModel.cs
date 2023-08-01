@@ -1,21 +1,21 @@
-﻿namespace scpcb.Graphics.Shaders; 
+﻿using System.Numerics;
+
+namespace scpcb.Graphics.Shaders; 
 
 public class InterpolatedModel : Model {
     private Transform _previousWorldTransform;
     private Transform _currentWorldTransform;
 
-    public InterpolatedModel(params ICBMesh[] meshes) : base(meshes) {
-        // TODO: The values used for interpolation start out wrongly.
-    }
+    public InterpolatedModel(params ICBMesh[] meshes) : base(meshes) { }
 
     /// <summary>
     /// Intended for non-smooth transformations as to not affect interpolation.
     /// </summary>
-    /// <param name="trans"></param>
-    public void Teleport(Transform trans) {
-        WorldTransform = trans;
-        _previousWorldTransform = trans;
-        _currentWorldTransform = trans;
+    /// <param name="transform"></param>
+    public void Teleport(Transform transform) {
+        WorldTransform = transform;
+        _previousWorldTransform = transform;
+        _currentWorldTransform = transform;
     }
 
     /// <summary>
