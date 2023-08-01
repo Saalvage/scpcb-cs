@@ -97,14 +97,15 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
         }
 
         _shaders = inputIsSpirV
-            ? gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "VS"),
-                new ShaderDescription(ShaderStages.Fragment, fragmentCode, "FS"))
+            // TODO: Veldrid.SPIRV seems to translate away all entrypoint names, so why does it even ask for them??
+            ? gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "main"),
+                new ShaderDescription(ShaderStages.Fragment, fragmentCode, "main"))
             : _shaders = new[] {
                 gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode, "VS", true)),
                 gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode, "FS", true))
             };
 
-        // TODO: Spir-V bridge doesn't seem to work?
+        // TODO: Spir-V bridge does not work for HLSL. (Grab its output and manually try to fix it up to find the issue.)
         _pipeline = gfx.ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleAlphaBlend,
             DepthStencilState = new(true, true, ComparisonKind.LessEqual),

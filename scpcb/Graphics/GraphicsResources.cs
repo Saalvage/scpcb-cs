@@ -28,7 +28,7 @@ public class GraphicsResources : Disposable {
             SwapchainDepthFormat = PixelFormat.R16_UNorm,
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
-        }, GraphicsBackend.OpenGL);
+        }, GraphicsBackend.Direct3D11);
 
         if (GraphicsDevice.IsClipSpaceYInverted) {
             throw new("Graphics device does not support a correctly oriented clip space, this is currently unsupported!");
