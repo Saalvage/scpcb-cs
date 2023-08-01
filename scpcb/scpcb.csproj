@@ -9,6 +9,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!-- We need to manually construct this because $(OutputPath) is not available to us here (I think) -->
     <ShaderOutputPath>bin/$(Configuration)/$(TargetFramework)/Assets/Shaders/</ShaderOutputPath>
+    <GlslNoYFlip>true</GlslNoYFlip>
+    <GlslNoDepthRemap>true</GlslNoDepthRemap>
+    <UseFolders>true</UseFolders>
   </PropertyGroup>
 
   <ItemGroup>

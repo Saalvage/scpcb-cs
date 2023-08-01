@@ -26,7 +26,17 @@ public class GraphicsResources : Disposable {
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new() {
             Debug = true,
             SwapchainDepthFormat = PixelFormat.R16_UNorm,
-        }, GraphicsBackend.Direct3D11);
+            PreferStandardClipSpaceYDirection = true,
+            PreferDepthRangeZeroToOne = true,
+        }, GraphicsBackend.OpenGL);
+
+        if (GraphicsDevice.IsClipSpaceYInverted) {
+            throw new("Graphics device does not support a correctly oriented clip space, this is currently unsupported!");
+        }
+
+        if (!GraphicsDevice.IsDepthRangeZeroToOne) {
+            // TODO: Warning? Is that enough, as long as it's consistent we should probably be good??
+        }
 
         ShaderCache = new(this);
         TextureCache = new(GraphicsDevice);
@@ -64,8 +74,8 @@ public class GraphicsResources : Disposable {
             .Select(x => (Extension: x, RequiresSpirVBridge: false))
             .Concat(_fallbackShaderFileExtension.Select(x => (Extension: x, RequiresSpirVBridge: true)))
             .FirstOrDefault(x
-                => File.Exists($"{shaderName}-vertex.{x.Extension}")
-                && File.Exists($"{shaderName}-fragment.{x.Extension}"));
+                => File.Exists($"{shaderName}/vertex.{x.Extension}")
+                && File.Exists($"{shaderName}/fragment.{x.Extension}"));
 
         if (t == default) {
             throw new($"Shader {shaderName} not found with suitable extension!");
