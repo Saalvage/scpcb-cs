@@ -9,7 +9,7 @@ using scpcb.Physics;
 namespace scpcb.RoomProviders;
 
 public partial class RMeshRoomProvider : IRoomProvider {
-    public string[] SupportedExtensions { get; } = { "rmesh" };
+    public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
     public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, string filename) {
         using var fileHandle = File.OpenRead(filename);
