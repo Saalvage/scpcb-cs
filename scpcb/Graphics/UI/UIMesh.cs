@@ -12,7 +12,7 @@ public class UIMesh : Disposable {
 
     public UIMesh(GraphicsDevice gfx, UIShader shader, ICBTexture texture) {
         _shader = shader;
-        _mesh = new(gfx, shader.CreateMaterial(texture),
+        _mesh = new(gfx, shader.CreateMaterial(texture.AsEnumerableElement()),
             new UIShader.Vertex[] {
                 new(new(-0.5f * texture.Width, 0.5f * texture.Height), new(0, 0)),
                 new(new(0.5f * texture.Width, 0.5f * texture.Height), new(1, 0)),

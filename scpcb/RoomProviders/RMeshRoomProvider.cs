@@ -1,13 +1,14 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
+using System.Text.RegularExpressions;
 using BepuPhysics.Collidables;
-using BepuPhysics.Trees;
 using scpcb.Graphics;
 using scpcb.Graphics.Shaders;
 using scpcb.Physics;
 
 namespace scpcb.RoomProviders;
 
-public class RMeshRoomProvider : IRoomProvider {
+public partial class RMeshRoomProvider : IRoomProvider {
     public string[] SupportedExtensions { get; } = { "rmesh" };
 
     public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, string filename) {
@@ -36,61 +37,85 @@ public class RMeshRoomProvider : IRoomProvider {
         var meshes = new ICBMesh[meshCount];
         // TODO: Estimate number of tris per mesh better
         physRes.BufferPool.TakeAtLeast<Triangle>(meshCount * 100, out var triBuffer);
-        var totalTriCount = 0;
-        for (var i = 0; i < meshCount; i++) {
-            ICBMaterial<RMeshShader.Vertex> mat = null;
+        try {
+            var totalTriCount = 0;
+            for (var i = 0; i < meshCount; i++) {
+                var textures = new ICBTexture[2];
 
-            for (var j = 0; j < 2; j++) {
-                var lightmapFlags = reader.ReadByte();
-                if (lightmapFlags == 0) { continue; }
-                var lightmapFile = reader.ReadB3DString();
-                if (lightmapFile == "") { continue; } // Is this really correct? .rmesh sucks balls!
-                var hasAlpha = lightmapFlags >= 3; // whether the file should be loaded with alpha channel
-                // LOAD TEXTURE lightmap file
-                // if lightmapFlags == 1 => Multiply 2 blend mode
-                // if texture contains (_lm) => Additive blend mode
-                var fileLocation = "Assets/Textures/" + lightmapFile;
-                if (j == 1) {
+                var isOpaque = true;
+                for (var j = 0; j < 2; j++) {
+                    var textureFlags = reader.ReadByte();
+                    if (textureFlags == 0) { continue; }
+                    var textureFile = reader.ReadB3DString();
+                    if (textureFile == "") { continue; }
+                    var hasAlpha = textureFlags >= 3; // whether the file should be loaded with alpha channel, we ignore this
+
+                    var isLightmap = LmRegex().IsMatch(textureFile);
+                    var fileLocation = isLightmap
+                        ? Path.Combine(Path.GetDirectoryName(filename), textureFile)
+                        : "Assets/Textures/" + textureFile;
                     if (!File.Exists(fileLocation)) {
-                        Console.WriteLine($"Texture {lightmapFile} not found!");
-                        fileLocation = "Assets/Textures/Missing.png";
+                        Console.WriteLine($"Texture {fileLocation} not found!");
+                        continue;
                     }
-                    Console.WriteLine(fileLocation + "  " + lightmapFlags);
-                    mat = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>().CreateMaterial(gfxRes.TextureCache.GetTexture(fileLocation));
+                    textures[isLightmap ? 0 : 1] = gfxRes.TextureCache.GetTexture(fileLocation);
+                    // We cannot use the texture itself for this since it
+                    // correlates with level geometry as well.
+                    if (!isLightmap && textureFlags == 3) {
+                        isOpaque = false;
+                    }
                 }
+
+                textures[0] ??= gfxRes.TextureCache.GetTexture(Color.White);
+                textures[1] ??= gfxRes.MissingTexture;
+
+                var mat = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>().CreateMaterial(textures);
+
+                var vertexCount = reader.ReadInt32();
+                var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);
+                for (var j = 0; j < vertices.Length; j++) {
+                    var pos = reader.ReadVector3();
+                    pos.X = -pos.X;
+                    var uv1 = reader.ReadVector2();
+
+                    var uv2 = reader.ReadVector2();
+
+                    var r = reader.ReadByte() / 255f;
+                    var g = reader.ReadByte() / 255f;
+                    var b = reader.ReadByte() / 255f;
+                    vertices[j] = new(pos / 100, uv1, uv2, new(r, g, b));
+                }
+
+                var triangleCount = reader.ReadInt32() * (isOpaque ? 1 : 2);
+                var stride = isOpaque ? 3 : 6;
+                physRes.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triangleCount, totalTriCount);
+                var indices = GetBufferedSpan(triangleCount * 3, indexStackBuffer, ref indexHeapBuffer);
+                for (var j = 0; j < indices.Length; j += stride) {
+                    var i1 = indices[j + 2] = reader.ReadUInt32();
+                    var i2 = indices[j + 1] = reader.ReadUInt32();
+                    var i3 = indices[j + 0] = reader.ReadUInt32();
+                    if (!isOpaque) {
+                        var i4 = indices[j + 3] = i1;
+                        var i5 = indices[j + 4] = i2;
+                        var i6 = indices[j + 5] = i3;
+                        triBuffer[totalTriCount] = new(vertices[(int)i6].Position, vertices[(int)i5].Position, vertices[(int)i4].Position);
+                        totalTriCount++;
+                    }
+                    triBuffer[totalTriCount] = new(vertices[(int)i1].Position, vertices[(int)i2].Position, vertices[(int)i3].Position);
+                    totalTriCount++;
+                }
+
+                meshes[i] = new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, mat, vertices, indices);
             }
 
-            var vertexCount = reader.ReadInt32();
-            var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);
-            for (var j = 0; j < vertices.Length; j++) {
-                var pos = reader.ReadVector3();
-                pos.X = -pos.X;
-                var uv1 = reader.ReadVector2();
-
-                var uv2 = reader.ReadVector2();
-
-                var r = reader.ReadByte() / 255f;
-                var g = reader.ReadByte() / 255f;
-                var b = reader.ReadByte() / 255f;
-                vertices[j] = new(pos / 100, uv1, new(r, g, b));
-            }
-
-            var triangleCount = reader.ReadInt32();
-            physRes.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triangleCount, totalTriCount);
-            var indices = GetBufferedSpan(triangleCount * 3, indexStackBuffer, ref indexHeapBuffer);
-            for (var j = 0; j < indices.Length; j += 3) {
-                var i1 = indices[j + 2] = reader.ReadUInt32();
-                var i2 = indices[j + 1] = reader.ReadUInt32();
-                var i3 = indices[j + 0] = reader.ReadUInt32();
-                triBuffer[totalTriCount] = new(vertices[(int)i1].Position, vertices[(int)i2].Position, vertices[(int)i3].Position);
-                totalTriCount++;
-            }
-
-            meshes[i] = new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, mat, vertices, indices);
+            return new(meshes, Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physRes.BufferPool));
+        } finally {
+            physRes.BufferPool.Return(ref triBuffer);
         }
-
-        return new(meshes, Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physRes.BufferPool));
     }
+
+    [GeneratedRegex(@"_lm\d+\.\w+$", RegexOptions.IgnoreCase)]
+    private static partial Regex LmRegex();
 
     private Span<T> GetBufferedSpan<T>(int count, Span<T> stackBuffer, ref T[] heapBuffer)
         => count <= stackBuffer.Length ? stackBuffer[..count]

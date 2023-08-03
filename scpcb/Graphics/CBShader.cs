@@ -7,7 +7,7 @@ using Veldrid.SPIRV;
 namespace scpcb.Graphics;
 
 public interface ICBShader {
-    ICBMaterial CreateMaterial(ICBTexture[] textures);
+    ICBMaterial CreateMaterial(IEnumerable<ICBTexture> textures);
     void Apply(CommandList commands);
 
     bool HasConstant<T>() where T : IConstantMember<T>;
@@ -15,8 +15,8 @@ public interface ICBShader {
 }
 
 public interface ICBShader<TVertex> : ICBShader {
-    ICBMaterial ICBShader.CreateMaterial(ICBTexture[] textures) => CreateMaterial(textures);
-    new ICBMaterial<TVertex> CreateMaterial(ICBTexture[] textures);
+    ICBMaterial ICBShader.CreateMaterial(IEnumerable<ICBTexture> textures) => CreateMaterial(textures);
+    new ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures);
 }
 
 public record struct Empty;
@@ -166,12 +166,8 @@ public class CBShader<TVertex, TVertConstants, TFragConstants> : Disposable, ICB
         }
     }
 
-    public ICBMaterial<TVertex> CreateMaterial(params ICBTexture[] textures) {
-        if (textures.Length != _textureCount) {
-            throw new ArgumentException("Incorrect number of textures");
-        }
-        return new CBMaterial<TVertex>(_gfx, this, _textureLayout, textures);
-    }
+    public ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures)
+        => new CBMaterial<TVertex>(_gfx, this, _textureLayout, textures);
 
     public bool HasConstant<T>() where T : IConstantMember<T>
         => _vertexConstantsBoxed is T || _fragmentConstantsBoxed is T;

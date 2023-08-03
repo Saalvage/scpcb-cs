@@ -10,6 +10,8 @@ public class GraphicsResources : Disposable {
     public ShaderCache ShaderCache { get; }
     public TextureCache TextureCache { get; }
 
+    public ICBTexture MissingTexture { get; }
+
     public Sdl2Window Window { get; }
 
     public GraphicsResources(int width, int height) {
@@ -55,6 +57,8 @@ public class GraphicsResources : Disposable {
 
         int GetOpenGLShaderVersion()
             => int.Parse(info.ShadingLanguageVersion[..info.ShadingLanguageVersion.IndexOf(' ')].Replace(".", ""));
+
+        MissingTexture = TextureCache.GetTexture("Assets/Textures/missing.png");
     }
 
     private readonly string[] _preferredShaderFileExtension;

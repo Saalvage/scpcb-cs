@@ -43,7 +43,7 @@ public class MainScene : Disposable , IScene {
         _modelShader = gfxRes.ShaderCache.GetShader<ModelShaderGenerated>();
 
         _rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>();
-        var logoMat = _modelShader.CreateMaterial(coolTexture);
+        var logoMat = _modelShader.CreateMaterial(coolTexture.AsEnumerableElement());
         var testMesh = new CBMesh<ModelShader.Vertex>(gfx, logoMat,
             new ModelShader.Vertex[] {
                 new(new(-1f, 1f, 0), new(1, 0)),
@@ -68,7 +68,7 @@ public class MainScene : Disposable , IScene {
 
         var r = new RMeshRoomProvider();
         Mesh aaaShape;
-        (_aaa, aaaShape) = r.LoadRoom(gfxRes, Physics, "Assets/008_opt.rmesh");
+        (_aaa, aaaShape) = r.LoadRoom(gfxRes, Physics, "Assets/Rooms/008/008_opt.rmesh");
 
         _modelA = new(testMesh);
         _modelB = new(testMesh);
@@ -84,7 +84,7 @@ public class MainScene : Disposable , IScene {
         window.KeyDown += x => {
             if (x.Key == Key.Space) {
                 var refff = sim.Bodies.Add(BodyDescription.CreateConvexDynamic(
-                        _controller.Camera.Position, new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
+                        new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
                     1, sim.Shapes, hull));
                 var reff = sim.Bodies.GetBodyReference(refff);
                 _physicsModels.Add(new(Physics, reff, scp173));
