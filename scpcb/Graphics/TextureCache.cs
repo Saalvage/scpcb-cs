@@ -6,8 +6,8 @@ namespace scpcb.Graphics;
 public class TextureCache : Disposable {
     // TODO: Turn all of these into weak references?
     // Make sure to NOT allow for losing a reference to a texture!
-    private readonly Dictionary<string, ICBTexture> _textures = new();
-    private readonly Dictionary<Color, ICBTexture> _colorTextures = new();
+    private readonly Dictionary<string, WeakReference<ICBTexture>> _textures = new();
+    private readonly Dictionary<Color, WeakReference<ICBTexture>> _colorTextures = new();
 
     private readonly GraphicsDevice _gfx;
 
@@ -16,29 +16,29 @@ public class TextureCache : Disposable {
     }
 
     public ICBTexture GetTexture(string filename) {
-        if (_textures.TryGetValue(filename, out var texture)) {
+        if (_textures.TryGetValue(filename, out var textureWeak) && textureWeak.TryGetTarget(out var texture)) {
             return texture;
         }
 
         var newTexture = new CBTexture(_gfx, filename);
-        _textures.Add(filename, newTexture);
+        _textures[filename] = new(newTexture);
         return newTexture;
     }
 
     public ICBTexture GetTexture(Color color) {
-        if (_colorTextures.TryGetValue(color, out var texture)) {
+        if (_colorTextures.TryGetValue(color, out var textureWeak) && textureWeak.TryGetTarget(out var texture)) {
             return texture;
         }
 
         var newTexture = new CBTexture(_gfx, color);
-        _colorTextures.Add(color, newTexture);
+        _colorTextures[color] = new(newTexture);
         return newTexture;
     }
 
     protected override void DisposeImpl() {
         foreach (var tex in _textures.Values.Concat(_colorTextures.Values)) {
-            if (tex is IDisposable disposable) {
-                disposable.Dispose();
+            if (tex.TryGetTarget(out var texture)) {
+                texture.Dispose();
             }
         }
     }

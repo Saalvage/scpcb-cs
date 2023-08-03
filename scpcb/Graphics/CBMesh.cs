@@ -2,7 +2,7 @@
 
 namespace scpcb.Graphics;
 
-public interface ICBMesh {
+public interface ICBMesh : IDisposable {
     public ICBMaterial Material { get; }
 
     public void Render(CommandList commands);

@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace scpcb.Graphics;
 
-public interface ICBTexture {
+public interface ICBTexture : IDisposable {
     TextureView View { get; }
     uint Width { get; }
     uint Height { get; }

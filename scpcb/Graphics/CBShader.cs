@@ -6,7 +6,7 @@ using Veldrid.SPIRV;
 
 namespace scpcb.Graphics;
 
-public interface ICBShader {
+public interface ICBShader : IDisposable {
     ICBMaterial CreateMaterial(IEnumerable<ICBTexture> textures);
     void Apply(CommandList commands);
 
