@@ -18,6 +18,11 @@ public class Game : Disposable {
     }
 
     public Game(int width, int height) {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .CreateLogger();
+
         GraphicsResources = new(width, height);
 
         _scene = new MainScene(GraphicsResources);
@@ -27,12 +32,7 @@ public class Game : Disposable {
     private const int TICK_GOAL = (int)(TimeSpan.TicksPerSecond / TICK_RATE);
 
     public void Run() {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.Console()
-            .CreateLogger();
-
-        Log.Logger.Information("Hello, world!");
+        Log.Information("Hello, world!");
 
         var countingTo = DateTimeOffset.UtcNow;
         var fps = 0;
@@ -59,7 +59,7 @@ public class Game : Disposable {
                 fps++;
                 if (now > countingTo) {
                     countingTo = countingTo.AddSeconds(1);
-                    Log.Logger.Information("{Fps} FPS; {TicksToBeDone} TTBD", fps, tickAccu / TICK_GOAL);
+                    Log.Information("{Fps} FPS; {TicksToBeDone} TTBD", fps, tickAccu / TICK_GOAL);
                     fps = 0;
                 }
             }

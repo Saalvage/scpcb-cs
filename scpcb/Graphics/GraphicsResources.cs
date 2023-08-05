@@ -3,6 +3,7 @@ using scpcb.Graphics.Utility;
 using scpcb.Physics;
 using scpcb.RoomProviders;
 using scpcb.Utility;
+using Serilog;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -46,7 +47,8 @@ public class GraphicsResources : Disposable {
         }
 
         if (!GraphicsDevice.IsDepthRangeZeroToOne) {
-            // TODO: Warning? Is that enough, as long as it's consistent we should probably be good??
+            Log.Warning("Desired depth range is not supported by the graphics device." +
+                               " Visual glitches may occur.");
         }
 
         ShaderCache = new(this);

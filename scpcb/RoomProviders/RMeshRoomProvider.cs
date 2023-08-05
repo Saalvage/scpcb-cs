@@ -60,7 +60,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         ? Path.Combine(Path.GetDirectoryName(filename), textureFile)
                         : "Assets/Textures/" + textureFile;
                     if (!File.Exists(fileLocation)) {
-                        Log.Logger.Warning("Texture {FileLocation} not found!", fileLocation);
+                        Log.Warning("Texture {FileLocation} not found!", fileLocation);
                         continue;
                     }
                     textures[isLightmap ? 0 : 1] = gfxRes.TextureCache.GetTexture(fileLocation);
