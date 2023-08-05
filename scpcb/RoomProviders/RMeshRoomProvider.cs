@@ -7,6 +7,7 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Physics;
 using scpcb.Utility;
+using Serilog;
 
 namespace scpcb.RoomProviders;
 
@@ -59,7 +60,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         ? Path.Combine(Path.GetDirectoryName(filename), textureFile)
                         : "Assets/Textures/" + textureFile;
                     if (!File.Exists(fileLocation)) {
-                        Console.WriteLine($"Texture {fileLocation} not found!");
+                        Log.Logger.Warning("Texture {FileLocation} not found!", fileLocation);
                         continue;
                     }
                     textures[isLightmap ? 0 : 1] = gfxRes.TextureCache.GetTexture(fileLocation);

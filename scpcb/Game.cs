@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using scpcb.Graphics;
 using scpcb.Utility;
+using Serilog;
+using Serilog.Core;
 
 namespace scpcb;
 
@@ -26,7 +28,13 @@ public class Game : Disposable {
     private const int TICK_GOAL = (int)(TimeSpan.TicksPerSecond / TICK_RATE);
 
     public void Run() {
-        var gfx = GraphicsResources.GraphicsDevice;
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .CreateLogger();
+
+        Log.Logger.Information("Hello, world!");
+
         var countingTo = DateTimeOffset.UtcNow;
         var fps = 0;
         var now = DateTimeOffset.UtcNow;
@@ -52,7 +60,7 @@ public class Game : Disposable {
                 fps++;
                 if (now > countingTo) {
                     countingTo = countingTo.AddSeconds(1);
-                    Console.WriteLine($"{fps} {tickAccu / TICK_GOAL}");
+                    Log.Logger.Information("{Fps} FPS; {TicksToBeDone} TTBD", fps, tickAccu / TICK_GOAL);
                     fps = 0;
                 }
             }
