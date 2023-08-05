@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
 using BepuPhysics;
-using scpcb.Graphics;
+using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
+using scpcb.Physics;
 
-namespace scpcb.Physics;
+namespace scpcb.Graphics.ModelCollections;
 
 public sealed class PhysicsModelCollection : InterpolatedModelCollection {
     private readonly PhysicsResources _physics;

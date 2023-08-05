@@ -1,6 +1,7 @@
-﻿using Veldrid;
+﻿using scpcb.Utility;
+using Veldrid;
 
-namespace scpcb.Graphics;
+namespace scpcb.Graphics.Primitives;
 
 public interface ICBMesh : IDisposable {
     public void ApplyGeometry(CommandList commands);

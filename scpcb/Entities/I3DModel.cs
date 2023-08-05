@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
-using scpcb.Graphics;
+using scpcb.Graphics.Primitives;
 
-namespace scpcb.Entities; 
+namespace scpcb.Entities;
 
 public interface I3DModel {
     Vector3 Position { get; }

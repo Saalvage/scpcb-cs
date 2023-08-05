@@ -3,8 +3,10 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using BepuPhysics.Collidables;
 using scpcb.Graphics;
+using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Physics;
+using scpcb.Utility;
 
 namespace scpcb.RoomProviders;
 

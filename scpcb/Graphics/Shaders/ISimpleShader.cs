@@ -1,4 +1,7 @@
-﻿namespace scpcb.Graphics.Shaders;
+﻿using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Utility;
+
+namespace scpcb.Graphics.Shaders;
 
 /// <summary>
 /// A shader class that can simply be instantiated only using a <see cref="GraphicsResources"/> instance.

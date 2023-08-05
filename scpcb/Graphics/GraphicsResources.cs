@@ -1,8 +1,11 @@
-﻿using Veldrid;
+﻿using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Utility;
+using scpcb.Utility;
+using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics;
 
 public class GraphicsResources : Disposable {
     public GraphicsDevice GraphicsDevice { get; }

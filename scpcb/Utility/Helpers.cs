@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using ShaderGen;
 using Veldrid;
 
-namespace scpcb; 
+namespace scpcb.Utility; 
 
 public static class Helpers {
     public readonly record struct TypeInfo(VertexElementFormat Format, string Name);

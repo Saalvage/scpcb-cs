@@ -1,8 +1,10 @@
 ﻿using System.Numerics;
 using scpcb.Entities;
+using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Graphics.Utility;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics.ModelCollections;
 
 /// <summary>
 /// Intended as the manager for the instance constants of a collection of models.

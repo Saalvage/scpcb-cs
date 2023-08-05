@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
+using scpcb.Graphics.Primitives;
+using scpcb.Utility;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics.Utility;
 
 public class TextureCache : Disposable {
     // TODO: Turn all of these into weak references?

@@ -1,5 +1,7 @@
 ﻿using Assimp;
+using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
+using scpcb.Utility;
 
 namespace scpcb.Graphics.Assimp;
 

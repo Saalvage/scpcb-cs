@@ -6,7 +6,10 @@ using scpcb.Physics;
 using scpcb.RoomProviders;
 using System.Numerics;
 using scpcb.Entities;
+using scpcb.Graphics.Primitives;
 using Veldrid;
+using scpcb.Graphics.ModelCollections;
+using scpcb.Utility;
 
 namespace scpcb;
 

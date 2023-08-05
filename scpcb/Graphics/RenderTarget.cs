@@ -1,6 +1,8 @@
-﻿using Veldrid;
+﻿using scpcb.Graphics.Primitives;
+using scpcb.Utility;
+using Veldrid;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics;
 
 public class RenderTarget : Disposable {
     private readonly GraphicsDevice _gfx;

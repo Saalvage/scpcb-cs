@@ -1,4 +1,6 @@
-﻿namespace scpcb.Graphics; 
+﻿using scpcb.Graphics.Utility;
+
+namespace scpcb.Graphics.Primitives;
 
 public interface ICBModel {
     IConstantHolder? Constants { get; }

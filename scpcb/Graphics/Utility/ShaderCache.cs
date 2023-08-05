@@ -1,6 +1,8 @@
-﻿using scpcb.Graphics.Shaders;
+﻿using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Shaders;
+using scpcb.Utility;
 
-namespace scpcb.Graphics;
+namespace scpcb.Graphics.Utility;
 
 public class ShaderCache : Disposable {
     private readonly Dictionary<Type, WeakReference<ICBShader>> _shaders = new();

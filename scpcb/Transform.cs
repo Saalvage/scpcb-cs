@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using BepuPhysics;
 
 namespace scpcb;
 
@@ -20,4 +21,8 @@ public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Sc
             Vector3.Lerp(a.Scale, b.Scale, amount)
         );
     }
+}
+
+public static class TransformExtensions {
+    public static Transform ToTransform(this RigidPose pose) => new(pose.Position, pose.Orientation);
 }

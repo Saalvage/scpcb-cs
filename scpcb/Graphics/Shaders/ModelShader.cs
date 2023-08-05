@@ -2,6 +2,7 @@
 using System.Numerics;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using static ShaderGen.ShaderBuiltins;
+using scpcb.Graphics.Primitives;
 
 namespace scpcb.Graphics.Shaders;
 

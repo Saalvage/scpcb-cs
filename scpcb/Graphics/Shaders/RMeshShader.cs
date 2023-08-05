@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using ShaderGen;
 using static ShaderGen.ShaderBuiltins;

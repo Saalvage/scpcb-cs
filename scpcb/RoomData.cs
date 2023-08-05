@@ -1,5 +1,5 @@
 ﻿using BepuPhysics.Collidables;
-using scpcb.Graphics;
+using scpcb.Graphics.Primitives;
 
 namespace scpcb;
 

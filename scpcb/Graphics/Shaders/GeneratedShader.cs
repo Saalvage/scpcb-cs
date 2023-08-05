@@ -1,4 +1,5 @@
-﻿using ShaderGen;
+﻿using scpcb.Graphics.Primitives;
+using ShaderGen;
 
 namespace scpcb.Graphics.Shaders;
 

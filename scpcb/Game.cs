@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
 using scpcb.Graphics;
+using scpcb.Utility;
 
-namespace scpcb; 
+namespace scpcb;
 
 public class Game : Disposable {
     public GraphicsResources GraphicsResources { get; }
