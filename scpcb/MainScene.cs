@@ -67,8 +67,7 @@ public class MainScene : Disposable , IScene {
         window.KeyDown += x => _keysDown[x.Key] = true;
         window.KeyUp += x => _keysDown[x.Key] = false;
 
-        var r = new RMeshRoomProvider();
-        var (_aaa, aaaShape) = r.LoadRoom(gfxRes, Physics, "Assets/Rooms/008/008_opt.rmesh");
+        var (_aaa, aaaShape) = gfxRes.LoadRoom(Physics, "Assets/Rooms/008/008_opt.rmesh");
         _modelA = new(_aaa);
         _renderables.AddRange(_modelA.Models);
         

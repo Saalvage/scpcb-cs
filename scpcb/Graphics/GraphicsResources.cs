@@ -1,5 +1,7 @@
 ﻿using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Utility;
+using scpcb.Physics;
+using scpcb.RoomProviders;
 using scpcb.Utility;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -18,6 +20,8 @@ public class GraphicsResources : Disposable {
     public Sdl2Window Window { get; }
 
     public RenderTarget MainTarget { get; }
+
+    private readonly RoomProviderCollector _roomProviderCollector = new();
 
     public GraphicsResources(int width, int height) {
         Window = VeldridStartup.CreateWindow(new() {
@@ -67,6 +71,9 @@ public class GraphicsResources : Disposable {
 
         MissingTexture = TextureCache.GetTexture("Assets/Textures/missing.png");
     }
+
+    public RoomData LoadRoom(PhysicsResources physics, string name)
+        => _roomProviderCollector.LoadRoom(this, physics, name);
 
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.
