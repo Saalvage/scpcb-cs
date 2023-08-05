@@ -36,7 +36,7 @@ public class GraphicsResources : Disposable {
 
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new() {
             Debug = true,
-            SwapchainDepthFormat = PixelFormat.R16_UNorm,
+            SwapchainDepthFormat = PixelFormat.D24_UNorm_S8_UInt,
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
         }, GraphicsBackend.Direct3D11);
