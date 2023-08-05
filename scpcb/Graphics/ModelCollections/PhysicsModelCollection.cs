@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using BepuPhysics;
 using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders;
 using scpcb.Physics;
 
 namespace scpcb.Graphics.ModelCollections;

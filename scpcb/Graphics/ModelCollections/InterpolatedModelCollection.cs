@@ -1,7 +1,6 @@
-﻿using scpcb.Graphics.ModelCollections;
-using scpcb.Graphics.Primitives;
+﻿using scpcb.Graphics.Primitives;
 
-namespace scpcb.Graphics.Shaders;
+namespace scpcb.Graphics.ModelCollections;
 
 public class InterpolatedModelCollection : ModelCollection {
     private Transform _previousWorldTransform;
