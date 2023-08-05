@@ -32,15 +32,17 @@ public partial class RMeshRoomProvider : IRoomProvider {
             default:
                 throw new ArgumentException($"{filename} is not a valid .rmesh file!");
         }
-        
+
+        var shader = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>();
+        var constants = shader.TryCreateInstanceConstants(); // Shared constants for all meshes.
         var meshCount = reader.ReadInt32();
-        var meshes = new ICBMesh[meshCount];
+        var meshes = new ICBModel[meshCount];
         // TODO: Estimate number of tris per mesh better
         physRes.BufferPool.TakeAtLeast<Triangle>(meshCount * 100, out var triBuffer);
         try {
             var totalTriCount = 0;
             for (var i = 0; i < meshCount; i++) {
-                var textures = new ICBTexture[2];
+                var textures = new ICBTexture?[2];
 
                 var isOpaque = true;
                 for (var j = 0; j < 2; j++) {
@@ -69,7 +71,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 textures[0] ??= gfxRes.TextureCache.GetTexture(Color.White);
                 textures[1] ??= gfxRes.MissingTexture;
 
-                var mat = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>().CreateMaterial(textures);
+                var mat = shader.CreateMaterial(textures!);
 
                 var vertexCount = reader.ReadInt32();
                 var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);
@@ -105,7 +107,9 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     totalTriCount++;
                 }
 
-                meshes[i] = new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, mat, vertices, indices);
+                // TODO: Transparency does not work entirely correctly if we bunch it all up in a single mesh.
+                meshes[i] = new CBModel<RMeshShader.Vertex>(constants, mat,
+                    new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, vertices, indices), isOpaque);
             }
 
             return new(meshes, Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physRes.BufferPool));

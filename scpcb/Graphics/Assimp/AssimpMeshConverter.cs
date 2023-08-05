@@ -10,14 +10,14 @@ namespace scpcb.Graphics.Assimp;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
 public interface IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
-    ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 middle);
+    ICBModel<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 middle);
     ConvexHull ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset);
-    (ICBMesh<TVertex>[], ConvexHull) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file);
-    PhysicsModel CreateModel(GraphicsDevice gfx, PhysicsResources physics, string file);
+    (ICBModel<TVertex>[], ConvexHull) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file);
+    PhysicsModelCollection CreateModel(GraphicsDevice gfx, PhysicsResources physics, string file);
 }
 
 public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVertex> where TVertex : unmanaged {
-    public ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 middle) {
+    public ICBModel<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 middle) {
         // TODO: Upper limit to stackalloc size
         Span<Vector3> textureCoords = stackalloc Vector3[mesh.TextureCoordinateChannelCount];
         Span<Vector4> vertexColors = stackalloc Vector4[mesh.VertexColorChannelCount];
@@ -43,7 +43,8 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
             verts[i] = ConvertVertex(sv);
         }
 
-        return new CBMesh<TVertex>(gfx, mat, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32));
+        // TODO: Share constants?
+        return new CBModel<TVertex>(mat.Shader.TryCreateInstanceConstants(), mat, new CBMesh<TVertex>(gfx, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32)));
     }
 
     public ConvexHull ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset) {
@@ -54,7 +55,7 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
         return hull;
     }
 
-    public (ICBMesh<TVertex>[], ConvexHull) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+    public (ICBModel<TVertex>[], ConvexHull) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
         using var assimp = new AssimpContext();
         var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality);
         var hull = ConvertToConvexHull(physics, scene.Meshes, out var middle);
@@ -62,7 +63,7 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
         return (scene.Meshes.Select(x => ConvertMesh(gfx, x, mats[x.MaterialIndex], middle)).ToArray(), hull);
     }
 
-    public PhysicsModel CreateModel(GraphicsDevice gfx, PhysicsResources physics, string file) {
+    public PhysicsModelCollection CreateModel(GraphicsDevice gfx, PhysicsResources physics, string file) {
         var (meshes, hull) = LoadMeshes(gfx, physics, file);
         var hullId = physics.Simulation.Shapes.Add(hull);
         return new(physics, physics.Simulation.Bodies.GetBodyReference(physics.Simulation.Bodies.Add(BodyDescription.CreateDynamic(RigidPose.Identity, hull.ComputeInertia(1), hullId, 0.01f))), meshes);

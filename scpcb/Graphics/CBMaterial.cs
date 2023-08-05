@@ -6,12 +6,11 @@ public interface ICBMaterial {
     ICBShader Shader { get; }
     IReadOnlyList<ICBTexture> Textures { get; }
 
-    void Apply(CommandList commands);
+    void ApplyTextures(CommandList commands);
 }
 
 public interface ICBMaterial<TVertex> : ICBMaterial {
-    ICBShader<TVertex> Shader { get; }
-
+    new ICBShader<TVertex> Shader { get; }
     ICBShader ICBMaterial.Shader => Shader;
 }
 
@@ -34,10 +33,9 @@ public class CBMaterial<TVertex> : Disposable, ICBMaterial<TVertex> {
         }
     }
 
-    public void Apply(CommandList commands) {
-        Shader.Apply(commands);
+    public void ApplyTextures(CommandList commands) {
         if (_set != null) {
-            commands.SetGraphicsResourceSet(1, _set);
+            commands.SetGraphicsResourceSet((uint)Shader.GetTextureSlot(), _set);
         }
     }
 

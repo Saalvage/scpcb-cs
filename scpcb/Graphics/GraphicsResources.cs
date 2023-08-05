@@ -14,12 +14,14 @@ public class GraphicsResources : Disposable {
 
     public Sdl2Window Window { get; }
 
+    public RenderTarget MainTarget { get; }
+
     public GraphicsResources(int width, int height) {
         Window = VeldridStartup.CreateWindow(new() {
             WindowWidth = width,
             WindowHeight = height,
-            X = 100,
-            Y = 100,
+            X = 300,
+            Y = 300,
             WindowTitle = "SCP-087-B",
         });
 
@@ -41,7 +43,9 @@ public class GraphicsResources : Disposable {
         }
 
         ShaderCache = new(this);
-        TextureCache = new(GraphicsDevice);
+        TextureCache = new(this);
+
+        MainTarget = new(GraphicsDevice);
 
         GraphicsDevice.GetOpenGLInfo(out var info);
         _preferredShaderFileExtension = GraphicsDevice.BackendType switch {
@@ -91,6 +95,8 @@ public class GraphicsResources : Disposable {
 
     protected override void DisposeImpl() {
         ShaderCache.Dispose();
+        TextureCache.Dispose();
+        MainTarget.Dispose();
         GraphicsDevice.Dispose();
     }
 }

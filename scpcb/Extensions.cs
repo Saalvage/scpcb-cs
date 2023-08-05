@@ -5,7 +5,7 @@ using BepuPhysics;
 namespace scpcb; 
 
 public static class Extensions {
-    public static IEnumerable<T> FromSingleOrEmpty<T>(T? item) {
+    public static IEnumerable<T> AsEnumerableOrEmpty<T>(this T? item) {
         if (item != null) {
             yield return item;
         }

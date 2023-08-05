@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using Veldrid;
 
 namespace scpcb.Graphics; 
 
@@ -9,10 +8,10 @@ public class TextureCache : Disposable {
     private readonly Dictionary<string, WeakReference<ICBTexture>> _textures = new();
     private readonly Dictionary<Color, WeakReference<ICBTexture>> _colorTextures = new();
 
-    private readonly GraphicsDevice _gfx;
+    private readonly GraphicsResources _gfxRes;
 
-    public TextureCache(GraphicsDevice gfx) {
-        _gfx = gfx;
+    public TextureCache(GraphicsResources gfxRes) {
+        _gfxRes = gfxRes;
     }
 
     public ICBTexture GetTexture(string filename) {
@@ -20,7 +19,7 @@ public class TextureCache : Disposable {
             return texture;
         }
 
-        var newTexture = new CBTexture(_gfx, filename);
+        var newTexture = new CBTexture(_gfxRes, filename);
         _textures[filename] = new(newTexture);
         return newTexture;
     }
@@ -30,7 +29,7 @@ public class TextureCache : Disposable {
             return texture;
         }
 
-        var newTexture = new CBTexture(_gfx, color);
+        var newTexture = new CBTexture(_gfxRes, color);
         _colorTextures[color] = new(newTexture);
         return newTexture;
     }

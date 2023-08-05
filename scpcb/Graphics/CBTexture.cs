@@ -8,6 +8,8 @@ public interface ICBTexture : IDisposable {
     TextureView View { get; }
     uint Width { get; }
     uint Height { get; }
+
+    void GenerateMipmaps(CommandList commands);
 }
 
 public class CBTexture : Disposable, ICBTexture {
@@ -16,9 +18,10 @@ public class CBTexture : Disposable, ICBTexture {
     public uint Width { get; }
     public uint Height { get; }
 
-    public CBTexture(GraphicsDevice gfx, Color color) {
+    public CBTexture(GraphicsResources gfxRes, Color color) {
         Width = 1;
         Height = 1;
+        var gfx = gfxRes.GraphicsDevice;
         _texture = gfx.ResourceFactory.CreateTexture(new(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled, TextureType.Texture2D));
         Span<byte> bytes = stackalloc byte[4];
         bytes[0] = color.R;
@@ -29,15 +32,23 @@ public class CBTexture : Disposable, ICBTexture {
         View = gfx.ResourceFactory.CreateTextureView(_texture);
     }
 
-    public CBTexture(GraphicsDevice gfx, string file) {
+    public CBTexture(GraphicsResources gfxRes, string file) {
         using var stream = File.OpenRead(file);
         var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
         Width = (uint)image.Width;
         Height = (uint)image.Height;
         // TODO: OPT Use unmanaged byte array?
-        _texture = gfx.ResourceFactory.CreateTexture(new(Width, Height, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled, TextureType.Texture2D));
+        var gfx = gfxRes.GraphicsDevice;
+        _texture = gfx.ResourceFactory.CreateTexture(new(Width, Height, 1, 4, 1, PixelFormat.R8_G8_B8_A8_UNorm,
+            TextureUsage.Sampled | TextureUsage.GenerateMipmaps, TextureType.Texture2D));
         gfx.UpdateTexture(_texture, image.Data, 0, 0, 0, Width, Height, 1, 0, 0);
         View = gfx.ResourceFactory.CreateTextureView(_texture);
+
+        gfxRes.MainTarget.RegisterForMipmapGeneration(this);
+    }
+
+    public void GenerateMipmaps(CommandList commands) {
+        commands.GenerateMipmaps(_texture);
     }
 
     protected override void DisposeImpl() {

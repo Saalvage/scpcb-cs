@@ -3,4 +3,4 @@ using scpcb.Graphics;
 
 namespace scpcb;
 
-public record RoomData(ICBMesh[] Meshes, Mesh CollisionMesh);
+public record RoomData(ICBModel[] Meshes, Mesh CollisionMesh);

@@ -1,12 +1,10 @@
-﻿using System.Numerics;
+﻿namespace scpcb.Graphics.Shaders; 
 
-namespace scpcb.Graphics.Shaders; 
-
-public class InterpolatedModel : Model {
+public class InterpolatedModelCollection : ModelCollection {
     private Transform _previousWorldTransform;
     private Transform _currentWorldTransform;
 
-    public InterpolatedModel(params ICBMesh[] meshes) : base(meshes) { }
+    public InterpolatedModelCollection(params ICBModel[] models) : base(models) { }
 
     /// <summary>
     /// Intended for non-smooth transformations as to not affect interpolation.

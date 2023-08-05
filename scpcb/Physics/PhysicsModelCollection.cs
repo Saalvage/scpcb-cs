@@ -5,11 +5,11 @@ using scpcb.Graphics.Shaders;
 
 namespace scpcb.Physics;
 
-public sealed class PhysicsModel : InterpolatedModel {
+public sealed class PhysicsModelCollection : InterpolatedModelCollection {
     private readonly PhysicsResources _physics;
     private readonly BodyReference _body;
 
-    public PhysicsModel(PhysicsResources physics, BodyReference body, params ICBMesh[] meshes) : base(meshes) {
+    public PhysicsModelCollection(PhysicsResources physics, BodyReference body, params ICBModel[] models) : base(models) {
         _physics = physics;
         _body = body;
         physics.AfterUpdate += UpdateTransform;
@@ -26,7 +26,7 @@ public sealed class PhysicsModel : InterpolatedModel {
         }
     }
 
-    ~PhysicsModel() {
+    ~PhysicsModelCollection() {
         _physics.AfterUpdate -= UpdateTransform; // TODO: Implement IDisposable?
     }
 }
