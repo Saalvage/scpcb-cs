@@ -3,7 +3,6 @@ using scpcb.Graphics;
 using scpcb.Graphics.Assimp;
 using scpcb.Graphics.Shaders;
 using scpcb.Physics;
-using scpcb.RoomProviders;
 using System.Numerics;
 using scpcb.Entities;
 using scpcb.Graphics.Primitives;
@@ -30,7 +29,7 @@ public class MainScene : Disposable , IScene {
     private readonly ModelCollection _modelA;
     private readonly ModelCollection _modelB;
 
-    private List<I3DModel> _renderables = new();
+    private readonly List<I3DModel> _renderables = new();
 
     public MainScene(GraphicsResources gfxRes) {
         _gfxRes = gfxRes;

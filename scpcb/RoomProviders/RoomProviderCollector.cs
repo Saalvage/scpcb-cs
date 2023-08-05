@@ -12,7 +12,7 @@ public class RoomProviderCollector {
                 .Where(x => x.GetInterfaces().Any(x => x == typeof(IRoomProvider)))
                 .Select(x => x.GetConstructor(Array.Empty<Type>()))
                 .Where(x => x is not null))
-            .Select(x => (IRoomProvider)x.Invoke(null))
+            .Select(x => (IRoomProvider)x!.Invoke(null))
             .ToList();
     }
 
