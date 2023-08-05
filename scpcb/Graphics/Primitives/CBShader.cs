@@ -43,7 +43,15 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
     public CBShader(GraphicsDevice gfx, byte[] vertexCode, byte[] fragmentCode, string? vertConstantNames, string? fragConstantNames,
             string? instanceVertConstNames, string? instanceFragConstantNames, IReadOnlyList<string> textureNames, IReadOnlyList<string> samplerNames, bool inputIsSpirV = false) {
         _gfx = gfx;
-        var textureCount = textureNames.Count;
+
+        _shaders = inputIsSpirV
+            // TODO: Veldrid.SPIRV seems to translate away all entrypoint names, so why does it even ask for them??
+            ? gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "main"),
+                new ShaderDescription(ShaderStages.Fragment, fragmentCode, "main"))
+            : _shaders = new[] {
+                gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode, "main", true)),
+                gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode, "main", true))
+            };
 
         _constLayout =
             ConstantHolder<TVertConstants, TFragConstants>.TryCreateLayout(gfx, vertConstantNames, fragConstantNames);
@@ -54,22 +62,13 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
             ConstantHolder<TInstanceVertConstants, TInstanceFragConstants>.TryCreateLayout(gfx, instanceVertConstNames,
                 instanceFragConstantNames);
 
-        if (textureCount > 0) {
+        if (textureNames.Count > 0) {
             _textureLayout = gfx.ResourceFactory.CreateResourceLayout(new(textureNames
                 .Select(x => new ResourceLayoutElementDescription(x, ResourceKind.TextureReadOnly, ShaderStages.Fragment))
                 .Concat(samplerNames
                     .Select(x => new ResourceLayoutElementDescription(x, ResourceKind.Sampler, ShaderStages.Fragment)))
                 .ToArray()));
         }
-
-        _shaders = inputIsSpirV
-            // TODO: Veldrid.SPIRV seems to translate away all entrypoint names, so why does it even ask for them??
-            ? gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "main"),
-                new ShaderDescription(ShaderStages.Fragment, fragmentCode, "main"))
-            : _shaders = new[] {
-                gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode, "VS", true)),
-                gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode, "FS", true))
-            };
 
         // TODO: Spir-V bridge does not work for HLSL. (Grab its output and manually try to fix it up to find the issue.)
         _pipeline = gfx.ResourceFactory.CreateGraphicsPipeline(new() {

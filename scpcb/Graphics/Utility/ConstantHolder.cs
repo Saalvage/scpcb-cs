@@ -116,6 +116,7 @@ public class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConst
             if (force) {
                 commands.UpdateBuffer(buffer, 0, ref curr);
                 prev = curr;
+                return;
             }
 
             fixed (T* currPtr = &curr) {
@@ -135,11 +136,6 @@ public class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConst
                         if (currBytes[differentUntil] == prevBytes[differentUntil]) {
                             break;
                         }
-                    }
-
-                    if (force) {
-                        offset = 0;
-                        differentUntil = sizeof(T) - 1;
                     }
 
                     if (offset != sizeof(T)) {
