@@ -5,7 +5,7 @@ namespace scpcb.Utility;
 
 public static class BinaryReaderExtensions {
     [ThreadStatic]
-    private static WeakReference<StringBuilder> _sb;
+    private static WeakReference<StringBuilder>? _sb;
 
     /// <summary>
     /// ASCII String prefixed by a 32-bit integer length.
@@ -30,7 +30,7 @@ public static class BinaryReaderExtensions {
         Span<char> chars = stackalloc char[bufferSize];
 
         var currPos = 0;
-        StringBuilder sb = null!;
+        StringBuilder? sb = null;
         do {
             var readLength = ((stringLength - currPos) > bufferSize) ? bufferSize : (stringLength - currPos);
 
@@ -44,17 +44,17 @@ public static class BinaryReaderExtensions {
             if (currPos == 0) {
                 if (n == stringLength) {
                     return new(chars[..n]);
-                } else {
-                    // Since we could be reading from an untrusted data source, limit the initial size of the
-                    // StringBuilder instance we're about to get or create. It'll expand automatically as needed.
-                    if (!_sb?.TryGetTarget(out sb) ?? true) {
-                        sb = new(Math.Min(stringLength, 360));
-                        _sb = new(sb);
-                    }
+                }
+
+                // Since we could be reading from an untrusted data source, limit the initial size of the
+                // StringBuilder instance we're about to get or create. It'll expand automatically as needed.
+                if (!_sb?.TryGetTarget(out sb) ?? true) {
+                    sb = new(Math.Min(stringLength, 360));
+                    _sb = new(sb);
                 }
             }
 
-            sb.Append(chars[..n]);
+            sb!.Append(chars[..n]);
             currPos += n;
         } while (currPos < stringLength);
 

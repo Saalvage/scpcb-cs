@@ -41,9 +41,9 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
     private readonly ResourceLayout? _textureLayout;
 
     public CBShader(GraphicsDevice gfx, byte[] vertexCode, byte[] fragmentCode, string? vertConstantNames, string? fragConstantNames,
-            string? instanceVertConstNames, string? instanceFragConstantNames, IReadOnlyList<string>? textureNames, IReadOnlyList<string> samplerNames, bool inputIsSpirV = false) {
+            string? instanceVertConstNames, string? instanceFragConstantNames, IReadOnlyList<string> textureNames, IReadOnlyList<string> samplerNames, bool inputIsSpirV = false) {
         _gfx = gfx;
-        var textureCount = textureNames?.Count;
+        var textureCount = textureNames.Count;
 
         _constLayout =
             ConstantHolder<TVertConstants, TFragConstants>.TryCreateLayout(gfx, vertConstantNames, fragConstantNames);
@@ -77,9 +77,9 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
             DepthStencilState = new(true, true, ComparisonKind.LessEqual),
             RasterizerState = new(FaceCullMode.Back, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
             PrimitiveTopology = PrimitiveTopology.TriangleList,
-            ResourceLayouts = _constLayout.AsEnumerableOrEmpty()
-                .Concat(_instanceConstLayout.AsEnumerableOrEmpty())
-                .Concat(_textureLayout.AsEnumerableOrEmpty())
+            ResourceLayouts = _constLayout.AsEnumerableElementOrEmpty()
+                .Concat(_instanceConstLayout.AsEnumerableElementOrEmpty())
+                .Concat(_textureLayout.AsEnumerableElementOrEmpty())
                 .ToArray(),
             ShaderSet = new(new[] {
                 Helpers.GetDescriptionFromType<TVertex>(),

@@ -23,7 +23,6 @@ public class MainScene : Disposable , IScene {
     private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;
 
     private readonly List<PhysicsModelCollection> _physicsModels;
-    private readonly IReadOnlyList<I3DModel> _aaa; // TODO: Why list?
 
     private readonly RMeshShaderGenerated _rMeshShader;
     private readonly ModelShaderGenerated _modelShader;
@@ -40,11 +39,7 @@ public class MainScene : Disposable , IScene {
 
         _target = gfxRes.MainTarget;
 
-        //using var shader2 = new UIShader(gfx);
-        //shader2.Vertex.Projection = Matrix4x4.CreateOrthographic(WIDTH, HEIGHT, 0.1f, 100f);
-
         var coolTexture = new CBTexture(gfxRes, "Assets/scp.jpg");
-        //using var mesh = new UIMesh(gfx, shader2, coolTexture);
 
         _modelShader = gfxRes.ShaderCache.GetShader<ModelShaderGenerated>();
 

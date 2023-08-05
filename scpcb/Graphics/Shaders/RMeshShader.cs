@@ -3,6 +3,7 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using ShaderGen;
 using static ShaderGen.ShaderBuiltins;
+#pragma warning disable CS8618
 
 namespace scpcb.Graphics.Shaders;
 

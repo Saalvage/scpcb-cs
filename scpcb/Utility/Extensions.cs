@@ -4,7 +4,7 @@ using Assimp;
 namespace scpcb.Utility; 
 
 public static class Extensions {
-    public static IEnumerable<T> AsEnumerableOrEmpty<T>(this T? item) {
+    public static IEnumerable<T> AsEnumerableElementOrEmpty<T>(this T? item) {
         if (item != null) {
             yield return item;
         }
