@@ -46,7 +46,7 @@ public class RenderTarget : Disposable {
         _lastMesh = null;
     }
 
-    public void Render(ICBModel model) {
+    public void Render(ICBModel model, float interp) {
         if (_lastShader != model.Material.Shader) {
             _lastShader = model.Material.Shader;
             _lastShader.Apply(_commands);
@@ -61,6 +61,12 @@ public class RenderTarget : Disposable {
         if (_lastMesh != model.Mesh) {
             _lastMesh = model.Mesh;
             _lastMesh.ApplyGeometry(_commands);
+        }
+
+        // TODO: Revisit this. Is there a better design?
+        // At the very least some more caching can be done.
+        foreach (var cp in model.ConstantProviders) {
+            cp.ApplyTo(_lastShader.Constants!.AsEnumerableElement().Concat(model.Constants.AsEnumerableElementOrEmpty()), interp);
         }
         
         model.Constants?.UpdateAndSetBuffers(_commands, 1);

@@ -30,6 +30,10 @@ public class ShaderCache : Disposable {
         return newShader;
     }
 
+    public IEnumerable<ICBShader> ActiveShaders => _shaders.Values
+        .Select(x => x.TryGetTarget(out var sh) ? sh : null)
+        .Where(x => x != null)!;
+
     protected override void DisposeImpl() {
         foreach (var (_, shaderWeak) in _shaders) {
             if (shaderWeak.TryGetTarget(out var shader)) {

@@ -8,6 +8,8 @@ public interface ICBModel {
     ICBMaterial Material { get; }
     ICBMesh Mesh { get; }
 
+    List<IConstantProvider> ConstantProviders { get; }
+
     bool IsOpaque { get; }
 }
 
@@ -26,4 +28,6 @@ public interface ICBModel<TVertConstants, TFragConstants> : ICBModel
 }
 
 public record CBModel<TVertex>(IConstantHolder? Constants, ICBMaterial<TVertex> Material, ICBMesh<TVertex> Mesh, bool IsOpaque = true)
-        : ICBModel<TVertex> where TVertex : unmanaged;
+        : ICBModel<TVertex> where TVertex : unmanaged {
+    public List<IConstantProvider> ConstantProviders { get; } = new();
+}

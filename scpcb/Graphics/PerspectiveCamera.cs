@@ -1,11 +1,14 @@
 ﻿using System.Numerics;
+using scpcb.Graphics.Shaders.ConstantMembers;
 
 namespace scpcb.Graphics;
 
-public interface ICamera {
+public interface ICamera : IConstantProvider<IViewMatrixConstantMember, Matrix4x4> {
     Vector3 Position { get; set; }
     Quaternion Rotation { get; set; }
     Matrix4x4 ViewMatrix { get; }
+
+    Matrix4x4 IConstantProvider<IViewMatrixConstantMember, Matrix4x4>.GetValue(float interp) => ViewMatrix;
 };
 
 public class PerspectiveCamera : ICamera {

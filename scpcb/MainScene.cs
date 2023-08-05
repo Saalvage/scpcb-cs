@@ -8,6 +8,7 @@ using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using Veldrid;
 using scpcb.Graphics.ModelCollections;
+using scpcb.Graphics.Utility;
 using scpcb.Utility;
 
 namespace scpcb;
@@ -58,6 +59,7 @@ public class MainScene : Disposable , IScene {
 
         var window = gfxRes.Window;
 
+        // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
         _modelShader.Constants.Vertex.ProjectionMatrix = _rMeshShader.Constants.Vertex.ProjectionMatrix
             = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 10000f);
 
@@ -116,32 +118,26 @@ public class MainScene : Disposable , IScene {
     private readonly RenderTarget _target;
 
     public void Render(RenderTarget target, float interp) {
-        _modelShader.Constants.Vertex.ViewMatrix = _rMeshShader.Constants.Vertex.ViewMatrix = _controller.Camera.ViewMatrix;
+        _controller.Camera.ApplyTo(_gfxRes.ShaderCache.ActiveShaders.Select(x => x.Constants), interp);
 
         //mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
         //mesh.UpdateConstants(commandsList);
         //_modelA.UpdateConstants(commandsList, interp);
         //_modelB.UpdateConstants(commandsList, interp);
 
-        foreach (var reff in _physicsModels) {
-            reff.UpdateConstants(_target, interp);
-        }
-
         // TODO: Optimize this (hot path)
         var groupings = _renderables.GroupBy(x => x.Model.IsOpaque).ToArray();
         var opaque = groupings.SingleOrDefault(x => x.Key);
         var transparent = groupings.SingleOrDefault(x => !x.Key);
 
-        _modelA.UpdateConstants(target, interp);
-
         foreach (var renderable in opaque ?? Enumerable.Empty<I3DModel>()) {
-            _target.Render(renderable.Model);
+            _target.Render(renderable.Model, interp);
         }
 
         foreach (var renderable in transparent?
                      .OrderByDescending(x => Vector3.DistanceSquared(_controller.Camera.Position, x.Position))
                                    ?? Enumerable.Empty<I3DModel>()) {
-            _target.Render(renderable.Model);
+            _target.Render(renderable.Model, interp);
         }
     }
 
