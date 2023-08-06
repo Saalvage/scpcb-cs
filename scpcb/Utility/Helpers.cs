@@ -93,6 +93,7 @@ public static class Helpers {
                         currList.Add(remainingIndices[j + 2]);
                         remainingIndices.RemoveRange(j, 3);
                         addedAny = true;
+                        break;
                     }
                 }
             }
@@ -100,18 +101,20 @@ public static class Helpers {
         }
 
         // 3.
+        var meshVertices = new List<TVertex>();
+        var indicesMapper = new Dictionary<uint, uint>();
         var ret = new (TVertex[] Vertices, uint[] Indices, Vector3 Position)[indicesPerMesh.Count];
         for (var i = 0; i < indicesPerMesh.Count; i++) {
             var meshIndices = indicesPerMesh[i];
-            var meshVertices = new List<TVertex>();
-            var indicesMapper = new Dictionary<uint, uint>();
+            meshVertices.Clear();
+            indicesMapper.Clear();
             var vertexSum = Vector3.Zero;
             for (var j = 0; j < meshIndices.Count; j++) {
                 var oldIndex = meshIndices[j];
                 if (!indicesMapper.TryGetValue(oldIndex, out var newIndex)) {
-                    newIndex = (uint) meshVertices.Count;
+                    newIndex = (uint)meshVertices.Count;
                     indicesMapper.Add(oldIndex, newIndex);
-                    meshVertices.Add(vertices[(int) oldIndex]);
+                    meshVertices.Add(vertices[(int)oldIndex]);
                     vertexSum += positionFunc(meshVertices.Last());
                 }
 
