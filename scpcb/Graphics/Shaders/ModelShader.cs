@@ -56,6 +56,9 @@ public class ModelShader {
 // it'd allow for removing quite some boilerplate!
 // Sadly, we can't do template crazyness to get the correct amount of textures in the base class,
 // so we'd need a way to know their name.
+// 
+// Another approach is to parameterize GeneratedShader via reflection, however, due to C#'s weak
+// type inference this would clutter the call sites and prevent direct access to the shader constants.
 public class ModelShaderGenerated : GeneratedShader<ModelShader, ModelShader.Vertex, ModelShader.VertexConstants,
         Empty, ModelShader.InstanceVertexConstants, Empty>, ISimpleShader<ModelShaderGenerated> {
     private ModelShaderGenerated(GraphicsResources gfxRes) : base(gfxRes) { }

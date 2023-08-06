@@ -4,11 +4,9 @@ using scpcb.Graphics.Assimp;
 using scpcb.Graphics.Shaders;
 using scpcb.Physics;
 using System.Numerics;
-using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using Veldrid;
 using scpcb.Graphics.ModelCollections;
-using scpcb.Graphics.Utility;
 using scpcb.Utility;
 
 namespace scpcb;
@@ -27,17 +25,15 @@ public class MainScene : Disposable , IScene {
     private readonly RMeshShaderGenerated _rMeshShader;
     private readonly ModelShaderGenerated _modelShader;
 
-    private readonly ModelCollection _modelA;
+    private readonly RoomInstance _room;
     private readonly ModelCollection _modelB;
 
-    private readonly List<I3DModel> _renderables = new();
+    private readonly ModelSorter _renderables = new();
 
     public MainScene(GraphicsResources gfxRes) {
         _gfxRes = gfxRes;
 
         var gfx = gfxRes.GraphicsDevice;
-
-        _target = gfxRes.MainTarget;
 
         var coolTexture = new CBTexture(gfxRes, "Assets/scp.jpg");
 
@@ -68,17 +64,20 @@ public class MainScene : Disposable , IScene {
         window.KeyDown += x => _keysDown[x.Key] = true;
         window.KeyUp += x => _keysDown[x.Key] = false;
 
-        var (_aaa, aaaShape) = gfxRes.LoadRoom(Physics, "Assets/Rooms/008/008_opt.rmesh");
-        _modelA = new(_aaa);
-        _renderables.AddRange(_modelA.Models);
-        
+        var room008 = gfxRes.LoadRoom(Physics, "Assets/Rooms/008/008_opt.rmesh");
+        var room4Tunnels = gfxRes.LoadRoom(Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
+        foreach (var i in Enumerable.Range(0, 5)) {
+            foreach (var j in Enumerable.Range(0, 10)) {
+                _room = (i == 0 || i == 4 || j == 0 || j == 9 ? room008 : room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),
+                    Quaternion.CreateFromYawPitchRoll(i % 2 == 0 ? MathF.PI : 0 + j % 2 == 0 ? MathF.PI : 0, 0, 0));
+                _renderables.AddRange(_room.Models);
+            }
+        }
+
         _modelB = new(testMesh);
         _modelB.WorldTransform = _modelB.WorldTransform with { Position = new(2, 0, -0.1f), Scale = new(0.5f) };
 
         var sim = Physics.Simulation;
-
-        var tIndex = sim.Shapes.Add(aaaShape);
-        sim.Statics.Add(new(new(), tIndex));
 
         _physicsModels = new();
 
@@ -115,30 +114,10 @@ public class MainScene : Disposable , IScene {
         Physics.Update(1f / Game.TICK_RATE);
     }
 
-    private readonly RenderTarget _target;
-
     public void Render(RenderTarget target, float interp) {
         _controller.Camera.ApplyTo(_gfxRes.ShaderCache.ActiveShaders.Select(x => x.Constants), interp);
 
-        //mesh.Scale.Y = (mesh.Scale.Y + delta * 10) % 5;
-        //mesh.UpdateConstants(commandsList);
-        //_modelA.UpdateConstants(commandsList, interp);
-        //_modelB.UpdateConstants(commandsList, interp);
-
-        // TODO: Optimize this (hot path)
-        var groupings = _renderables.GroupBy(x => x.Model.IsOpaque).ToArray();
-        var opaque = groupings.SingleOrDefault(x => x.Key);
-        var transparent = groupings.SingleOrDefault(x => !x.Key);
-
-        foreach (var renderable in opaque ?? Enumerable.Empty<I3DModel>()) {
-            _target.Render(renderable.Model, interp);
-        }
-
-        foreach (var renderable in transparent?
-                     .OrderByDescending(x => Vector3.DistanceSquared(_controller.Camera.Position, x.Position))
-                                   ?? Enumerable.Empty<I3DModel>()) {
-            _target.Render(renderable.Model, interp);
-        }
+        _renderables.Render(target, _controller.Camera.Position, interp);
     }
 
     protected override void DisposeImpl() {

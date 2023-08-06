@@ -10,6 +10,7 @@ public interface ICBModel {
 
     List<IConstantProvider> ConstantProviders { get; }
 
+    // TODO: Move this to material.
     bool IsOpaque { get; }
 }
 

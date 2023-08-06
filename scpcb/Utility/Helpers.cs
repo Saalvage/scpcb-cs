@@ -53,4 +53,93 @@ public static class Helpers {
 
     public static unsafe DeviceBuffer CreateVertexBuffer<T>(this ResourceFactory factory, uint count) where T : unmanaged
         => factory.CreateBuffer(new(count * (uint)sizeof(T), BufferUsage.VertexBuffer));
+
+    public static (TVertex[] Vertices, uint[] Indices, Vector3 Position)[] SeparateVerticesIntoContinuousMeshes<TVertex>(
+            ReadOnlySpan<TVertex> vertices, ReadOnlySpan<uint> indices, Func<TVertex, Vector3> positionFunc)
+                where TVertex : IEquatable<TVertex> {
+
+        // TODO: This can probably be optimized further.
+        // At the very least by reducing heap allocs by a lot and dealing with the reverse tris explicitly.
+        // But does it really matter?
+
+        // 1. Remove all duplicate vertices (yes, there are duplicate vertices)
+        // 2. Separate mesh into parts that are not connected.
+        // 3. Determine vertices per mesh.
+
+        // 1.
+        var remainingIndices = new List<uint>();
+        remainingIndices.AddRange(indices);
+        ReplaceIndices(remainingIndices, DeduplicateIndices(vertices));
+
+        // 2.
+        var indicesPerMesh = new List<List<uint>>();
+
+        while (remainingIndices.Count != 0) {
+            var currList = new List<uint>();
+            // Begin from the end since erasure there is faster.
+            currList.Add(remainingIndices[^3]);
+            currList.Add(remainingIndices[^2]);
+            currList.Add(remainingIndices[^1]);
+            remainingIndices.RemoveRange(remainingIndices.Count - 3, 3);
+            var addedAny = true;
+            while (addedAny) {
+                addedAny = false;
+                for (var j = 0; j < remainingIndices.Count; j += 3) {
+                    if (currList.Contains(remainingIndices[j])
+                        || currList.Contains(remainingIndices[j + 1])
+                        || currList.Contains(remainingIndices[j + 2])) {
+                        currList.Add(remainingIndices[j + 0]);
+                        currList.Add(remainingIndices[j + 1]);
+                        currList.Add(remainingIndices[j + 2]);
+                        remainingIndices.RemoveRange(j, 3);
+                        addedAny = true;
+                    }
+                }
+            }
+            indicesPerMesh.Add(currList);
+        }
+
+        // 3.
+        var ret = new (TVertex[] Vertices, uint[] Indices, Vector3 Position)[indicesPerMesh.Count];
+        for (var i = 0; i < indicesPerMesh.Count; i++) {
+            var meshIndices = indicesPerMesh[i];
+            var meshVertices = new List<TVertex>();
+            var indicesMapper = new Dictionary<uint, uint>();
+            var vertexSum = Vector3.Zero;
+            for (var j = 0; j < meshIndices.Count; j++) {
+                var oldIndex = meshIndices[j];
+                if (!indicesMapper.TryGetValue(oldIndex, out var newIndex)) {
+                    newIndex = (uint) meshVertices.Count;
+                    indicesMapper.Add(oldIndex, newIndex);
+                    meshVertices.Add(vertices[(int) oldIndex]);
+                    vertexSum += positionFunc(meshVertices.Last());
+                }
+
+                meshIndices[j] = newIndex;
+            }
+
+            ret[i] = (meshVertices.ToArray(), meshIndices.ToArray(), vertexSum / meshVertices.Count);
+        }
+
+        return ret;
+
+        static int[] DeduplicateIndices(ReadOnlySpan<TVertex> vertices) {
+            var meshVertices = Enumerable.Range(0, vertices.Length).ToArray();
+            for (var i = 0; i < vertices.Length; i++) {
+                for (var j = i + 1; j < vertices.Length; j++) {
+                    if (vertices[i].Equals(vertices[j])) {
+                        meshVertices[j] = i;
+                    }
+                }
+            }
+
+            return meshVertices;
+        }
+
+        static void ReplaceIndices(IList<uint> sourceIndices, int[] replaceWithIndices) {
+            for (var i = 0; i < sourceIndices.Count; i++) {
+                sourceIndices[i] = (uint)replaceWithIndices[sourceIndices[i]];
+            }
+        }
+    }
 }

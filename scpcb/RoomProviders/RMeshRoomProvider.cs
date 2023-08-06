@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using BepuPhysics.Collidables;
 using scpcb.Graphics;
@@ -14,7 +15,7 @@ namespace scpcb.RoomProviders;
 public partial class RMeshRoomProvider : IRoomProvider {
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
-    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, string filename) {
+    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, string filename) {
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
 
@@ -37,11 +38,11 @@ public partial class RMeshRoomProvider : IRoomProvider {
         }
 
         var shader = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>();
-        var constants = shader.TryCreateInstanceConstants(); // Shared constants for all meshes.
         var meshCount = reader.ReadInt32();
-        var meshes = new ICBModel[meshCount];
+        var meshes = new List<RoomData.MeshInfo>();
+        meshes.EnsureCapacity(meshCount);
         // TODO: Estimate number of tris per mesh better
-        physRes.BufferPool.TakeAtLeast<Triangle>(meshCount * 100, out var triBuffer);
+        physics.BufferPool.TakeAtLeast<Triangle>(meshCount * 100, out var triBuffer);
         try {
             var totalTriCount = 0;
             for (var i = 0; i < meshCount; i++) {
@@ -93,7 +94,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
 
                 var triangleCount = reader.ReadInt32() * (isOpaque ? 1 : 2);
                 var stride = isOpaque ? 3 : 6;
-                physRes.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triangleCount, totalTriCount);
+                physics.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triangleCount, totalTriCount);
                 var indices = GetBufferedSpan(triangleCount * 3, indexStackBuffer, ref indexHeapBuffer);
                 for (var j = 0; j < indices.Length; j += stride) {
                     var i1 = indices[j + 2] = reader.ReadUInt32();
@@ -110,14 +111,20 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     totalTriCount++;
                 }
 
-                // TODO: Transparency does not work entirely correctly if we bunch it all up in a single mesh.
-                meshes[i] = new CBModel<RMeshShader.Vertex>(constants, mat,
-                    new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, vertices, indices), isOpaque);
+                if (isOpaque) {
+                    // Good enough (I hope), opaque objects won't need it anyways (I hope).
+                    var pos = vertices[(int)indices[0]].Position;
+                    meshes.Add(new(new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, vertices, indices), mat, pos, isOpaque));
+                } else {
+                    meshes.AddRange(Helpers.SeparateVerticesIntoContinuousMeshes<RMeshShader.Vertex>(vertices, indices, x => x.Position)
+                        .Select(x => new RoomData.MeshInfo(new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice,
+                            x.Vertices, x.Indices), mat, x.Position, isOpaque)));
+                }
             }
 
-            return new(meshes, Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physRes.BufferPool));
+            return new(physics, meshes.ToArray(), Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physics.BufferPool));
         } finally {
-            physRes.BufferPool.Return(ref triBuffer);
+            physics.BufferPool.Return(ref triBuffer);
         }
     }
 

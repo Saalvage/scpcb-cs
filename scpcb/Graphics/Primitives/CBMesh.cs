@@ -1,4 +1,5 @@
-﻿using scpcb.Utility;
+﻿using scpcb.Graphics.Utility;
+using scpcb.Utility;
 using Veldrid;
 
 namespace scpcb.Graphics.Primitives;
@@ -6,6 +7,8 @@ namespace scpcb.Graphics.Primitives;
 public interface ICBMesh : IDisposable {
     public void ApplyGeometry(CommandList commands);
     public void Draw(CommandList commands);
+
+    public ICBModel CreateModel(ICBMaterial mat, IConstantHolder constants, bool isOpaque);
 }
 
 public interface ICBMesh<TVertex> : ICBMesh where TVertex : unmanaged { }
@@ -32,6 +35,9 @@ public class CBMesh<TVertex> : Disposable, ICBMesh<TVertex> where TVertex : unma
     public void Draw(CommandList commands) {
         commands.DrawIndexed(_indexCount, 1, 0, 0, 0);
     }
+
+    public ICBModel CreateModel(ICBMaterial mat, IConstantHolder constants, bool isOpaque)
+        => new CBModel<TVertex>(constants, (ICBMaterial<TVertex>)mat, this, isOpaque);
 
     protected override void DisposeImpl() {
         _vertexBuffer.Dispose();

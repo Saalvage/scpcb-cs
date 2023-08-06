@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace scpcb.Graphics.Primitives;
 
-public interface ICBMaterial {
+public interface ICBMaterial : IDisposable {
     ICBShader Shader { get; }
     IReadOnlyList<ICBTexture> Textures { get; }
 
