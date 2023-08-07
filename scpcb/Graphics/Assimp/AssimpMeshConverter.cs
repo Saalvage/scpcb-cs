@@ -29,19 +29,19 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
 
         for (var i = 0; i < mesh.VertexCount; i++) {
             for (var j = 0; j < mesh.TextureCoordinateChannelCount; j++) {
-                textureCoords[j] = mesh.TextureCoordinateChannels[j][i].ToCS();
+                textureCoords[j] = mesh.TextureCoordinateChannels[j][i];
             }
             for (var j = 0; j < mesh.VertexColorChannelCount; j++) {
-                vertexColors[j] = mesh.VertexColorChannels[j][i].ToCS();
+                vertexColors[j] = mesh.VertexColorChannels[j][i];
             }
 
             var sv = new AssimpVertex {
-                Position = mesh.Vertices[i].ToCS() / 10 - middle, // TODO: Better way to handle this :(
+                Position = mesh.Vertices[i] / 10 - middle, // TODO: Better way to handle this :(
                 TexCoords = textureCoords,
                 VertexColors = vertexColors,
-                Normal = mesh.HasNormals ? mesh.Normals[i].ToCS() : Vector3.Zero,
-                Tangent = mesh.HasTangentBasis ? mesh.Tangents[i].ToCS() : Vector3.Zero,
-                Bitangent = mesh.HasTangentBasis ? mesh.BiTangents[i].ToCS() : Vector3.Zero,
+                Normal = mesh.HasNormals ? mesh.Normals[i] : Vector3.Zero,
+                Tangent = mesh.HasTangentBasis ? mesh.Tangents[i] : Vector3.Zero,
+                Bitangent = mesh.HasTangentBasis ? mesh.BiTangents[i] : Vector3.Zero,
             };
             verts[i] = ConvertVertex(sv);
         }
@@ -53,7 +53,7 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
     public ConvexHull ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset) {
         ConvexHullHelper.CreateShape(meshes
             .SelectMany(x => x.Vertices)
-            .Select(x => x.ToCS() / 10)
+            .Select(x => x / 10)
             .ToArray(), physics.BufferPool, out offset, out var hull);
         return hull;
     }

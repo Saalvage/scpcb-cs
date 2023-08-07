@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShaderGen", "ShaderGen", "{1883018D-9AE5-44D8-AB63-DBBDDBC284DA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssimpNet", "submodules\AssimpNet\AssimpNet\AssimpNet.csproj", "{83FDAF04-1A45-4608-A383-ED5656F292AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{38B313E1-4A12-414E-8CF9-A823DF524049}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38B313E1-4A12-414E-8CF9-A823DF524049}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38B313E1-4A12-414E-8CF9-A823DF524049}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83FDAF04-1A45-4608-A383-ED5656F292AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83FDAF04-1A45-4608-A383-ED5656F292AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83FDAF04-1A45-4608-A383-ED5656F292AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83FDAF04-1A45-4608-A383-ED5656F292AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{1B69CC33-86BF-47FC-A166-C4255A5E947E} = {1883018D-9AE5-44D8-AB63-DBBDDBC284DA}
 		{38B313E1-4A12-414E-8CF9-A823DF524049} = {1883018D-9AE5-44D8-AB63-DBBDDBC284DA}
 		{1883018D-9AE5-44D8-AB63-DBBDDBC284DA} = {B68CB44F-F5B7-4FC5-82B7-12CE8691A907}
+		{83FDAF04-1A45-4608-A383-ED5656F292AC} = {B68CB44F-F5B7-4FC5-82B7-12CE8691A907}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {667B5072-1B3E-4E55-9917-7835542735AB}
