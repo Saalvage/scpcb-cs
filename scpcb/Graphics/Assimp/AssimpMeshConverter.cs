@@ -75,3 +75,43 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
     protected abstract TVertex ConvertVertex(AssimpVertex vert);
     protected abstract ICBMaterial<TVertex> ConvertMaterial(Material mat);
 }
+
+/// <summary>
+/// Intended for shaders which you can directly edit.
+/// </summary>
+/// <typeparam name="TShader"></typeparam>
+/// <typeparam name="TVertex"></typeparam>
+/// <typeparam name="TPlugin"></typeparam>
+public sealed class AutomaticAssimpMeshConverter<TShader, TVertex, TPlugin> : AssimpMeshConverter<TVertex>
+        where TShader : IAssimpMaterialConvertible<TVertex, TPlugin>
+        where TVertex : unmanaged, IAssimpVertexConvertible<TVertex> {
+    private readonly TPlugin _plugin;
+
+    public AutomaticAssimpMeshConverter(TPlugin plugin) {
+        _plugin = plugin;
+    }
+
+    protected override TVertex ConvertVertex(AssimpVertex vert) => TVertex.ConvertVertex(vert);
+
+    protected override ICBMaterial<TVertex> ConvertMaterial(Material mat) => TShader.ConvertMaterial(mat, _plugin);
+}
+
+/// <summary>
+/// Intended for shaders which you can not directly edit.
+/// </summary>
+/// <typeparam name="TVertex"></typeparam>
+public sealed class PluginAssimpMeshConverter<TVertex> : AssimpMeshConverter<TVertex> where TVertex : unmanaged {
+    public delegate TVertex VertexConverter(AssimpVertex vert);
+
+    private readonly VertexConverter _vertexConverter;
+    private readonly Func<Material, ICBMaterial<TVertex>> _materialConverter;
+
+    public PluginAssimpMeshConverter(VertexConverter vertexConverter, Func<Material, ICBMaterial<TVertex>> materialConverter) {
+        _vertexConverter = vertexConverter;
+        _materialConverter = materialConverter;
+    }
+
+    protected override TVertex ConvertVertex(AssimpVertex vert) => _vertexConverter(vert);
+
+    protected override ICBMaterial<TVertex> ConvertMaterial(Material mat) => _materialConverter(mat);
+}

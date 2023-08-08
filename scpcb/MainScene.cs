@@ -50,7 +50,8 @@ public class MainScene : Disposable , IScene {
             },
             new uint[] { 0, 1, 2, 3, 2, 1 }));
 
-        var (scp173, hull) = new TestAssimpMeshConverter(logoMat).LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
+        var (scp173, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>(logoMat)
+            .LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
         var hullIndex = Physics.Simulation.Shapes.Add(hull);
 
         var window = gfxRes.Window;
