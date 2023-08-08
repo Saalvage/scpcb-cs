@@ -1,5 +1,7 @@
 ﻿using ShaderGen;
 using System.Numerics;
+using Assimp;
+using scpcb.Graphics.Assimp;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Primitives;
@@ -8,7 +10,7 @@ using scpcb.Graphics.Primitives;
 namespace scpcb.Graphics.Shaders;
 
 [ShaderClass]
-public class ModelShader {
+public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>> {
     public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember {
         public Matrix4x4 ProjectionMatrix { get; set; }
         public Matrix4x4 ViewMatrix { get; set; }
@@ -28,7 +30,10 @@ public class ModelShader {
     [ResourceSet(2)]
     public SamplerResource Sampler;
 
-    public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
+    public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord)
+            : IAssimpVertexConvertible<Vertex> {
+        public static Vertex ConvertVertex(AssimpVertex vert) => new(vert.Position, vert.TexCoords[0].XY());
+    }
 
     public struct FragmentInput {
         [SystemPositionSemantic] public Vector4 Position;
@@ -49,6 +54,8 @@ public class ModelShader {
     public Vector4 FS(FragmentInput input) {
         return Sample(SurfaceTexture, Sampler, input.TextureCoord);
     }
+
+    public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ICBMaterial<Vertex> plugin) => plugin;
 }
 
 // TODO: Look into whether merging these makes sense.
