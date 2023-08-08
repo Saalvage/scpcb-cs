@@ -10,7 +10,7 @@ namespace scpcb.Graphics.Shaders;
 [ShaderClass]
 public class RMeshShader {
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color);
-    public record struct Fragment([SystemPositionSemantic] Vector4 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color);
+    public record struct Fragment([SystemPositionSemantic] Vector4 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color, [TextureCoordinateSemantic] float Depth);
 
     public struct VertUniforms : IViewMatrixConstantMember, IProjectionMatrixConstantMember {
         public Matrix4x4 ViewMatrix { get; set; }
@@ -35,8 +35,10 @@ public class RMeshShader {
     [VertexShader]
     public Fragment VS(Vertex vert) {
         Fragment frag = default;
-        frag.Position = Mul(VConstants.ProjectionMatrix, Mul(VConstants.ViewMatrix,
-            Mul(InstVConstants.WorldMatrix, new(vert.Position, 1))));
+        frag.Position = Mul(VConstants.ViewMatrix,
+            Mul(InstVConstants.WorldMatrix, new(vert.Position, 1)));
+        frag.Depth = frag.Position.Z / frag.Position.W;
+        frag.Position = Mul(VConstants.ProjectionMatrix, frag.Position);
         frag.Uv = vert.Uv;
         frag.LmUv = vert.LmUv;
         frag.Color = vert.Color;
@@ -45,7 +47,9 @@ public class RMeshShader {
 
     [FragmentShader]
     public Vector4 FS(Fragment frag) {
-        return 2 * (Sample(SurfaceTexture, Sampler, frag.Uv) * new Vector4(frag.Color, 1f)) * Sample(LightmapTexture, Sampler, frag.LmUv);
+        var based = 2 * (Sample(SurfaceTexture, Sampler, frag.Uv) * new Vector4(frag.Color, 1f)) * Sample(LightmapTexture, Sampler, frag.LmUv);
+        var depthBetter = (-frag.Depth - 1f)/ (10f - 1f);
+        return new Vector4((1 - depthBetter) * based.XYZ(), based.W);
     }
 }
 
