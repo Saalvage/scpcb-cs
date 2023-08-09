@@ -12,7 +12,7 @@ using scpcb.Utility;
 
 namespace scpcb;
 
-public class MainScene : Disposable , IScene {
+public class MainScene : Disposable, IScene {
     public PhysicsResources Physics { get; } = new();
 
     private readonly GraphicsResources _gfxRes;

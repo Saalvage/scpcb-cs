@@ -18,10 +18,14 @@ public class Game : Disposable {
     }
 
     public Game(int width, int height) {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.Console()
-            .CreateLogger();
+        var config = new LoggerConfiguration()
+            .MinimumLevel.Debug();
+        if (Debugger.IsAttached) {
+            config.WriteTo.Console();
+        } else {
+            config.WriteTo.File("log_latest.txt");
+        }
+        Log.Logger = config.CreateLogger();
 
         GraphicsResources = new(width, height);
 
