@@ -5,7 +5,6 @@ using BepuPhysics.Collidables;
 using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Primitives;
 using scpcb.Physics;
-using scpcb.Utility;
 using Veldrid;
 using Mesh = Assimp.Mesh;
 

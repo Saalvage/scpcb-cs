@@ -5,7 +5,7 @@ using scpcb.Utility;
 namespace scpcb.Graphics.Utility;
 
 public class ShaderCache : Disposable {
-    private readonly Dictionary<Type, WeakReference<ICBShader>> _shaders = new();
+    private readonly WeakDictionary<Type, ICBShader> _shaders = new();
 
     private readonly GraphicsResources _gfxRes;
 
@@ -21,24 +21,20 @@ public class ShaderCache : Disposable {
     public TShader GetShader<TShader>() where TShader : ICBShader, ISimpleShader<TShader> {
         var type = typeof(TShader);
 
-        if (_shaders.TryGetValue(type, out var shaderWeak) && shaderWeak.TryGetTarget(out var shader)) {
+        if (_shaders.TryGetValue(type, out var shader)) {
             return (TShader)shader;
         }
 
         var newShader = TShader.Create(_gfxRes);
-        _shaders[typeof(TShader)] = new(newShader);
+        _shaders.Add(type, newShader);
         return newShader;
     }
 
-    public IEnumerable<ICBShader> ActiveShaders => _shaders.Values
-        .Select(x => x.TryGetTarget(out var sh) ? sh : null)
-        .Where(x => x != null)!;
+    public IEnumerable<ICBShader> ActiveShaders => _shaders.Select(x => x.Value);
 
     protected override void DisposeImpl() {
         foreach (var (_, shaderWeak) in _shaders) {
-            if (shaderWeak.TryGetTarget(out var shader)) {
-                shader.Dispose();
-            }
+            shaderWeak.Dispose();
         }
     }
 }
