@@ -20,17 +20,18 @@ public class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConst
         where TVertConstants : unmanaged where TFragConstants : unmanaged {
     private TVertConstants _lastVert;
     private readonly object _vertexBoxed = default(TVertConstants);
-    public ref TVertConstants Vertex => ref Unsafe.Unbox<TVertConstants>(_vertexBoxed);
+    private ref TVertConstants _vert => ref Unsafe.Unbox<TVertConstants>(_vertexBoxed);
 
     private TFragConstants _lastFrag;
     private readonly object _fragmentBoxed = default(TFragConstants);
-    public ref TFragConstants Fragment => ref Unsafe.Unbox<TFragConstants>(_fragmentBoxed);
+    private ref TFragConstants _frag => ref Unsafe.Unbox<TFragConstants>(_fragmentBoxed);
 
     private readonly DeviceBuffer? _vertexBuffer;
     private readonly DeviceBuffer? _fragmentBuffer;
     private readonly ResourceSet _set;
 
     private bool _hasEverUpdated = false;
+    private bool _isDirty = true; // Initially true, because we've never updated!
 
     public static ResourceLayout? TryCreateLayout(GraphicsDevice gfx, string? vertConstantNames, string? fragConstantNames) {
         var hasVertConsts = typeof(TVertConstants) != typeof(Empty);
@@ -98,10 +99,13 @@ public class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConst
     }
 
     public void UpdateAndSetBuffers(CommandList commands, uint index) {
-        UpdateBuffer(commands, _vertexBuffer, ref Vertex, ref _lastVert, !_hasEverUpdated);
-        UpdateBuffer(commands, _fragmentBuffer, ref Fragment, ref _lastFrag, !_hasEverUpdated);
+        if (_isDirty) {
+            UpdateBuffer(commands, _vertexBuffer, ref _vert, ref _lastVert, !_hasEverUpdated);
+            UpdateBuffer(commands, _fragmentBuffer, ref _frag, ref _lastFrag, !_hasEverUpdated);
 
-        _hasEverUpdated = true;
+            _hasEverUpdated = true;
+            _isDirty = false;
+        }
 
         commands.SetGraphicsResourceSet(index, _set);
 
@@ -154,9 +158,12 @@ public class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConst
     public void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged {
         if (_vertexBoxed is T tVert) {
             tVert.Value = val;
+            // TODO: We could be checking here if Value == val, might make sense for certain access patterns, needs benchmarking.
+            _isDirty = true;
         }
         if (_fragmentBoxed is T tFrag) {
             tFrag.Value = val;
+            _isDirty = true;
         }
     }
 

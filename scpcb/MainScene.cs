@@ -7,6 +7,7 @@ using System.Numerics;
 using scpcb.Graphics.Primitives;
 using Veldrid;
 using scpcb.Graphics.ModelCollections;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Utility;
 
 namespace scpcb;
@@ -57,8 +58,9 @@ public class MainScene : Disposable , IScene {
         var window = gfxRes.Window;
 
         // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
-        _modelShader.Constants.Vertex.ProjectionMatrix = _rMeshShader.Constants.Vertex.ProjectionMatrix
-            = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 10000f);
+        var proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f);
+        _modelShader.Constants.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(proj);
+        _rMeshShader.Constants.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(proj);
 
         Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
 
