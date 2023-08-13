@@ -1,11 +1,12 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using BepuPhysics.Collidables;
 using scpcb.Graphics;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
+using scpcb.Map;
+using scpcb.Map.Entities;
 using scpcb.Physics;
 using scpcb.Utility;
 using Serilog;
@@ -13,6 +14,9 @@ using Serilog;
 namespace scpcb.RoomProviders;
 
 public partial class RMeshRoomProvider : IRoomProvider {
+    private const float ROOM_SCALE_OLD = 8f / 2048f;
+    private const float ROOM_SCALE = 1f / 100f;
+
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
     public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, string filename) {
@@ -89,17 +93,17 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     var r = reader.ReadByte() / 255f;
                     var g = reader.ReadByte() / 255f;
                     var b = reader.ReadByte() / 255f;
-                    vertices[j] = new(pos / 100, uv1, uv2, new(r, g, b));
+                    vertices[j] = new(pos * ROOM_SCALE, uv1, uv2, new(r, g, b));
                 }
 
-                var triangleCount = reader.ReadInt32() * (isOpaque ? 1 : 2);
+                var triCount = reader.ReadInt32() * (isOpaque ? 1 : 2);
                 var stride = isOpaque ? 3 : 6;
-                physics.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triangleCount, totalTriCount);
-                var indices = GetBufferedSpan(triangleCount * 3, indexStackBuffer, ref indexHeapBuffer);
+                physics.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triCount, totalTriCount);
+                var indices = GetBufferedSpan(triCount * 3, indexStackBuffer, ref indexHeapBuffer);
                 for (var j = 0; j < indices.Length; j += stride) {
-                    var i1 = indices[j + 2] = reader.ReadUInt32();
-                    var i2 = indices[j + 1] = reader.ReadUInt32();
-                    var i3 = indices[j + 0] = reader.ReadUInt32();
+                    var i1 = indices[j + 2] = (uint)reader.ReadInt32();
+                    var i2 = indices[j + 1] = (uint)reader.ReadInt32();
+                    var i3 = indices[j + 0] = (uint)reader.ReadInt32();
                     if (!isOpaque) {
                         var i4 = indices[j + 3] = i1;
                         var i5 = indices[j + 4] = i2;
@@ -122,7 +126,175 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 }
             }
 
-            return new(physics, meshes.ToArray(), Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physics.BufferPool));
+            Span<Vector3> hiddenVertexStackBuffer = stackalloc Vector3[512];
+            var hiddenVertexHeapBuffer = Array.Empty<Vector3>();
+
+            var hiddenMeshCount = reader.ReadInt32();
+            for (var i = 0; i < hiddenMeshCount; i++) {
+                var vertexCount = reader.ReadInt32();
+                var vertices = GetBufferedSpan(vertexCount, hiddenVertexStackBuffer, ref hiddenVertexHeapBuffer);
+                for (var j = 0; j < vertexCount; j++) {
+                    vertices[j] = reader.ReadVector3() * ROOM_SCALE;
+                }
+                
+                var triCount = reader.ReadInt32();
+                physics.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triCount * 2, totalTriCount);
+                for (var j = 0; j < triCount; j++) {
+                    var i1 = reader.ReadInt32();
+                    var i2 = reader.ReadInt32();
+                    var i3 = reader.ReadInt32();
+                    triBuffer[totalTriCount] = new(vertices[i1], vertices[i2], vertices[i3]);
+                    totalTriCount++;
+                    triBuffer[totalTriCount] = new(vertices[i1], vertices[i3], vertices[i2]);
+                    totalTriCount++;
+                }
+            }
+
+            if (hasTriggerBox) {
+                var triggerBoxCount = reader.ReadInt32();
+                for (var i = 0; i < triggerBoxCount; i++) {
+                    var vertexCount = reader.ReadInt32();
+                    var vertices = GetBufferedSpan(vertexCount, hiddenVertexStackBuffer, ref hiddenVertexHeapBuffer);
+                    for (var j = 0; j < vertexCount; j++) {
+                        vertices[j] = reader.ReadVector3();
+                    }
+
+                    var triCount = reader.ReadInt32();
+                    for (var j = 0; j < triCount; j++) {
+                        // TODO
+                        reader.ReadInt32();
+                        reader.ReadInt32();
+                        reader.ReadInt32();
+                    }
+
+                    var name = reader.ReadB3DString();
+                }
+            }
+
+            var entityCount = reader.ReadInt32();
+            var entities = new List<IMapEntityData>(entityCount);
+            for (var i = 0; i < entityCount; i++) {
+                var typeName = reader.ReadB3DString();
+                float[] angles;
+                Vector3 position = Vector3.Zero;
+                // The pinnacle of the rmesh spec.
+                if (typeName != "model") {
+                    position = reader.ReadVector3() * ROOM_SCALE;
+                }
+                switch (typeName) {
+                    case "screen":
+                        var imgpath = reader.ReadB3DString();
+                        if (position != Vector3.Zero) {
+                            //dic.Add("position", position);
+                            //dic.Add("imgpath", imgpath);
+                            //entities.Add(new(null, dic));
+                        }
+                        break;
+
+                    case "waypoint":
+                        //dic.Add("position", position);
+                        //entities.Add(new(null, dic));
+                        break;
+
+                    case "light":
+                        if (AddBasicLightInfo()) {
+                            //entities.Add(new(null, dic));
+                        }
+                        break;
+
+                    case "spotlight":
+                        var shouldAdd = AddBasicLightInfo();
+                        angles = reader.ReadB3DString()
+                            .Split(' ')
+                            .Select(x => float.TryParse(x, out var y)
+                                ? y
+                                : throw new ArgumentException("Invalid spotlight angle value"))
+                            .ToArray();
+                        if (angles.Length != 2 && angles.Length != 3) {
+                            throw new ArgumentException("Invalid spotlight angles!");
+                        }
+
+                        var innerConeAngle = reader.ReadInt32();
+                        var outerConeAngle = reader.ReadInt32();
+
+                        if (shouldAdd) {
+                            //dic.Add("rotation", Quaternion.CreateFromYawPitchRoll(angles[1], angles[0], angles.ElementAtOrDefault(2)));
+                            //dic.Add("innerConeAngle", innerConeAngle);
+                            //dic.Add("outerConeAngle", outerConeAngle);
+                            //entities.Add(new(null, dic));
+                        }
+                        break;
+
+                    case "soundemitter":
+                        //dic.Add("position", position);
+                        //dic.Add("sound", reader.ReadInt32());
+                        //dic.Add("range", reader.ReadSingle());
+                        //entities.Add(new(null, dic));
+                        break;
+
+                    case "playerstart":
+                        angles = reader.ReadB3DString()
+                            .Split(' ')
+                            .Select(x =>
+                                float.TryParse(x, out var y)
+                                    ? y
+                                    : throw new ArgumentException("Invalid playerstart rotation!"))
+                            .ToArray();
+                        if (angles.Length != 3) {
+                            throw new ArgumentException("Invalid playerstart angles!");
+                        }
+
+                        //dic.Add("position", position);
+                        //dic.Add("rotation", Quaternion.CreateFromYawPitchRoll(angles[1], angles[0], angles[2]));
+                        //entities.Add(new(null, dic));
+                        break;
+
+                    case "model":
+                        var file = reader.ReadB3DString();
+                        position = reader.ReadVector3() * ROOM_SCALE;
+
+                        var pitch = reader.ReadSingle();
+                        var yaw = reader.ReadSingle();
+                        var roll = reader.ReadSingle();
+
+                        var scale = reader.ReadVector3() * 10f * ROOM_SCALE;
+
+                        if (file != "") {
+                            var data = new MapEntityData<Model>(gfxRes, physics);
+                            data.AddData("file", file);
+                            data.AddData("position", position);
+                            data.AddData("rotation", Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll));
+                            data.AddData("scale", scale);
+                            entities.Add(data);
+                        }
+                        break;
+                }
+
+                bool AddBasicLightInfo() {
+                    var range = reader.ReadSingle() / 2000f;
+                    var color = reader.ReadB3DString()
+                        .Split(' ')
+                        .Select(x => int.TryParse(x, out var y)
+                            ? y / 255f
+                            : throw new ArgumentException("Invalid light color argument!"))
+                        .ToArray();
+                    if (color.Length != 3) {
+                        throw new ArgumentException("Invalid light color!");
+                    }
+                    var intensity = MathF.Min(reader.ReadSingle() * 0.8f, 1);
+
+                    if (position != Vector3.Zero) {
+                        //dic.Add("position", position);
+                        //dic.Add("range", range);
+                        //dic.Add("color", intensity * new Vector3(color[0], color[1], color[2]));
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+
+            return new(gfxRes, physics, meshes.ToArray(), Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physics.BufferPool), entities.ToArray());
         } finally {
             physics.BufferPool.Return(ref triBuffer);
         }

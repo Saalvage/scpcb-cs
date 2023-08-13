@@ -16,13 +16,17 @@ public sealed class PhysicsModelCollection : InterpolatedModelCollection {
         Teleport(WorldTransform);
     }
 
+    private Vector3 _scale = Vector3.One;
+
     public override Transform WorldTransform {
-        get => _body.Pose.ToTransform();
+        get => _body.Pose.ToTransform() with { Scale = _scale };
         set {
             if (value.Scale != Vector3.One) {
-                throw new ArgumentException("Scale must be 1", nameof(value));
+                // TODO: Deal with this correctly.
+                //throw new ArgumentException("Scale must be 1", nameof(value));
             }
             _body.Pose = new(value.Position, value.Rotation);
+            _scale = value.Scale;
         }
     }
 

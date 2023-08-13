@@ -8,6 +8,7 @@ using scpcb.Graphics.Primitives;
 using Veldrid;
 using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Map.Entities;
 using scpcb.Utility;
 
 namespace scpcb;
@@ -53,7 +54,6 @@ public class MainScene : Disposable, IScene {
 
         var (scp173, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>(logoMat)
             .LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
-        var hullIndex = Physics.Simulation.Shapes.Add(hull);
 
         var window = gfxRes.Window;
 
@@ -74,10 +74,11 @@ public class MainScene : Disposable, IScene {
                 _room = (i == 0 || i == 4 || j == 0 || j == 9 ? room008 : room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),
                     Quaternion.CreateFromYawPitchRoll(i % 2 == 0 ? MathF.PI : 0 + j % 2 == 0 ? MathF.PI : 0, 0, 0));
                 _renderables.AddRange(_room.Models);
+                _renderables.AddRange(_room.Entites.OfType<Model>().SelectMany(x => x.Models.Models));
             }
         }
 
-        _modelB = new(testMesh);
+        _modelB = new(new[] { testMesh });
         _modelB.WorldTransform = _modelB.WorldTransform with { Position = new(2, 0, -0.1f), Scale = new(0.5f) };
 
         var sim = Physics.Simulation;
@@ -90,8 +91,8 @@ public class MainScene : Disposable, IScene {
                         new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
                     1, sim.Shapes, hull));
                 var reff = sim.Bodies.GetBodyReference(refff);
-                _physicsModels.Add(new(Physics, reff, new CBModel<ModelShader.Vertex>(
-                    _modelShader.TryCreateInstanceConstants(), scp173[0].Material, scp173[0].Mesh)));
+                _physicsModels.Add(new(Physics, reff, new[] { new CBModel<ModelShader.Vertex>(
+                    _modelShader.TryCreateInstanceConstants(), scp173[0].Material, scp173[0].Mesh) }));
                 _renderables.AddRange(_physicsModels.Last().Models);
             }
         };

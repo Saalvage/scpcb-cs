@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using Assimp;
-
-namespace scpcb.Utility; 
+﻿namespace scpcb.Utility; 
 
 public static class Extensions {
     public static IEnumerable<T> AsEnumerableElementOrEmpty<T>(this T? item) {
