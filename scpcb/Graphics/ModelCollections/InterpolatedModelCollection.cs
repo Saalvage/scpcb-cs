@@ -1,4 +1,5 @@
 ﻿using scpcb.Graphics.Primitives;
+using scpcb.Utility;
 
 namespace scpcb.Graphics.ModelCollections;
 
@@ -6,7 +7,7 @@ public class InterpolatedModelCollection : ModelCollection {
     private Transform _previousWorldTransform;
     private Transform _currentWorldTransform;
 
-    public InterpolatedModelCollection(params ICBModel[] models) : base(models) { }
+    public InterpolatedModelCollection(IReadOnlyList<ICBModel> models) : base(models) { }
 
     /// <summary>
     /// Intended for non-smooth transformations as to not affect interpolation.

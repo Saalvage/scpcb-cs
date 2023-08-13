@@ -1,7 +1,7 @@
 ﻿using scpcb.Graphics;
 using scpcb.Physics;
 
-namespace scpcb.RoomProviders;
+namespace scpcb.Map.RoomProviders;
 
 public interface IRoomProvider {
     /// <summary>

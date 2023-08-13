@@ -19,6 +19,9 @@ public class ModelSorter {
     }
 
     public void Render(RenderTarget target, Vector3 pos, float interp) {
+        // TODO: It might make sense to group these by shader to avoid pipeline switches.
+        // One approach would be having a list per shader and having an event on the model for a shader change.
+        // Does the CPU cost warrant the GPU savings? Benchmark!
         for (var i = 0; i < _opaque.Count; i++) {
             if (_opaque[i].Model.IsOpaque) {
                 target.Render(_opaque[i].Model, interp);

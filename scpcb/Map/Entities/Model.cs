@@ -9,7 +9,7 @@ using scpcb.Graphics.Shaders;
 using scpcb.Physics;
 using scpcb.Utility;
 
-namespace scpcb.Map.Entities; 
+namespace scpcb.Map.Entities;
 
 public class Model : IMapEntity {
     public const string PROP_PATH = "Assets/Props/";

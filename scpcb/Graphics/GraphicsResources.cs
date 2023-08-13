@@ -1,7 +1,8 @@
 ﻿using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Utility;
+using scpcb.Map;
+using scpcb.Map.RoomProviders;
 using scpcb.Physics;
-using scpcb.RoomProviders;
 using scpcb.Utility;
 using Serilog;
 using Veldrid;

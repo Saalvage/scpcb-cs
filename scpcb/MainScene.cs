@@ -10,6 +10,7 @@ using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Map.Entities;
 using scpcb.Utility;
+using scpcb.Map;
 
 namespace scpcb;
 
@@ -17,7 +18,7 @@ public class MainScene : Disposable, IScene {
     public PhysicsResources Physics { get; } = new();
 
     private readonly GraphicsResources _gfxRes;
-    private readonly CharacterController _controller = new();
+    private readonly Player _controller = new();
 
     private readonly Dictionary<Key, bool> _keysDown = new();
     private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;

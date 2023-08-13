@@ -5,13 +5,12 @@ using BepuPhysics.Collidables;
 using scpcb.Graphics;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
-using scpcb.Map;
 using scpcb.Map.Entities;
 using scpcb.Physics;
 using scpcb.Utility;
 using Serilog;
 
-namespace scpcb.RoomProviders;
+namespace scpcb.Map.RoomProviders;
 
 public partial class RMeshRoomProvider : IRoomProvider {
     private const float ROOM_SCALE_OLD = 8f / 2048f;

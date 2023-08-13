@@ -4,11 +4,11 @@ using scpcb.Entities;
 using scpcb.Graphics;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Map;
+using scpcb.Map.Entities;
 using scpcb.Physics;
 using scpcb.Utility;
 
-namespace scpcb;
+namespace scpcb.Map;
 
 public class RoomData : Disposable {
     private readonly MeshInfo[] _meshes;

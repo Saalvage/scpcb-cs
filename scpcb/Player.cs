@@ -4,14 +4,14 @@ using scpcb.Graphics;
 
 namespace scpcb;
 
-public interface ICharacterController {
+public interface IPlayer {
     public ICamera Camera { get; }
 
     void HandleMouse(Vector2 delta);
     void HandleMove(Vector2 dir, float delta);
 }
 
-public class CharacterController : ICharacterController {
+public class Player : IPlayer {
     public ICamera Camera { get; }
 
     private float _yaw;
@@ -20,7 +20,7 @@ public class CharacterController : ICharacterController {
     public bool Noclip { get; set; } = true;
     public float Speed { get; set; } = 25f;
 
-    public CharacterController() {
+    public Player() {
         Camera = new PerspectiveCamera {
             Position = new(0, 0, -5),
         };

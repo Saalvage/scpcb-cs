@@ -1,4 +1,4 @@
-﻿namespace scpcb.Map;
+﻿namespace scpcb.Map.Entities;
 
 public interface IMapEntity {
 

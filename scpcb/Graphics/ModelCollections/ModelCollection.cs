@@ -2,6 +2,7 @@
 using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Utility;
 
 namespace scpcb.Graphics.ModelCollections;
 
@@ -27,7 +28,7 @@ public class ModelCollection : IConstantProvider<IWorldMatrixConstantMember, Mat
 
     protected virtual Transform GetUsedTransform(double interpolation) => WorldTransform;
 
-    public ModelCollection(params ICBModel[] meshes) {
+    public ModelCollection(IReadOnlyList<ICBModel> meshes) {
         foreach (var mesh in meshes) {
             mesh.ConstantProviders.Add(this);
         }

@@ -2,6 +2,7 @@
 using BepuPhysics;
 using scpcb.Graphics.Primitives;
 using scpcb.Physics;
+using scpcb.Utility;
 
 namespace scpcb.Graphics.ModelCollections;
 
@@ -9,7 +10,7 @@ public sealed class PhysicsModelCollection : InterpolatedModelCollection {
     private readonly PhysicsResources _physics;
     private readonly BodyReference _body;
 
-    public PhysicsModelCollection(PhysicsResources physics, BodyReference body, params ICBModel[] models) : base(models) {
+    public PhysicsModelCollection(PhysicsResources physics, BodyReference body, IReadOnlyList<ICBModel> models) : base(models) {
         _physics = physics;
         _body = body;
         physics.AfterUpdate += UpdateTransform;

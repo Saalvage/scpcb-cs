@@ -2,7 +2,7 @@
 using System.Numerics;
 using BepuPhysics;
 
-namespace scpcb;
+namespace scpcb.Utility;
 
 public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Scale) {
     public Transform(Vector3 position, Quaternion rotation) : this(position, rotation, Vector3.One) { }

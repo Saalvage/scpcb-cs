@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
 using System.Reflection;
 using scpcb.Graphics;
+using scpcb.Map.Entities;
 using scpcb.Physics;
+using scpcb.Utility;
 
 namespace scpcb.Map;
 
