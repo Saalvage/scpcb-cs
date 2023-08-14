@@ -16,7 +16,7 @@ public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, T
         : this(gfxRes, gfxRes.GetShaderFileExtension(SHADER_PATH + typeof(TShader).Name, out var spirVRequired), spirVRequired)
     { }
 
-    private GeneratedShader(GraphicsResources gfxRes, string extension, bool spirVRequired) : base(gfxRes.GraphicsDevice,
+    private GeneratedShader(GraphicsResources gfxRes, string extension, bool spirVRequired) : base(gfxRes,
         File.ReadAllBytes($"{SHADER_PATH}{typeof(TShader).Name}/vertex.{extension}"),
         File.ReadAllBytes($"{SHADER_PATH}{typeof(TShader).Name}/fragment.{extension}"),
         typeof(TShader).GetFields().SingleOrDefault(x => x.FieldType == typeof(TVertConstants))?.Name,

@@ -23,9 +23,18 @@ public class GraphicsResources : Disposable {
 
     public RenderTarget MainTarget { get; }
 
+    public bool Debug { get; }
     private readonly RoomProviderCollector _roomProviderCollector = new();
 
-    public GraphicsResources(int width, int height) {
+    public GraphicsResources(int width, int height, bool debug =
+#if DEBUG
+        true
+#else
+        false
+#endif
+        ) {
+        Debug = debug;
+
         Window = VeldridStartup.CreateWindow(new() {
             WindowWidth = width,
             WindowHeight = height,
@@ -37,7 +46,7 @@ public class GraphicsResources : Disposable {
         Window.CursorVisible = false;
 
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new() {
-            Debug = true,
+            Debug = Debug,
             SwapchainDepthFormat = PixelFormat.D24_UNorm_S8_UInt,
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
