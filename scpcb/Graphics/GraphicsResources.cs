@@ -24,6 +24,7 @@ public class GraphicsResources : Disposable {
     public RenderTarget MainTarget { get; }
 
     public bool Debug { get; }
+
     private readonly RoomProviderCollector _roomProviderCollector = new();
 
     public GraphicsResources(int width, int height, bool debug =
