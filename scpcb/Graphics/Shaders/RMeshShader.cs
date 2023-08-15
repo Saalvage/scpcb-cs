@@ -47,9 +47,10 @@ public class RMeshShader {
 
     [FragmentShader]
     public Vector4 FS(Fragment frag) {
-        var based = 2 * (Sample(SurfaceTexture, Sampler, frag.Uv) * new Vector4(frag.Color, 1f)) * Sample(LightmapTexture, Sampler, frag.LmUv);
-        var depthBetter = (frag.CameraPos.Length() - 1f)/ (10f - 1f);
-        return new Vector4((1 - depthBetter) * based.XYZ(), based.W);
+        var based = Sample(SurfaceTexture, Sampler, frag.Uv) * new Vector4(frag.Color, 1f) * Sample(LightmapTexture, Sampler, frag.LmUv);
+        var depthBetter = (frag.CameraPos.Length() - 5f)/ (20f - 5f);
+        // TODO: Reconsider the branching. It has performance implications.
+        return new((1 - depthBetter) * based.XYZ() * (based.W == 1f ? 2f : 1f), based.W);
     }
 }
 
