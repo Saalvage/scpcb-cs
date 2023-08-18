@@ -8,7 +8,7 @@ using static ShaderGen.ShaderBuiltins;
 namespace scpcb.Graphics.Shaders;
 
 [ShaderClass]
-public class RMeshShader {
+public class RMeshShader : IAutoShader<RMeshShader.VertUniforms, Empty, RMeshShader.VertInstanceUniforms, Empty> {
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color);
     public record struct Fragment([SystemPositionSemantic] Vector4 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color, [TextureCoordinateSemantic] Vector3 CameraPos);
 
@@ -52,11 +52,4 @@ public class RMeshShader {
         // TODO: Reconsider the branching. It has performance implications.
         return new((1 - depthBetter) * based.XYZ() * (based.W == 1f ? 2f : 1f), based.W);
     }
-}
-
-public class RMeshShaderGenerated : GeneratedShader<RMeshShader, RMeshShader.Vertex, RMeshShader.VertUniforms, Empty,
-        RMeshShader.VertInstanceUniforms, Empty>, ISimpleShader<RMeshShaderGenerated> {
-    public RMeshShaderGenerated(GraphicsResources gfxRes) : base(gfxRes) { }
-
-    public static RMeshShaderGenerated Create(GraphicsResources gfxRes) => new(gfxRes);
 }

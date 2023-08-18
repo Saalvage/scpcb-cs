@@ -17,7 +17,7 @@ public class Model : IMapEntity {
     public ModelCollection Models { get; }
 
     public Model(GraphicsResources gfxRes, PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
-        var mat = gfxRes.ShaderCache.GetShader<ModelShaderGenerated>().CreateMaterial(
+        var mat = gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().CreateMaterial(
             gfxRes.MissingTexture.AsEnumerableElement());
         var (meshes, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>(mat)
             .LoadMeshes(gfxRes.GraphicsDevice, physics, PROP_PATH + file);

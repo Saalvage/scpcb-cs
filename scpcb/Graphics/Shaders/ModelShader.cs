@@ -9,8 +9,10 @@ using scpcb.Graphics.Primitives;
 
 namespace scpcb.Graphics.Shaders;
 
+// TODO: It sucks that we need to have both the IAutoShader interface and ShaderClass attribute.. Maybe we can merge the two somehow?
 [ShaderClass]
-public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>> {
+public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>,
+        IAutoShader<ModelShader.VertexConstants, Empty, ModelShader.InstanceVertexConstants, Empty> {
     public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember {
         public Matrix4x4 ProjectionMatrix { get; set; }
         public Matrix4x4 ViewMatrix { get; set; }
@@ -56,19 +58,4 @@ public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ICBMat
     }
 
     public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ICBMaterial<Vertex> plugin) => plugin;
-}
-
-// TODO: Look into whether merging these makes sense.
-// ShaderGen would need to be modified to be able to see the VS and FS constants in the base class,
-// it'd allow for removing quite some boilerplate!
-// Sadly, we can't do template crazyness to get the correct amount of textures in the base class,
-// so we'd need a way to know their name.
-// 
-// Another approach is to parameterize GeneratedShader via reflection, however, due to C#'s weak
-// type inference this would clutter the call sites and prevent direct access to the shader constants.
-public class ModelShaderGenerated : GeneratedShader<ModelShader, ModelShader.Vertex, ModelShader.VertexConstants,
-        Empty, ModelShader.InstanceVertexConstants, Empty>, ISimpleShader<ModelShaderGenerated> {
-    private ModelShaderGenerated(GraphicsResources gfxRes) : base(gfxRes) { }
-
-    public static ModelShaderGenerated Create(GraphicsResources gfxRes) => new(gfxRes);
 }

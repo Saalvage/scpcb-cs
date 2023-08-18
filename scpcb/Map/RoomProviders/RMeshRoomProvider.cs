@@ -40,7 +40,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 throw new ArgumentException($"{filename} is not a valid .rmesh file!");
         }
 
-        var shader = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>();
+        var shader = gfxRes.ShaderCache.GetShader<RMeshShader>();
         var meshCount = reader.ReadInt32();
         var meshes = new List<RoomData.MeshInfo>();
         meshes.EnsureCapacity(meshCount);

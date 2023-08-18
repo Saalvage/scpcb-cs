@@ -25,8 +25,8 @@ public class MainScene : Disposable, IScene {
 
     private readonly List<PhysicsModelCollection> _physicsModels;
 
-    private readonly RMeshShaderGenerated _rMeshShader;
-    private readonly ModelShaderGenerated _modelShader;
+    private readonly ICBShader<RMeshShader.Vertex> _rMeshShader;
+    private readonly ICBShader<ModelShader.Vertex> _modelShader;
 
     private readonly RoomInstance _room;
     private readonly ModelCollection _modelB;
@@ -40,9 +40,9 @@ public class MainScene : Disposable, IScene {
 
         var coolTexture = new CBTexture(gfxRes, "Assets/scp.jpg");
 
-        _modelShader = gfxRes.ShaderCache.GetShader<ModelShaderGenerated>();
+        _modelShader = gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>();
 
-        _rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShaderGenerated>();
+        _rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShader, RMeshShader.Vertex>();
         var logoMat = _modelShader.CreateMaterial(coolTexture.AsEnumerableElement());
         var testMesh = new CBModel<ModelShader.Vertex>(_modelShader.TryCreateInstanceConstants(), logoMat,
             new CBMesh<ModelShader.Vertex>(gfx, new ModelShader.Vertex[] {
