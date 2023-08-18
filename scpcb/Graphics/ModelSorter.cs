@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using scpcb.Entities;
+using scpcb.Graphics.Primitives;
 
 namespace scpcb.Graphics; 
 
@@ -19,16 +21,29 @@ public class ModelSorter {
     }
 
     public void Render(RenderTarget target, Vector3 pos, float interp) {
-        // TODO: It might make sense to group these by shader to avoid pipeline switches.
-        // One approach would be having a list per shader and having an event on the model for a shader change.
-        // Does the CPU cost warrant the GPU savings? Benchmark!
         for (var i = 0; i < _opaque.Count; i++) {
-            if (_opaque[i].Model.IsOpaque) {
-                target.Render(_opaque[i].Model, interp);
-            } else {
+            if (!_opaque[i].Model.IsOpaque) {
                 _transparent.Add(_opaque[i]);
                 _opaque.RemoveAt(i);
                 i--;
+                continue;
+            }
+
+            target.Render(_opaque[i].Model, interp);
+
+            // Bubblesort, since we call this more than abundantly often and don't need the order.
+            if (i > 0 && Compare(_opaque[i - 1].Model, _opaque[i].Model) < 0) {
+                (_opaque[i - 1], _opaque[i]) = (_opaque[i], _opaque[i - 1]);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+            static int Compare(ICBModel a, ICBModel b) {
+                var ret = a.Material.Shader.GetHashCode().CompareTo(b.Material.Shader.GetHashCode());
+                if (ret != 0) { return ret; }
+                ret = a.Material.GetHashCode().CompareTo(b.Material.GetHashCode());
+                if (ret != 0) { return ret; }
+                ret = a.Mesh.GetHashCode().CompareTo(b.Mesh.GetHashCode());
+                return ret;
             }
         }
 

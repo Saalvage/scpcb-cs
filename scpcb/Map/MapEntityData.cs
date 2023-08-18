@@ -16,7 +16,7 @@ public interface IMapEntityData {
 public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
     private readonly Dictionary<string, object> _values = new();
 
-    private readonly object _transformMarker = new();
+    private static readonly object _transformMarker = new();
 
     private readonly Lazy<(ConstructorInfo Ctor, object[] Args, Transform LocalTransform)> _ctorLazy;
     private (ConstructorInfo Ctor, object[] Args, Transform LocalTransform) _ctor => _ctorLazy.Value;
