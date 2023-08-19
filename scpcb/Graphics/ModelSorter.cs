@@ -20,6 +20,17 @@ public class ModelSorter {
         }
     }
 
+    public void Remove(I3DModel model) {
+        _opaque.Remove(model);
+        _transparent.Remove(model);
+    }
+
+    public void RemoveRange(IEnumerable<I3DModel> models) {
+        foreach (var m in models) {
+            Remove(m);
+        }
+    }
+
     public void Render(RenderTarget target, Vector3 pos, float interp) {
         for (var i = 0; i < _opaque.Count; i++) {
             if (!_opaque[i].Model.IsOpaque) {

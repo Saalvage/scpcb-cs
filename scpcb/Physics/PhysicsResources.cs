@@ -3,11 +3,12 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuUtilities;
 using BepuUtilities.Memory;
+using scpcb.Entities;
 using scpcb.Utility;
 
 namespace scpcb.Physics;
 
-public class PhysicsResources : Disposable {
+public class PhysicsResources : Disposable, ITickable {
     public Simulation Simulation { get; }
 
     public BufferPool BufferPool { get; } = new();
@@ -26,9 +27,10 @@ public class PhysicsResources : Disposable {
         Simulation.Statics.Add(new(new Vector3(0, -0.5f, 0), Simulation.Shapes.Add(new Box(2500, 1, 2500))));
     }
 
-    public void Update(float delta) {
+    public void Tick() {
         BeforeUpdate?.Invoke();
-        Simulation.Timestep(delta, _threadDispatcher);
+        // TODO: This stinks, allow for dynamic deltas.
+        Simulation.Timestep(1f / Game.TICK_RATE, _threadDispatcher);
         AfterUpdate?.Invoke();
     }
 

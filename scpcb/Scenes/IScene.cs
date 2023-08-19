@@ -1,9 +1,9 @@
 ﻿using scpcb.Graphics;
 
-namespace scpcb; 
+namespace scpcb.Scenes; 
 
 public interface IScene : IDisposable {
-    void Update(double delta);
+    void Update(float delta);
     void Tick();
     void Render(RenderTarget target, float interp);
 }

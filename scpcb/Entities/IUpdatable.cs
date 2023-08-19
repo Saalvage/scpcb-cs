@@ -1,9 +1,5 @@
-﻿using Veldrid;
+﻿namespace scpcb.Entities; 
 
-namespace scpcb.Entities; 
-
-public interface IUpdatable {
-    public void Update(double delta) { }
-    public void Tick() { }
-    public void Render(CommandList commands, double interpolation) { }
+public interface IUpdatable : IEntity {
+    public void Update(float delta);
 }

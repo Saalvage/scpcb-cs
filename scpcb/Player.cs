@@ -12,19 +12,15 @@ public interface IPlayer {
 }
 
 public class Player : IPlayer {
-    public ICamera Camera { get; }
+    public ICamera Camera { get; } = new PerspectiveCamera {
+        Position = new(0, 0, -5),
+    };
 
     private float _yaw;
     private float _pitch;
 
     public bool Noclip { get; set; } = true;
     public float Speed { get; set; } = 25f;
-
-    public Player() {
-        Camera = new PerspectiveCamera {
-            Position = new(0, 0, -5),
-        };
-    }
 
     public void HandleMouse(Vector2 delta) {
         _yaw -= delta.X;

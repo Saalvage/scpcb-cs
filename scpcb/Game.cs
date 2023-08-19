@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using scpcb.Graphics;
+using scpcb.Scenes;
 using scpcb.Utility;
 using Serilog;
 
@@ -50,7 +51,7 @@ public class Game : Disposable {
                 var diff = newNow - now;
                 now = newNow;
 
-                _scene.Update(diff.TotalSeconds);
+                _scene.Update((float)diff.TotalSeconds);
 
                 GraphicsResources.MainTarget.Start();
                 var interp = (float)(tickAccu % TICK_GOAL) / TICK_GOAL;
