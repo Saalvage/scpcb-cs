@@ -15,8 +15,11 @@ public interface IAutoShader {
     void DO_NOT_IMPLEMENT_THIS_INTERFACE_IMPLEMENT_GENERIC_INTERFACE_INSTEAD();
 }
 
-public interface IAutoShader<TVertexConstants, TFragmentConstants, TInstanceVertexConstants, TInstanceFragmentConstants> : IAutoShader {
+public interface IAutoShader<TVertexConstants, TFragmentConstants, TInstanceVertexConstants, TInstanceFragmentConstants> : IAutoShader 
+        where TVertexConstants : unmanaged where TFragmentConstants : unmanaged
+        where TInstanceVertexConstants : unmanaged where TInstanceFragmentConstants : unmanaged {
     void IAutoShader.DO_NOT_IMPLEMENT_THIS_INTERFACE_IMPLEMENT_GENERIC_INTERFACE_INSTEAD() { }
 }
 
-public interface IAutoShader<TVertexConstants, TFragmentConstants> : IAutoShader<TVertexConstants, TFragmentConstants, Empty, Empty> { }
+public interface IAutoShader<TVertexConstants, TFragmentConstants> : IAutoShader<TVertexConstants, TFragmentConstants, Empty, Empty>
+    where TVertexConstants : unmanaged where TFragmentConstants : unmanaged { }
