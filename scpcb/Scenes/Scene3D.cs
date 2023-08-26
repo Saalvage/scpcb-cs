@@ -14,14 +14,24 @@ public class Scene3D : BaseScene {
         _gfxRes = gfxRes;
 
         OnAddEntity += e => {
-            if (e is I3DModelProvider p) {
-                _sorter.AddRange(p.Models);
+            switch (e) {
+                case I3DModelProvider p:
+                    _sorter.AddRange(p.Models);
+                    break;
+                case I3DModel m:
+                    _sorter.Add(m);
+                    break;
             }
         };
 
         OnRemoveEntity += e => {
-            if (e is I3DModelProvider p) {
-                _sorter.RemoveRange(p.Models);
+            switch (e) {
+                case I3DModelProvider p:
+                    _sorter.RemoveRange(p.Models);
+                    break;
+                case I3DModel m:
+                    _sorter.Remove(m);
+                    break;
             }
         };
     }
