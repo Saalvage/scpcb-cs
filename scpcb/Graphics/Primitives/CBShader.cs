@@ -40,17 +40,18 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
     private readonly ResourceLayout? _instanceConstLayout;
     private readonly ResourceLayout? _textureLayout;
 
-    public CBShader(GraphicsResources gfxRes, byte[] vertexCode, byte[] fragmentCode, string? vertConstantNames, string? fragConstantNames,
-            string? instanceVertConstNames, string? instanceFragConstantNames, IReadOnlyList<string> textureNames, IReadOnlyList<string> samplerNames, bool inputIsSpirV = false) {
+    public CBShader(GraphicsResources gfxRes, byte[] vertexCode, byte[] fragmentCode, string vertexEntryPoint, string fragmentEntryPoint,
+            string? vertConstantNames, string? fragConstantNames, string? instanceVertConstNames, string? instanceFragConstantNames,
+            IReadOnlyList<string> textureNames, IReadOnlyList<string> samplerNames, bool inputIsSpirV = false) {
         _gfx = gfxRes.GraphicsDevice;
 
         _shaders = inputIsSpirV
             // TODO: Veldrid.SPIRV seems to translate away all entrypoint names, so why does it even ask for them??
             ? _gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "main"),
                 new ShaderDescription(ShaderStages.Fragment, fragmentCode, "main"))
-            : _shaders = new[] {
-                _gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode, "main", gfxRes.Debug)),
-                _gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode, "main", gfxRes.Debug)),
+            : new[] {
+                _gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode, vertexEntryPoint, gfxRes.Debug)),
+                _gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode, fragmentEntryPoint, gfxRes.Debug)),
             };
 
         _constLayout =
