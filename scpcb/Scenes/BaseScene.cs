@@ -43,23 +43,41 @@ public class BaseScene : Disposable, IScene {
         other?.AddEntity(entity);
     }
 
+    private void HandleAddEntity(IEntity e) {
+        OnAddEntity?.Invoke(e);
+        _entities.Add(e);
+        if (e is IUpdatable u) { _updatables.Add(u); }
+        if (e is ITickable t) { _tickables.Add(t); }
+        if (e is IRenderable r) { _renderables.Add(r); }
+        if (e is IEntityHolder h) {
+            foreach (var he in h.Entities) {
+                HandleAddEntity(he);
+            }
+        }
+    }
+
+    private void HandleRemoveEntity(IEntity e, bool shouldDispose) {
+        OnRemoveEntity?.Invoke(e);
+        _entities.Remove(e);
+        if (e is IUpdatable u) { _updatables.Remove(u); }
+        if (e is ITickable t) { _tickables.Remove(t); }
+        if (e is IRenderable r) { _renderables.Remove(r); }
+        if (shouldDispose && e is IDisposable d) { d.Dispose(); }
+        if (e is IEntityHolder h) {
+            foreach (var he in h.Entities) {
+                HandleRemoveEntity(he, shouldDispose);
+            }
+        }
+    }
+
     private void DealWithEntityBuffers() {
         foreach (var e in _entitiesToAdd) {
-            OnAddEntity?.Invoke(e);
-            _entities.Add(e);
-            if (e is IUpdatable u) { _updatables.Add(u); }
-            if (e is ITickable t) { _tickables.Add(t); }
-            if (e is IRenderable r) { _renderables.Add(r); }
+            HandleAddEntity(e);
         }
         _entitiesToAdd.Clear();
 
         foreach (var (e, shouldDispose) in _entitiesToRemove) {
-            OnRemoveEntity?.Invoke(e);
-            _entities.Remove(e);
-            if (e is IUpdatable u) { _updatables.Remove(u); }
-            if (e is ITickable t) { _tickables.Remove(t); }
-            if (e is IRenderable r) { _renderables.Remove(r); }
-            if (shouldDispose && e is IDisposable d) { d.Dispose(); }
+            HandleRemoveEntity(e, shouldDispose);
         }
         _entitiesToRemove.Clear();
     }

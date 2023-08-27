@@ -1,6 +1,8 @@
-﻿namespace scpcb.Map.Entities;
+﻿using scpcb.Entities;
 
-public interface IMapEntity {
+namespace scpcb.Map.Entities;
+
+public interface IMapEntity : IEntity {
 
 }
 

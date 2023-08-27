@@ -13,12 +13,16 @@ using Serilog;
 namespace scpcb.Map.RoomProviders;
 
 public partial class RMeshRoomProvider : IRoomProvider {
-    private const float ROOM_SCALE_OLD = 8f / 2048f;
-    private const float ROOM_SCALE = 1f / 100f;
+    public const float ROOM_SCALE_OLD = 8f / 2048f;
+    public const float ROOM_SCALE = 1f / 100f;
+
+    private object[]? _globals;
 
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
-    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, string filename) {
+    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, BillboardManager billboardManager, string filename) {
+        _globals ??= new object[] { gfxRes, physics, billboardManager };
+
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
 
@@ -62,7 +66,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     var isLightmap = LmRegex().IsMatch(textureFile);
                     var fileLocation = isLightmap
                         ? Path.Combine(Path.GetDirectoryName(filename), textureFile)
-                        : "Assets/Textures/" + textureFile;
+                        : "Assets/Textures/Map/" + textureFile;
                     if (!File.Exists(fileLocation)) {
                         Log.Warning("Texture {FileLocation} not found!", fileLocation);
                         continue;
@@ -78,7 +82,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 textures[0] ??= gfxRes.TextureCache.GetTexture(Color.White);
                 textures[1] ??= gfxRes.MissingTexture;
 
-                var mat = shader.CreateMaterial(textures!);
+                var mat = shader.CreateMaterial(textures!, gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
 
                 var vertexCount = reader.ReadInt32();
                 var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);
@@ -259,7 +263,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         var scale = reader.ReadVector3() * 10f * ROOM_SCALE;
 
                         if (file != "") {
-                            var data = new MapEntityData<Model>(gfxRes, physics);
+                            var data = new MapEntityData<Prop>(_globals);
                             data.AddData("file", file);
                             data.AddData("position", position);
                             data.AddData("rotation", Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll));
@@ -283,9 +287,11 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     var intensity = MathF.Min(reader.ReadSingle() * 0.8f, 1);
 
                     if (position != Vector3.Zero) {
-                        //dic.Add("position", position);
-                        //dic.Add("range", range);
-                        //dic.Add("color", intensity * new Vector3(color[0], color[1], color[2]));
+                        var data = new MapEntityData<Light>(_globals);
+                        data.AddData("position", position);
+                        data.AddData("range", range);
+                        data.AddData("color", intensity * new Vector3(color[0], color[1], color[2]));
+                        entities.Add(data);
                         return true;
                     }
 

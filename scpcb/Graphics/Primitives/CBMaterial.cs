@@ -22,14 +22,18 @@ public class CBMaterial<TVertex> : Disposable, ICBMaterial<TVertex> {
     private readonly ICBTexture[] _textures;
     public IReadOnlyList<ICBTexture> Textures => _textures;
 
-    public CBMaterial(GraphicsDevice gfx, ICBShader<TVertex> shader, ResourceLayout? layout, IEnumerable<ICBTexture> textures) {
+    /// <summary>
+    /// Do not call this directly! Use <see cref="ICBShader.CreateMaterial"/> instead.
+    /// </summary>
+    public CBMaterial(GraphicsDevice gfx, ICBShader<TVertex> shader, ResourceLayout? layout,
+            IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers) {
         Shader = shader;
         // Defensive copy.
         _textures = textures.ToArray();
         if (layout != null) {
             _set = gfx.ResourceFactory.CreateResourceSet(new(layout, _textures
                 .Select(t => (BindableResource)t.View)
-                .Append(gfx.Aniso4xSampler)
+                .Concat(samplers)
                 .ToArray()));
         }
     }

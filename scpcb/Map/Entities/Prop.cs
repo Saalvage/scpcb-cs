@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using BepuPhysics;
 using BepuUtilities;
+using scpcb.Entities;
 using scpcb.Graphics;
 using scpcb.Graphics.Assimp;
 using scpcb.Graphics.ModelCollections;
@@ -11,14 +12,14 @@ using scpcb.Utility;
 
 namespace scpcb.Map.Entities;
 
-public class Model : IMapEntity {
+public class Prop : IMapEntity, IEntityHolder {
     public const string PROP_PATH = "Assets/Props/";
 
     public ModelCollection Models { get; }
 
-    public Model(GraphicsResources gfxRes, PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
+    public Prop(GraphicsResources gfxRes, PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
         var mat = gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().CreateMaterial(
-            gfxRes.MissingTexture.AsEnumerableElement());
+            gfxRes.MissingTexture.AsEnumerableElement(), gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
         var (meshes, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>(mat)
             .LoadMeshes(gfxRes.GraphicsDevice, physics, PROP_PATH + file);
 
@@ -50,11 +51,9 @@ public class Model : IMapEntity {
         }
     }
 
-    public static Model CreateEntity(GraphicsResources gfxRes, PhysicsResources physics, Transform roomTransform,
-            IReadOnlyDictionary<string, object> data) {
-        var pos = roomTransform.Position + (Vector3)data["position"];
-        var rot = roomTransform.Rotation * (Quaternion)data["rotation"];
-        var scale = roomTransform.Scale * (Vector3)data["scale"];
-        return new(gfxRes, physics, (string)data["file"], new(pos, rot, scale));
+    public IEnumerable<IEntity> Entities {
+        get {
+            yield return Models;
+        }
     }
 }

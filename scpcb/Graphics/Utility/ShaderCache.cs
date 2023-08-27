@@ -9,7 +9,8 @@ namespace scpcb.Graphics.Utility;
 
 // TODO: Add a way to get non-generated shaders.
 public class ShaderCache : Disposable {
-    private readonly WeakDictionary<Type, ICBShader> _shaders = new();
+    // TODO: Consider reusing some shader resources between parameter sets.
+    private readonly WeakDictionary<ValueTuple<Type, ShaderParameters?>, ICBShader> _shaders = new();
 
     private readonly GraphicsResources _gfxRes;
 
@@ -17,31 +18,31 @@ public class ShaderCache : Disposable {
         _gfxRes = gfxRes;
     }
 
-    public ICBShader GetShader<TShader>() where TShader : IAutoShader {
+    public ICBShader GetShader<TShader>(Func<ShaderParameters, ShaderParameters>? shaderParameterModifications = null) where TShader : IAutoShader
+        => GetShaderInternal<TShader>(GetVertexTypeFromVS<TShader>(), shaderParameterModifications);
+
+    public ICBShader<TVertex> GetShader<TShader, TVertex>(Func<ShaderParameters, ShaderParameters>? shaderParameterModifications = null) where TShader : IAutoShader
+        => (ICBShader<TVertex>)GetShaderInternal<TShader>(typeof(TVertex), shaderParameterModifications);
+
+    private ICBShader GetShaderInternal<TShader>(Type vertexType, Func<ShaderParameters, ShaderParameters>? shaderParameterModifications)
+            where TShader : IAutoShader {
         var type = typeof(TShader);
 
-        if (_shaders.TryGetValue(type, out var shader)) {
+        var usedParams = shaderParameterModifications?.Invoke(TShader.DefaultParameters) ?? TShader.DefaultParameters;
+
+        if (_shaders.TryGetValue((type, usedParams), out var shader)) {
             return shader;
         }
 
-        var newShader = CreateGeneratedShader<TShader>(GetVertexTypeFromVS<TShader>());
-        _shaders.Add(type, newShader);
+        var newShader = CreateGeneratedShader<TShader>(vertexType, usedParams);
+        _shaders.Add((type, usedParams), newShader);
         return newShader;
     }
 
-    public ICBShader<TVertex> GetShader<TShader, TVertex>() where TShader : IAutoShader {
-        var type = typeof(TShader);
+    private static readonly Type[] GENERATED_SHADER_CTOR_ARG_TYPES = { typeof(GraphicsResources), typeof(ShaderParameters?) };
 
-        if (_shaders.TryGetValue(type, out var shader)) {
-            return (ICBShader<TVertex>)shader;
-        }
-
-        var newShader = (ICBShader<TVertex>)CreateGeneratedShader<TShader>(typeof(TVertex));
-        _shaders.Add(type, newShader);
-        return newShader;
-    }
-
-    private ICBShader CreateGeneratedShader<TShader>(Type vertexType) where TShader : IAutoShader {
+    private ICBShader CreateGeneratedShader<TShader>(Type vertexType, ShaderParameters? shaderParameterOverrides)
+            where TShader : IAutoShader {
         Debug.Assert(GetVertexTypeFromVS<TShader>() == vertexType,
             "Tried getting shader from cache with incorret vertex type.");
 
@@ -57,9 +58,9 @@ public class ShaderCache : Disposable {
                 parameters[2],
                 parameters[3]
             );
-        var ctor = parameterizedType.GetConstructor(new[] { typeof(GraphicsResources) });
+        var ctor = parameterizedType.GetConstructor(GENERATED_SHADER_CTOR_ARG_TYPES);
         Debug.Assert(ctor != null, "Could not find required ctor on GeneratedShader!?");
-        return (ICBShader)ctor.Invoke(new object?[] { _gfxRes });
+        return (ICBShader)ctor.Invoke(new object?[] { _gfxRes, shaderParameterOverrides });
     }
 
     private Type GetVertexTypeFromVS<TShader>()

@@ -21,8 +21,8 @@ public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
     private readonly Lazy<(ConstructorInfo Ctor, object[] Args, Transform LocalTransform)> _ctorLazy;
     private (ConstructorInfo Ctor, object[] Args, Transform LocalTransform) _ctor => _ctorLazy.Value;
 
-    public MapEntityData(GraphicsResources gfxRes, PhysicsResources physics) {
-        _ctorLazy = new(() => DoThing(gfxRes, physics));
+    public MapEntityData(object[] globals) {
+        _ctorLazy = new(() => DoThing(globals));
     }
 
     public IMapEntity Instantiate(GraphicsResources gfxRes, PhysicsResources physics, Transform roomTransform) {
@@ -44,7 +44,7 @@ public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
         return ret;
     }
 
-    public (ConstructorInfo Ctor, object[] Args, Transform LocalTransform) DoThing(GraphicsResources gfxRes, PhysicsResources physics) {
+    public (ConstructorInfo Ctor, object[] Args, Transform LocalTransform) DoThing(object[] globals) {
         List<object> args = new();
         // TODO: Dealing with transforms like this sucks balls!
         var transform = new Transform((Vector3)_values["position"],
@@ -55,10 +55,9 @@ public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
             args.EnsureCapacity(parameters.Length);
             args.Clear();
             foreach (var prop in parameters) {
-                if (prop.ParameterType == typeof(GraphicsResources)) {
-                    args.Add(gfxRes);
-                } else if (prop.ParameterType == typeof(PhysicsResources)) {
-                    args.Add(physics);
+                var fromGlobals = globals.FirstOrDefault(x => x.GetType() == prop.ParameterType);
+                if (fromGlobals != null) {
+                    args.Add(fromGlobals);
                 } else if (prop.ParameterType == typeof(Transform)) {
                     args.Add(_transformMarker);
                 } else {

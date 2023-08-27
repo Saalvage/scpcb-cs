@@ -47,6 +47,10 @@ public class RenderTarget : Disposable {
     }
 
     public void Render(ICBModel model, float interp) {
+        if (!model.IsVisible) {
+            return;
+        }
+
         if (_lastShader != model.Material.Shader) {
             _lastShader = model.Material.Shader;
             _lastShader.Apply(_commands);

@@ -6,7 +6,8 @@ using Veldrid.SPIRV;
 namespace scpcb.Graphics.Primitives;
 
 public interface ICBShader : IDisposable {
-    ICBMaterial CreateMaterial(IEnumerable<ICBTexture> textures);
+    ICBMaterial CreateMaterial(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers);
+
     IConstantHolder? TryCreateInstanceConstants();
 
     IConstantHolder? Constants { get; }
@@ -17,8 +18,8 @@ public interface ICBShader : IDisposable {
 }
 
 public interface ICBShader<TVertex> : ICBShader {
-    new ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures);
-    ICBMaterial ICBShader.CreateMaterial(IEnumerable<ICBTexture> textures) => CreateMaterial(textures);
+    new ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers);
+    ICBMaterial ICBShader.CreateMaterial(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers) => CreateMaterial(textures, samplers);
 }
 
 public record struct Empty;
@@ -42,7 +43,8 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
 
     public CBShader(GraphicsResources gfxRes, byte[] vertexCode, byte[] fragmentCode, string vertexEntryPoint, string fragmentEntryPoint,
             string? vertConstantNames, string? fragConstantNames, string? instanceVertConstNames, string? instanceFragConstantNames,
-            IReadOnlyList<string> textureNames, IReadOnlyList<string> samplerNames, bool inputIsSpirV = false) {
+            IReadOnlyList<string> textureNames, IReadOnlyList<string> samplerNames,
+            ShaderParameters? shaderParameterOverrides = null, bool inputIsSpirV = false) {
         _gfx = gfxRes.GraphicsDevice;
 
         _shaders = inputIsSpirV
@@ -71,12 +73,15 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
                 .ToArray()));
         }
 
+        // ReSharper disable once VirtualMemberCallInConstructor
+        var shaderParameters = shaderParameterOverrides ?? GetDefaultParameters();
+
         // TODO: Spir-V bridge does not work for HLSL. (Grab its output and manually try to fix it up to find the issue.)
         _pipeline = _gfx.ResourceFactory.CreateGraphicsPipeline(new() {
-            BlendState = BlendStateDescription.SingleAlphaBlend,
-            DepthStencilState = new(true, true, ComparisonKind.LessEqual),
-            RasterizerState = new(FaceCullMode.Back, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
-            PrimitiveTopology = PrimitiveTopology.TriangleList,
+            BlendState = shaderParameters.BlendState,
+            DepthStencilState = shaderParameters.DepthState,
+            RasterizerState = shaderParameters.RasterizerState,
+            PrimitiveTopology = shaderParameters.Topology,
             ResourceLayouts = _constLayout.AsEnumerableElementOrEmpty()
                 .Concat(_instanceConstLayout.AsEnumerableElementOrEmpty())
                 .Concat(_textureLayout.AsEnumerableElementOrEmpty())
@@ -92,14 +97,19 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
         commands.SetPipeline(_pipeline);
     }
 
-    public ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures)
-        => new CBMaterial<TVertex>(_gfx, this, _textureLayout, textures);
+    public ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers)
+        => new CBMaterial<TVertex>(_gfx, this, _textureLayout, textures, samplers);
 
     public IConstantHolder? TryCreateInstanceConstants()
         => ConstantHolder<TInstanceVertConstants, TInstanceFragConstants>.TryCreate(_gfx, _instanceConstLayout);
 
     public int GetTextureSlot()
         => (_constLayout == null ? 0 : 1) + (_instanceConstLayout == null ? 0 : 1);
+    
+    /// <summary>
+    /// Mustn't depend on instance variables.
+    /// </summary>
+    protected virtual ShaderParameters GetDefaultParameters() => ShaderParameters.Default;
 
     protected override void DisposeImpl() {
         Constants?.Dispose();

@@ -13,12 +13,16 @@ public interface IAutoShader {
     // Stupid shit but should get message across.
     // Why are unbound generic names not allowed in type constraints?? :(
     void DO_NOT_IMPLEMENT_THIS_INTERFACE_IMPLEMENT_GENERIC_INTERFACE_INSTEAD();
+
+    static abstract ShaderParameters DefaultParameters { get; }
 }
 
 public interface IAutoShader<TVertexConstants, TFragmentConstants, TInstanceVertexConstants, TInstanceFragmentConstants> : IAutoShader 
         where TVertexConstants : unmanaged where TFragmentConstants : unmanaged
         where TInstanceVertexConstants : unmanaged where TInstanceFragmentConstants : unmanaged {
     void IAutoShader.DO_NOT_IMPLEMENT_THIS_INTERFACE_IMPLEMENT_GENERIC_INTERFACE_INSTEAD() { }
+
+    static ShaderParameters IAutoShader.DefaultParameters => ShaderParameters.Default;
 }
 
 public interface IAutoShader<TVertexConstants, TFragmentConstants> : IAutoShader<TVertexConstants, TFragmentConstants, Empty, Empty>

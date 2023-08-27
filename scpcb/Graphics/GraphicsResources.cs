@@ -25,6 +25,8 @@ public class GraphicsResources : Disposable {
 
     public bool Debug { get; }
 
+    public Sampler ClampAnisoSampler { get; }
+
     private readonly RoomProviderCollector _roomProviderCollector = new();
 
     public GraphicsResources(int width, int height, bool debug =
@@ -67,6 +69,17 @@ public class GraphicsResources : Disposable {
 
         MainTarget = new(GraphicsDevice);
 
+        ClampAnisoSampler = GraphicsDevice.ResourceFactory.CreateSampler(new() {
+            AddressModeU = SamplerAddressMode.Clamp,
+            AddressModeV = SamplerAddressMode.Clamp,
+            AddressModeW = SamplerAddressMode.Clamp,
+            Filter = SamplerFilter.Anisotropic,
+            LodBias = 0,
+            MinimumLod = 0,
+            MaximumLod = uint.MaxValue,
+            MaximumAnisotropy = 4,
+        });
+
         GraphicsDevice.GetOpenGLInfo(out var info);
         _preferredShaderFileExtension = GraphicsDevice.BackendType switch {
             GraphicsBackend.Direct3D11 => new [] { "hlsl.dxbc", "hlsl" },
@@ -85,8 +98,8 @@ public class GraphicsResources : Disposable {
         MissingTexture = TextureCache.GetTexture("Assets/Textures/missing.png");
     }
 
-    public RoomData LoadRoom(PhysicsResources physics, string name)
-        => _roomProviderCollector.LoadRoom(this, physics, name);
+    public RoomData LoadRoom(PhysicsResources physics, BillboardManager billboardManager, string name)
+        => _roomProviderCollector.LoadRoom(this, physics, billboardManager, name);
 
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.
@@ -120,6 +133,7 @@ public class GraphicsResources : Disposable {
         ShaderCache.Dispose();
         TextureCache.Dispose();
         MainTarget.Dispose();
+        ClampAnisoSampler.Dispose();
         GraphicsDevice.Dispose();
     }
 }

@@ -6,7 +6,6 @@ using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Map.Entities;
 using scpcb.Physics;
 using scpcb.Utility;
 using Veldrid;
@@ -19,8 +18,12 @@ public class MainScene : Scene3D {
     private readonly GraphicsResources _gfxRes;
     private readonly Player _controller = new();
 
+    private readonly BillboardManager _billboardManager;
+
     private readonly Dictionary<Key, bool> _keysDown = new();
     private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;
+
+    private readonly Matrix4x4 _proj;
 
     public MainScene(GraphicsResources gfxRes) : base(gfxRes) {
         AddEntity(Physics);
@@ -33,43 +36,34 @@ public class MainScene : Scene3D {
         var window = gfxRes.Window;
 
         var modelShader = gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>();
-        var rMeshShader = gfxRes.ShaderCache.GetShader<RMeshShader, RMeshShader.Vertex>();
 
         // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
-        var proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f);
-        modelShader.Constants.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(proj);
-        rMeshShader.Constants.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(proj);
+        _proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f);
 
         Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
 
         window.KeyDown += x => _keysDown[x.Key] = true;
         window.KeyUp += x => _keysDown[x.Key] = false;
 
-        var room008 = gfxRes.LoadRoom(Physics, "Assets/Rooms/008/008_opt.rmesh");
-        var room4Tunnels = gfxRes.LoadRoom(Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
+        var coolTexture = gfxRes.TextureCache.GetTexture("Assets/scp.jpg");
+        var logoMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement(),
+            _gfxRes.GraphicsDevice.PointSampler.AsEnumerableElement());
+
+        _billboardManager = new(gfxRes);
+        var billboard = _billboardManager.Create(coolTexture);
+        billboard.Transform = billboard.Transform with { Position = new(2, 0, -0.1f) };
+        AddEntity(billboard);
+
+        var room008 = gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/008/008_opt.rmesh");
+        var room4Tunnels = gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {
                 var room = (i == 0 || i == 4 || j == 0 || j == 9 ? room008 : room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),
                     Quaternion.CreateFromYawPitchRoll(i % 2 == 0 ? MathF.PI : 0 + j % 2 == 0 ? MathF.PI : 0, 0, 0));
                 AddEntity(room);
-                AddEntities(room.Entites.OfType<Model>().Select(x => x.Models));
+                AddEntities(room.Entites);
             }
         }
-
-        var coolTexture = gfxRes.TextureCache.GetTexture("Assets/scp.jpg");
-        var logoMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement());
-        var testMesh = new CBModel<ModelShader.Vertex>(modelShader.TryCreateInstanceConstants(), logoMat,
-            new CBMesh<ModelShader.Vertex>(gfx, new ModelShader.Vertex[] {
-                new(new(-1f, 1f, 0), new(1, 0)),
-                new(new(1f, 1f, 0), new(0, 0)),
-                new(new(-1f, -1f, 0), new(1, 1)),
-                new(new(1f, -1f, 0), new(0, 1)),
-            },
-            new uint[] { 0, 1, 2, 3, 2, 1 }));
-
-        ModelCollection modelB = new(new[] { testMesh });
-        modelB.WorldTransform = modelB.WorldTransform with { Position = new(2, 0, -0.1f), Scale = new(0.5f) };
-        AddEntity(modelB);
 
         var sim = Physics.Simulation;
 
@@ -101,6 +95,10 @@ public class MainScene : Scene3D {
 
         if (dir != Vector2.Zero) {
             _controller.HandleMove(Vector2.Normalize(dir), delta);
+        }
+
+        foreach (var sh in _gfxRes.ShaderCache.ActiveShaders) {
+            sh.Constants?.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(_proj);
         }
 
         base.Update(delta);
