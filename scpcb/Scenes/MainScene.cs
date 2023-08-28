@@ -33,6 +33,9 @@ public class MainScene : Scene3D {
         var gfx = gfxRes.GraphicsDevice;
         var window = gfxRes.Window;
 
+        var video = new Video(gfxRes, "Assets/Splash_UTG.mp4");
+        AddEntity(video);
+
         var modelShader = gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>();
 
         // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
@@ -44,11 +47,11 @@ public class MainScene : Scene3D {
         window.KeyUp += x => _keysDown[x.Key] = false;
 
         var coolTexture = gfxRes.TextureCache.GetTexture("Assets/scp.jpg");
-        var logoMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement(),
+        var logoMat = modelShader.CreateMaterial(video.Texture.AsEnumerableElement(),
             _gfxRes.GraphicsDevice.PointSampler.AsEnumerableElement());
 
         _billboardManager = new(gfxRes);
-        var billboard = _billboardManager.Create(coolTexture);
+        var billboard = _billboardManager.Create(video.Texture);
         billboard.Transform = billboard.Transform with { Position = new(2, 0, -0.1f) };
         AddEntity(billboard);
 

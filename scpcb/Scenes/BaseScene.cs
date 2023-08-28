@@ -110,10 +110,9 @@ public class BaseScene : Disposable, IScene {
     }
 
     protected override void DisposeImpl() {
-        foreach (var entity in _entities) {
-            if (entity is IDisposable disposable) {
-                disposable.Dispose();
-            }
+        foreach (var e in _entities) {
+            RemoveEntity(e);
         }
+        DealWithEntityBuffers();
     }
 }
