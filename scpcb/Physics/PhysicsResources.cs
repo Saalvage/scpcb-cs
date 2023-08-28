@@ -23,8 +23,6 @@ public class PhysicsResources : Disposable, ITickable {
 
         var targetThreadCount = int.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
         _threadDispatcher = new(targetThreadCount);
-
-        Simulation.Statics.Add(new(new Vector3(0, -0.5f, 0), Simulation.Shapes.Add(new Box(2500, 1, 2500))));
     }
 
     public void Tick() {

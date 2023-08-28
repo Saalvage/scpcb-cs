@@ -300,8 +300,9 @@ public partial class RMeshRoomProvider : IRoomProvider {
             }
 
             return new(gfxRes, physics, meshes.ToArray(), Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physics.BufferPool), entities.ToArray());
-        } finally {
+        } catch {
             physics.BufferPool.Return(ref triBuffer);
+            throw;
         }
     }
 
