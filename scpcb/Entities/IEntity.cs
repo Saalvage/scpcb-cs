@@ -1,3 +1,8 @@
-﻿namespace scpcb.Entities;
+﻿using scpcb.Scenes;
 
-public interface IEntity { }
+namespace scpcb.Entities;
+
+public interface IEntity {
+    void OnAdd(IScene scene) { }
+    void OnRemove(IScene scene) { }
+}

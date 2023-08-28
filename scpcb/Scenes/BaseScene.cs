@@ -13,7 +13,7 @@ public class BaseScene : Disposable, IScene {
     private readonly List<IEntity> _entitiesToAdd = new();
     private readonly List<ValueTuple<IEntity, bool>> _entitiesToRemove = new();
 
-    public IReadOnlyList<IEntity> Entities => _entities;
+    public IEnumerable<IEntity> Entities => _entities;
 
     public event Action<IEntity> OnAddEntity;
     public event Action<IEntity> OnRemoveEntity;
@@ -44,6 +44,7 @@ public class BaseScene : Disposable, IScene {
     }
 
     private void HandleAddEntity(IEntity e) {
+        e.OnAdd(this);
         OnAddEntity?.Invoke(e);
         _entities.Add(e);
         if (e is IUpdatable u) { _updatables.Add(u); }
@@ -57,6 +58,7 @@ public class BaseScene : Disposable, IScene {
     }
 
     private void HandleRemoveEntity(IEntity e, bool shouldDispose) {
+        e.OnRemove(this);
         OnRemoveEntity?.Invoke(e);
         _entities.Remove(e);
         if (e is IUpdatable u) { _updatables.Remove(u); }

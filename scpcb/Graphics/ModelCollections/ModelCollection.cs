@@ -9,8 +9,8 @@ namespace scpcb.Graphics.ModelCollections;
 /// <summary>
 /// Intended as the manager for the instance constants of a collection of models.
 /// </summary>
-public class ModelCollection : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, I3DModelProvider {
-    IEnumerable<I3DModel> I3DModelProvider.Models => Models;
+public class ModelCollection : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, I3DModelHolder {
+    IEnumerable<I3DModel> I3DModelHolder.Models => Models;
     public IReadOnlyList<I3DModel> Models { get; }
 
     private class Model3D : I3DModel {

@@ -13,8 +13,6 @@ using Veldrid;
 namespace scpcb.Scenes;
 
 public class MainScene : Scene3D {
-    public PhysicsResources Physics { get; } = new();
-
     private readonly GraphicsResources _gfxRes;
     private readonly Player _controller = new();
 

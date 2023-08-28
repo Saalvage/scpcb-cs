@@ -1,5 +1,6 @@
 ﻿using scpcb.Entities;
 using scpcb.Graphics;
+using scpcb.Physics;
 
 namespace scpcb.Scenes; 
 
@@ -8,14 +9,16 @@ public class Scene3D : BaseScene {
 
     private readonly ModelSorter _sorter = new();
 
-    protected ICamera Camera { get; set; }
+    public ICamera Camera { get; protected set; }
+
+    public PhysicsResources Physics { get; } = new();
 
     public Scene3D(GraphicsResources gfxRes) {
         _gfxRes = gfxRes;
 
         OnAddEntity += e => {
             switch (e) {
-                case I3DModelProvider p:
+                case I3DModelHolder p:
                     _sorter.AddRange(p.Models);
                     break;
                 case I3DModel m:
@@ -26,7 +29,7 @@ public class Scene3D : BaseScene {
 
         OnRemoveEntity += e => {
             switch (e) {
-                case I3DModelProvider p:
+                case I3DModelHolder p:
                     _sorter.RemoveRange(p.Models);
                     break;
                 case I3DModel m:

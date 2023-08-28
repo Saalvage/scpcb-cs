@@ -24,7 +24,7 @@ public static class PhysicsExtensions {
 
     public static bool SimpleRayCast(this Simulation sim, Vector3 from, Vector3 to) {
         var dir = to - from;
-        return sim.SimpleRayCast(from, dir, dir.Length());
+        return sim.SimpleRayCast(from, dir, 1f);
     }
 
     public static bool SimpleRayCast(this Simulation sim, Vector3 from, Vector3 dir, float length) {

@@ -41,12 +41,13 @@ public class RoomData : Disposable {
     }
 }
 
-public class RoomInstance : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, I3DModelProvider {
+public class RoomInstance : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, I3DModelHolder, IEntityHolder {
     private record Model3D(Vector3 Position, ICBModel Model) : I3DModel;
 
-    IEnumerable<I3DModel> I3DModelProvider.Models => Models;
+    IEnumerable<I3DModel> I3DModelHolder.Models => Models;
     public I3DModel[] Models { get; }
 
+    IEnumerable<IEntity> IEntityHolder.Entities => Entites;
     public IMapEntity[] Entites { get; }
 
     private readonly Matrix4x4 _transform;
