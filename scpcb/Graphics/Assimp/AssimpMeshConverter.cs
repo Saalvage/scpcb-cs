@@ -59,7 +59,7 @@ public abstract class AssimpMeshConverter<TVertex> : IAssimpMeshConverter<TVerte
 
     public (ICBModel<TVertex>[], ConvexHull) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
         using var assimp = new AssimpContext();
-        var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality);
+        var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
         var hull = ConvertToConvexHull(physics, scene.Meshes, out var middle);
         var mats = scene.Materials.Select(ConvertMaterial).ToArray();
         return (scene.Meshes.Select(x => ConvertMesh(gfx, x, mats[x.MaterialIndex], middle)).ToArray(), hull);

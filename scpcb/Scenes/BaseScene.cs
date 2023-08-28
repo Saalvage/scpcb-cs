@@ -64,12 +64,12 @@ public class BaseScene : Disposable, IScene {
         if (e is IUpdatable u) { _updatables.Remove(u); }
         if (e is ITickable t) { _tickables.Remove(t); }
         if (e is IRenderable r) { _renderables.Remove(r); }
-        if (shouldDispose && e is IDisposable d) { d.Dispose(); }
         if (e is IEntityHolder h) {
             foreach (var he in h.Entities) {
                 HandleRemoveEntity(he, shouldDispose);
             }
         }
+        if (shouldDispose && e is IDisposable d) { d.Dispose(); }
     }
 
     private void DealWithEntityBuffers() {

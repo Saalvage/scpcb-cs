@@ -21,7 +21,7 @@ public class Prop : IMapEntity, IEntityHolder {
     public Prop(GraphicsResources gfxRes, PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
         var mat = gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().CreateMaterial(
             gfxRes.MissingTexture.AsEnumerableElement(), gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
-        var (meshes, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>(mat)
+        var (meshes, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ValueTuple<GraphicsResources, string>>((gfxRes, "Assets/Props/"))
             .LoadMeshes(gfxRes.GraphicsDevice, physics, PROP_PATH + file);
 
         // TODO: This leaks memory!

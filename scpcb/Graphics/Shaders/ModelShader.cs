@@ -5,13 +5,15 @@ using scpcb.Graphics.Assimp;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Primitives;
+using scpcb.Utility;
+
 #pragma warning disable CS8618
 
 namespace scpcb.Graphics.Shaders;
 
 // TODO: It sucks that we need to have both the IAutoShader interface and ShaderClass attribute.. Maybe we can merge the two somehow?
 [ShaderClass]
-public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>,
+public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ValueTuple<GraphicsResources, string>>,
         IAutoShader<ModelShader.VertexConstants, Empty, ModelShader.InstanceVertexConstants, Empty> {
     public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember {
         public Matrix4x4 ProjectionMatrix { get; set; }
@@ -57,5 +59,7 @@ public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ICBMat
         return Sample(SurfaceTexture, Sampler, input.TextureCoord);
     }
 
-    public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ICBMaterial<Vertex> plugin) => plugin;
+    public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ValueTuple<GraphicsResources, string> gfxRes_baseFilePath) => gfxRes_baseFilePath.Item1.ShaderCache.GetShader<ModelShader, Vertex>()
+        .CreateMaterial(gfxRes_baseFilePath.Item1.TextureCache.GetTexture(gfxRes_baseFilePath.Item2 + mat.TextureDiffuse.FilePath).AsEnumerableElement(),
+            gfxRes_baseFilePath.Item1.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
 }

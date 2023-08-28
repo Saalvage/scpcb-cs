@@ -46,9 +46,12 @@ public class MainScene : Scene3D {
         window.KeyDown += x => _keysDown[x.Key] = true;
         window.KeyUp += x => _keysDown[x.Key] = false;
 
-        var coolTexture = gfxRes.TextureCache.GetTexture("Assets/scp.jpg");
+        var coolTexture = gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
         var logoMat = modelShader.CreateMaterial(video.Texture.AsEnumerableElement(),
-            _gfxRes.GraphicsDevice.PointSampler.AsEnumerableElement());
+            gfx.PointSampler.AsEnumerableElement());
+
+        var otherMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement(),
+            gfx.PointSampler.AsEnumerableElement());
 
         _billboardManager = new(gfxRes);
         var billboard = _billboardManager.Create(video.Texture);
@@ -68,7 +71,7 @@ public class MainScene : Scene3D {
 
         var sim = Physics.Simulation;
 
-        var (scp173, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ICBMaterial<ModelShader.Vertex>>(logoMat)
+        var (scp173, hull) = new PluginAssimpMeshConverter<ModelShader.Vertex>(ModelShader.Vertex.ConvertVertex, _ => logoMat)
             .LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
 
         window.KeyDown += x => {
@@ -78,7 +81,7 @@ public class MainScene : Scene3D {
                     1, sim.Shapes, hull));
                 var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
                 AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<ModelShader.Vertex>(
-                    modelShader.TryCreateInstanceConstants(), scp173[0].Material, scp173[0].Mesh) }));
+                    modelShader.TryCreateInstanceConstants(), Random.Shared.NextSingle() > 0.5 ? otherMat : logoMat, scp173[0].Mesh) }));
             }
         };
     }
