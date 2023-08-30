@@ -46,17 +46,13 @@ public class ShaderCache : Disposable {
         Debug.Assert(GetVertexTypeFromVS<TShader>() == vertexType,
             "Tried getting shader from cache with incorret vertex type.");
 
-        var parameters = typeof(TShader).GetInterfaces()
-            .Single(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IAutoShader<,,,>))
-            .GetGenericArguments();
-
         var parameterizedType = typeof(GeneratedShader<,,,,,>)
             .MakeGenericType(typeof(TShader),
                 vertexType,
-                parameters[0],
-                parameters[1],
-                parameters[2],
-                parameters[3]
+                TShader.VertexBlockType,
+                TShader.FragmentBlockType,
+                TShader.InstanceVertexBlockType,
+                TShader.InstanceFragmentBlockType
             );
         var ctor = parameterizedType.GetConstructor(GENERATED_SHADER_CTOR_ARG_TYPES);
         Debug.Assert(ctor != null, "Could not find required ctor on GeneratedShader!?");
