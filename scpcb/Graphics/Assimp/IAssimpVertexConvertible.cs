@@ -1,4 +1,4 @@
-﻿using scpcb.Graphics.Shaders;
+﻿using scpcb.Graphics.Shaders.Utility;
 
 namespace scpcb.Graphics.Assimp;
 

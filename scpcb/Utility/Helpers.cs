@@ -53,9 +53,9 @@ public static class Helpers {
 
     public static IEnumerable<(MemberInfo Member, Type Type)> GetFieldsAndProperties<T>() => GetFieldsAndProperties(typeof(T));
 
-    public static IEnumerable<(MemberInfo Member, Type Type)> GetFieldsAndProperties(Type type)
+    public static IEnumerable<(MemberInfo Member, Type Type)> GetFieldsAndProperties(this Type type)
         => type.GetMembers() // We're doing it like this to get them in the correct order.
-            .Where(x => x is PropertyInfo || x is FieldInfo)
+            .Where(x => x is PropertyInfo or FieldInfo)
             .Select(x => (x, MemberToType(x)));
 
     private static Type MemberToType(MemberInfo info) => info switch {

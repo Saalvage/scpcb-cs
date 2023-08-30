@@ -1,8 +1,9 @@
 ﻿using System.Reflection;
 using scpcb.Graphics.Primitives;
+using scpcb.Utility;
 using ShaderGen;
 
-namespace scpcb.Graphics.Shaders;
+namespace scpcb.Graphics.Shaders.Utility;
 
 public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, TInstanceVertConstants, TInstanceFragConstants>
     : CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertConstants, TInstanceFragConstants>
@@ -26,12 +27,12 @@ public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, T
         File.ReadAllBytes($"{SHADER_PATH}{typeof(TShader).Name}/fragment.{extension}"),
         vs.Name,
         GetMethodWithSingleParameter(vs.ReturnType).Name,
-        GetFieldsOfType<TVertConstants>().SingleOrDefault(),
-        GetFieldsOfType<TFragConstants>().SingleOrDefault(),
-        GetFieldsOfType<TInstanceVertConstants>().SingleOrDefault(),
-        GetFieldsOfType<TInstanceFragConstants>().SingleOrDefault(),
-        GetFieldsOfType<Texture2DResource>().ToArray(),
-        GetFieldsOfType<SamplerResource>().ToArray(),
+        GetBlockName<TVertConstants>(),
+        GetBlockName<TFragConstants>(),
+        GetBlockName<TInstanceVertConstants>(),
+        GetBlockName<TInstanceFragConstants>(),
+        GetMembersOfType<Texture2DResource>().ToArray(),
+        GetMembersOfType<SamplerResource>().ToArray(),
         shaderParameterOverrides,
         spirVRequired) { }
 
@@ -41,9 +42,12 @@ public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, T
         => typeof(TShader).GetMethods()
             .Single(x => x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == paramType);
 
-    private static IEnumerable<string> GetFieldsOfType<TField>()
+    private static string? GetBlockName<TMember>()
+        => typeof(TMember) == typeof(Empty) ? null : GetMembersOfType<TMember>().SingleOrDefault();
+
+    private static IEnumerable<string> GetMembersOfType<TMember>()
         => typeof(TShader)
-            .GetFields()
-            .Where(x => x.FieldType == typeof(TField))
-            .Select(x => x.Name);
+            .GetFieldsAndProperties()
+            .Where(x => x.Type == typeof(TMember))
+            .Select(x => x.Member.Name);
 }

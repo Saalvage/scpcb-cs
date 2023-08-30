@@ -5,7 +5,7 @@ using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.Utility;
+namespace scpcb.Graphics.Shaders.Utility;
 
 public interface IConstantHolder : IDisposable {
     bool HasConstant<T>() where T : IConstantMember<T>;

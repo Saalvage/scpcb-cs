@@ -1,5 +1,4 @@
-﻿using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Utility;
+﻿using scpcb.Graphics.Shaders.Utility;
 using scpcb.Utility;
 using Veldrid;
 using Veldrid.SPIRV;

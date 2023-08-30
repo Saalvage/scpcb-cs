@@ -1,14 +1,17 @@
 ﻿using System.Numerics;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Graphics.Shaders.Utility;
 using ShaderGen;
 using static ShaderGen.ShaderBuiltins;
+
 #pragma warning disable CS8618
 
 namespace scpcb.Graphics.Shaders;
 
 [ShaderClass]
 public class RMeshShader : IAutoShader<RMeshShader.VertUniforms, Empty, RMeshShader.VertInstanceUniforms, Empty> {
+
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color);
     public record struct Fragment([SystemPositionSemantic] Vector4 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color, [TextureCoordinateSemantic] Vector3 CameraPos);
 
@@ -16,29 +19,28 @@ public class RMeshShader : IAutoShader<RMeshShader.VertUniforms, Empty, RMeshSha
         public Matrix4x4 ViewMatrix { get; set; }
         public Matrix4x4 ProjectionMatrix { get; set; }
     }
-    public VertUniforms VConstants;
 
     public struct VertInstanceUniforms : IWorldMatrixConstantMember {
         public Matrix4x4 WorldMatrix { get; set; }
     }
 
-    [ResourceSet(1)]
-    public VertInstanceUniforms InstVConstants;
+    [ResourceSet(0)] public VertUniforms VertexBlock { get; }
+    [ResourceIgnore] public Empty FragmentBlock { get; }
 
-    [ResourceSet(2)]
-    public Texture2DResource LightmapTexture;
-    [ResourceSet(2)]
-    public Texture2DResource SurfaceTexture;
-    [ResourceSet(2)]
-    public SamplerResource Sampler;
+    [ResourceSet(1)] public VertInstanceUniforms InstanceVertexBlock { get; }
+    [ResourceIgnore] public Empty InstanceFragmentBlock { get; }
+
+    [ResourceSet(2)] public Texture2DResource LightmapTexture;
+    [ResourceSet(2)] public Texture2DResource SurfaceTexture;
+    [ResourceSet(2)] public SamplerResource Sampler;
 
     [VertexShader]
     public Fragment VS(Vertex vert) {
         Fragment frag = default;
-        frag.Position = Mul(VConstants.ViewMatrix,
-            Mul(InstVConstants.WorldMatrix, new(vert.Position, 1)));
+        frag.Position = Mul(VertexBlock.ViewMatrix,
+            Mul(InstanceVertexBlock.WorldMatrix, new(vert.Position, 1)));
         frag.CameraPos = frag.Position.XYZ() / frag.Position.W;
-        frag.Position = Mul(VConstants.ProjectionMatrix, frag.Position);
+        frag.Position = Mul(VertexBlock.ProjectionMatrix, frag.Position);
         frag.Uv = vert.Uv;
         frag.LmUv = vert.LmUv;
         frag.Color = vert.Color;

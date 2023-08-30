@@ -4,6 +4,7 @@ using Assimp;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Shaders.Utility;
 using Veldrid;
 
 #pragma warning disable CS8618
@@ -14,29 +15,6 @@ namespace scpcb.Graphics.Shaders;
 [ShaderClass]
 public class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empty,
         BillboardShader.InstanceVertexConstants, BillboardShader.InstanceFragmentConstants> {
-    public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember, IViewPositionConstantMember {
-        public Matrix4x4 ProjectionMatrix { get; set; }
-        public Matrix4x4 ViewMatrix { get; set; }
-        public Vector3 ViewPosition { get; set; }
-    }
-    public VertexConstants VConstants;
-
-    public struct InstanceVertexConstants : IWorldMatrixConstantMember {
-        public Matrix4x4 WorldMatrix { get; set; }
-    }
-    [ResourceSet(1)]
-    public InstanceVertexConstants InstVConstants;
-
-    public struct InstanceFragmentConstants : IColorConstantMember {
-        public Vector3 Color { get; set; }
-    }
-    [ResourceSet(1)]
-    public InstanceFragmentConstants InstFConstants;
-
-    [ResourceSet(2)]
-    public Texture2DResource SurfaceTexture;
-    [ResourceSet(2)]
-    public SamplerResource Sampler;
 
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
 
@@ -44,6 +22,29 @@ public class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empt
         [SystemPositionSemantic] public Vector4 Position;
         [TextureCoordinateSemantic] public Vector2 TextureCoord;
     }
+
+    public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember, IViewPositionConstantMember {
+        public Matrix4x4 ProjectionMatrix { get; set; }
+        public Matrix4x4 ViewMatrix { get; set; }
+        public Vector3 ViewPosition { get; set; }
+    }
+
+    public struct InstanceVertexConstants : IWorldMatrixConstantMember {
+        public Matrix4x4 WorldMatrix { get; set; }
+    }
+
+    public struct InstanceFragmentConstants : IColorConstantMember {
+        public Vector3 Color { get; set; }
+    }
+
+    [ResourceSet(0)] public VertexConstants VertexBlock { get; }
+    [ResourceIgnore] public Empty FragmentBlock { get; }
+
+    [ResourceSet(1)] public InstanceVertexConstants InstanceVertexBlock { get; }
+    [ResourceSet(1)] public InstanceFragmentConstants InstanceFragmentBlock { get; }
+
+    [ResourceSet(2)] public Texture2DResource SurfaceTexture;
+    [ResourceSet(2)] public SamplerResource Sampler;
 
     private static Matrix4x4 CreateLookAt(Vector3 cameraDirection, Vector3 cameraUpVector) {
         Vector3 axisZ = Vector3.Normalize(-cameraDirection);
@@ -86,29 +87,29 @@ public class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empt
         // - Don't forget fog!
 
         // Extracting and removing world pos. Allows for rotating the billboards.
-        var world = InstVConstants.WorldMatrix;
+        var world = InstanceVertexBlock.WorldMatrix;
         var entityWorldPos = new Vector3(world.M14, world.M24, world.M34) / world.M44;
         world.M14 = 0;
         world.M24 = 0;
         world.M34 = 0;
 
-        Matrix4x4 mat = CreateLookAt(VConstants.ViewPosition - entityWorldPos, new(0, 1, 0));
+        Matrix4x4 mat = CreateLookAt(VertexBlock.ViewPosition - entityWorldPos, new(0, 1, 0));
 
         // Rotation & scale.
         Vector4 preWorldPosition = Mul(world, new(input.Position, 1));
         // Look at & translation.
         Vector4 worldPosition = Mul(mat, preWorldPosition) + new Vector4(entityWorldPos, 0);
-        Vector4 viewPosition = Mul(VConstants.ViewMatrix, worldPosition);
+        Vector4 viewPosition = Mul(VertexBlock.ViewMatrix, worldPosition);
 
         FragmentInput output;
-        output.Position = Mul(VConstants.ProjectionMatrix, viewPosition);
+        output.Position = Mul(VertexBlock.ProjectionMatrix, viewPosition);
         output.TextureCoord = input.TextureCoord;
         return output;
     }
 
     [FragmentShader]
     public Vector4 FS(FragmentInput input) {
-        return new(Sample(SurfaceTexture, Sampler, input.TextureCoord).XYZ() * InstFConstants.Color, 1f);
+        return new(Sample(SurfaceTexture, Sampler, input.TextureCoord).XYZ() * InstanceFragmentBlock.Color, 1f);
     }
 
     public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ICBMaterial<Vertex> plugin) => plugin;

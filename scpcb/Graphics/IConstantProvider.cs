@@ -1,5 +1,5 @@
 ﻿using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Utility;
+using scpcb.Graphics.Shaders.Utility;
 
 namespace scpcb.Graphics;
 

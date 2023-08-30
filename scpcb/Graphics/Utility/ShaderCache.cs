@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders;
+using scpcb.Graphics.Shaders.Utility;
 using scpcb.Utility;
 using ShaderGen;
 
