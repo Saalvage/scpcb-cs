@@ -9,8 +9,7 @@ using static ShaderGen.ShaderBuiltins;
 
 namespace scpcb.Graphics.Shaders;
 
-[ShaderClass]
-public class RMeshShader : IAutoShader<RMeshShader.VertUniforms, Empty, RMeshShader.VertInstanceUniforms, Empty> {
+public partial class RMeshShader : IAutoShader<RMeshShader.VertUniforms, Empty, RMeshShader.VertInstanceUniforms, Empty> {
 
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color);
     public record struct Fragment([SystemPositionSemantic] Vector4 Position, [TextureCoordinateSemantic] Vector2 Uv, [TextureCoordinateSemantic] Vector2 LmUv, [ColorSemantic] Vector3 Color, [TextureCoordinateSemantic] Vector3 CameraPos);
@@ -24,15 +23,9 @@ public class RMeshShader : IAutoShader<RMeshShader.VertUniforms, Empty, RMeshSha
         public Matrix4x4 WorldMatrix { get; set; }
     }
 
-    [ResourceSet(0)] public VertUniforms VertexBlock { get; }
-    [ResourceIgnore] public Empty FragmentBlock { get; }
-
-    [ResourceSet(1)] public VertInstanceUniforms InstanceVertexBlock { get; }
-    [ResourceIgnore] public Empty InstanceFragmentBlock { get; }
-
-    [ResourceSet(2)] public Texture2DResource LightmapTexture;
-    [ResourceSet(2)] public Texture2DResource SurfaceTexture;
-    [ResourceSet(2)] public SamplerResource Sampler;
+    [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource LightmapTexture;
+    [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource SurfaceTexture;
+    [ResourceSet(MATERIAL_OFFSET)] public SamplerResource Sampler;
 
     [VertexShader]
     public Fragment VS(Vertex vert) {

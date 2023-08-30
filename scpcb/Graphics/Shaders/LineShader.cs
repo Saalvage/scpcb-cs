@@ -8,8 +8,7 @@ using static ShaderGen.ShaderBuiltins;
 
 namespace scpcb.Graphics.Shaders;
 
-[ShaderClass]
-public class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
+public partial class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
         LineShader.InstanceVertexConstants, LineShader.InstanceFragmentConstants> {
 
     // TODO: This breaks when turned into a record struct (without args).
@@ -33,12 +32,6 @@ public class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
     public struct InstanceFragmentConstants : IColorConstantMember {
         public Vector3 Color { get; set; }
     }
-
-    [ResourceSet(0)] public VertexConstants VertexBlock { get; }
-    [ResourceIgnore] public Empty FragmentBlock { get; }
-
-    [ResourceSet(1)] public InstanceVertexConstants InstanceVertexBlock { get; }
-    [ResourceSet(1)] public InstanceFragmentConstants InstanceFragmentBlock { get; }
 
     [VertexShader]
     public FragmentInput VS(Vertex input) {

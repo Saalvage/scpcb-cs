@@ -12,9 +12,7 @@ using scpcb.Utility;
 
 namespace scpcb.Graphics.Shaders;
 
-// TODO: It sucks that we need to have both the IAutoShader interface and ShaderClass attribute.. Maybe we can merge the two somehow?
-[ShaderClass]
-public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ValueTuple<GraphicsResources, string>>,
+public partial class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ValueTuple<GraphicsResources, string>>,
         IAutoShader<ModelShader.VertexConstants, Empty, ModelShader.InstanceVertexConstants, Empty> {
 
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord)
@@ -36,14 +34,8 @@ public class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ValueT
         public Matrix4x4 WorldMatrix { get; set; }
     }
 
-    [ResourceSet(0)] public VertexConstants VertexBlock { get; }
-    [ResourceIgnore] public Empty FragmentBlock { get; }
-
-    [ResourceSet(1)] public InstanceVertexConstants InstanceVertexBlock { get; }
-    [ResourceIgnore] public Empty InstanceFragmentBlock { get; }
-
-    [ResourceSet(2)] public Texture2DResource SurfaceTexture { get; }
-    [ResourceSet(2)] public SamplerResource Sampler { get; }
+    [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource SurfaceTexture { get; }
+    [ResourceSet(MATERIAL_OFFSET)] public SamplerResource Sampler { get; }
 
     [VertexShader]
     public FragmentInput VS(Vertex input) {

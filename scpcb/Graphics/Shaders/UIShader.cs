@@ -8,8 +8,7 @@ using scpcb.Graphics.Shaders.Utility;
 
 namespace scpcb.Graphics.Shaders;
 
-[ShaderClass]
-public class UIShader : IAutoShader<Empty, Empty, Empty, Empty> {
+public partial class UIShader : IAutoShader<Empty, Empty, Empty, Empty> {
 
     public record struct Vertex([PositionSemantic] Vector2 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
 
@@ -18,14 +17,8 @@ public class UIShader : IAutoShader<Empty, Empty, Empty, Empty> {
         [TextureCoordinateSemantic] public Vector2 TextureCoord;
     }
 
-    [ResourceIgnore] public Empty VertexBlock { get; }
-    [ResourceIgnore] public Empty FragmentBlock { get; }
-
-    [ResourceIgnore] public Empty InstanceVertexBlock { get; }
-    [ResourceIgnore] public Empty InstanceFragmentBlock { get; }
-
-    [ResourceSet(0)] public Texture2DResource SurfaceTexture;
-    [ResourceSet(0)] public SamplerResource Sampler;
+    [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource SurfaceTexture;
+    [ResourceSet(MATERIAL_OFFSET)] public SamplerResource Sampler;
 
     [VertexShader]
     public FragmentInput VS(Vertex input) {

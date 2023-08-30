@@ -7,6 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+
     <!-- We need to manually construct this because $(OutputPath) is not available to us here (I think) -->
     <ShaderOutputPath>bin/$(Configuration)/$(TargetFramework)/Assets/Shaders/</ShaderOutputPath>
     <GlslNoYFlip>true</GlslNoYFlip>
@@ -36,6 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Utility\AutoShaderSourceGenerator\AutoShaderSourceGenerator.csproj"
+                  OutputItemType="Analyzer"
+                  ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\submodules\AssimpNet\AssimpNet\AssimpNet.csproj" />
     <ProjectReference Include="..\submodules\ShaderGen\src\ShaderGen.Primitives\ShaderGen.Primitives.csproj" />
   </ItemGroup>

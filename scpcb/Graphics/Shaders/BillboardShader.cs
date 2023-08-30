@@ -2,18 +2,16 @@
 using System.Numerics;
 using Assimp;
 using scpcb.Graphics.Shaders.ConstantMembers;
-using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
 using Veldrid;
+using static ShaderGen.ShaderBuiltins;
 
 #pragma warning disable CS8618
 
 namespace scpcb.Graphics.Shaders;
 
-// TODO: It sucks that we need to have both the IAutoShader interface and ShaderClass attribute.. Maybe we can merge the two somehow?
-[ShaderClass]
-public class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empty,
+public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empty,
         BillboardShader.InstanceVertexConstants, BillboardShader.InstanceFragmentConstants> {
 
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
@@ -37,14 +35,8 @@ public class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empt
         public Vector3 Color { get; set; }
     }
 
-    [ResourceSet(0)] public VertexConstants VertexBlock { get; }
-    [ResourceIgnore] public Empty FragmentBlock { get; }
-
-    [ResourceSet(1)] public InstanceVertexConstants InstanceVertexBlock { get; }
-    [ResourceSet(1)] public InstanceFragmentConstants InstanceFragmentBlock { get; }
-
-    [ResourceSet(2)] public Texture2DResource SurfaceTexture;
-    [ResourceSet(2)] public SamplerResource Sampler;
+    [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource SurfaceTexture;
+    [ResourceSet(MATERIAL_OFFSET)] public SamplerResource Sampler;
 
     private static Matrix4x4 CreateLookAt(Vector3 cameraDirection, Vector3 cameraUpVector) {
         Vector3 axisZ = Vector3.Normalize(-cameraDirection);

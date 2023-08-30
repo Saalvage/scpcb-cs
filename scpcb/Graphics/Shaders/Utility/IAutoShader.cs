@@ -15,6 +15,13 @@ public interface IAutoShader {
     static virtual ShaderParameters DefaultParameters => ShaderParameters.Default;
 }
 
+/// <summary>
+/// By using a source generator, this interface implements itself!
+/// </summary>
+/// <typeparam name="TVertexConstants"></typeparam>
+/// <typeparam name="TFragmentConstants"></typeparam>
+/// <typeparam name="TInstanceVertexConstants"></typeparam>
+/// <typeparam name="TInstanceFragmentConstants"></typeparam>
 public interface IAutoShader<TVertexConstants, TFragmentConstants, TInstanceVertexConstants, TInstanceFragmentConstants> : IAutoShader 
         where TVertexConstants : unmanaged where TFragmentConstants : unmanaged
         where TInstanceVertexConstants : unmanaged where TInstanceFragmentConstants : unmanaged {
