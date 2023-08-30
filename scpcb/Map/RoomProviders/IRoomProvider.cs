@@ -9,5 +9,5 @@ public interface IRoomProvider {
     /// </summary>
     public IEnumerable<string> SupportedExtensions { get; }
 
-    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, BillboardManager billboardManager, string path);
+    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, BillboardManager billboardManager, string path);
 }

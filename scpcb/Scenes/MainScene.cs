@@ -1,19 +1,22 @@
 ﻿using System.Numerics;
 using BepuPhysics;
+using BepuPhysics.Collidables;
 using scpcb.Graphics;
 using scpcb.Graphics.Assimp;
 using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Physics;
+using scpcb.Map;
 using scpcb.Utility;
 using Veldrid;
 
 namespace scpcb.Scenes;
 
 public class MainScene : Scene3D {
+    private readonly Game _game;
     private readonly GraphicsResources _gfxRes;
+    
     private readonly Player _controller = new();
 
     private readonly BillboardManager _billboardManager;
@@ -22,68 +25,67 @@ public class MainScene : Scene3D {
     private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;
 
     private readonly Matrix4x4 _proj;
+    private readonly ConvexHull _hull;
+    private readonly ICBMaterial<ModelShader.Vertex> _otherMat;
+    private readonly ICBMaterial<ModelShader.Vertex> _logoMat;
+    private readonly ICBModel<ModelShader.Vertex> _scp173;
 
-    public MainScene(GraphicsResources gfxRes) : base(gfxRes) {
+    private readonly IRoomData _room008;
+    private readonly IRoomData _room4Tunnels;
+
+    public MainScene(Game game) : base(game.GraphicsResources) {
+        _game = game;
+        _gfxRes = game.GraphicsResources;
+
         AddEntity(Physics);
 
         Camera = _controller.Camera;
 
-        _gfxRes = gfxRes;
+        var gfx = _gfxRes.GraphicsDevice;
+        var window = _gfxRes.Window;
 
-        var gfx = gfxRes.GraphicsDevice;
-        var window = gfxRes.Window;
-
-        var video = new Video(gfxRes, "Assets/Splash_UTG.mp4");
+        var video = new Video(_gfxRes, "Assets/Splash_UTG.mp4");
+        video.Loop = true;
         AddEntity(video);
 
-        var modelShader = gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>();
+        var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>();
 
         // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
         _proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f);
 
         Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
 
-        window.KeyDown += x => _keysDown[x.Key] = true;
-        window.KeyUp += x => _keysDown[x.Key] = false;
-
-        var coolTexture = gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
-        var logoMat = modelShader.CreateMaterial(video.Texture.AsEnumerableElement(),
+        var coolTexture = _gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
+        _logoMat = modelShader.CreateMaterial(video.Texture.AsEnumerableElement(),
             gfx.PointSampler.AsEnumerableElement());
 
-        var otherMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement(),
+        _otherMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement(),
             gfx.PointSampler.AsEnumerableElement());
 
-        _billboardManager = new(gfxRes);
+        _billboardManager = new(_gfxRes);
         var billboard = _billboardManager.Create(video.Texture);
         billboard.Transform = billboard.Transform with { Position = new(2, 0, -0.1f) };
         AddEntity(billboard);
 
-        var room008 = gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/008/008_opt.rmesh");
-        var room4Tunnels = gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
+        _room008 = _gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/008/008_opt.rmesh");
+        _room4Tunnels = _gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {
-                var room = (i == 0 || i == 4 || j == 0 || j == 9 ? room008 : room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),
+                var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : _room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),
                     Quaternion.CreateFromYawPitchRoll(i % 2 == 0 ? MathF.PI : 0 + j % 2 == 0 ? MathF.PI : 0, 0, 0));
                 AddEntity(room);
-                AddEntities(room.Entites);
             }
         }
 
-        var sim = Physics.Simulation;
-
-        var (scp173, hull) = new PluginAssimpMeshConverter<ModelShader.Vertex>(ModelShader.Vertex.ConvertVertex, _ => logoMat)
+        var (scp173, hull) = new PluginAssimpMeshConverter<ModelShader.Vertex>(ModelShader.Vertex.ConvertVertex,
+                _ => _logoMat)
             .LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
 
-        window.KeyDown += x => {
-            if (x.Key == Key.Space) {
-                var bodyHandle = sim.Bodies.Add(BodyDescription.CreateConvexDynamic(
-                        new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
-                    1, sim.Shapes, hull));
-                var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
-                AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<ModelShader.Vertex>(
-                    modelShader.TryCreateInstanceConstants(), Random.Shared.NextSingle() > 0.5 ? otherMat : logoMat, scp173[0].Mesh) }));
-            }
-        };
+        _scp173 = scp173[0];
+        _hull = hull;
+
+        window.KeyDown += HandleKeyDown;
+        window.KeyUp += HandleKeyUp;
     }
 
     public override void Update(float delta) {
@@ -106,5 +108,37 @@ public class MainScene : Scene3D {
         }
 
         base.Update(delta);
+    }
+
+    public override void OnLeave() {
+        _gfxRes.Window.KeyDown -= HandleKeyDown;
+        _gfxRes.Window.KeyUp -= HandleKeyUp;
+    }
+
+    private void HandleKeyDown(KeyEvent e) {
+        _keysDown[e.Key] = true;
+
+        if (e.Key == Key.Space) {
+            var sim = Physics.Simulation;
+            var bodyHandle = sim.Bodies.Add(BodyDescription.CreateConvexDynamic(
+                new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
+                1, sim.Shapes, _hull));
+            var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
+            AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<ModelShader.Vertex>(
+                _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().TryCreateInstanceConstants(), Random.Shared.NextSingle() > 0.5
+                    ? _otherMat : _logoMat, _scp173.Mesh) }));
+        } else if (e.Key == Key.Escape) {
+            _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
+        }
+    }
+
+    private void HandleKeyUp(KeyEvent e) {
+        _keysDown[e.Key] = false;
+    }
+
+    protected override void DisposeImpl() {
+        _room008.Dispose();
+        _room4Tunnels.Dispose();
+        base.DisposeImpl();
     }
 }

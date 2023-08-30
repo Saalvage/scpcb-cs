@@ -10,11 +10,12 @@ public class Game : Disposable {
     public GraphicsResources GraphicsResources { get; }
 
     private IScene _scene;
+    private IScene? _nextScene;
     public IScene Scene {
         get => _scene;
         set {
-            _scene?.Dispose();
-            _scene = value;
+             Debug.Assert(_nextScene == null);
+            _nextScene = value;
         }
     }
 
@@ -30,7 +31,8 @@ public class Game : Disposable {
 
         GraphicsResources = new(width, height);
 
-        _scene = new MainScene(GraphicsResources);
+        _scene = new VideoScene(this, "Assets/Splash_UTG.mp4");
+        _scene.OnEnter();
     }
 
     public const int TICK_RATE = 60;
@@ -44,6 +46,14 @@ public class Game : Disposable {
         var now = DateTimeOffset.UtcNow;
         var tickAccu = 0;
         while (GraphicsResources.Window.Exists) {
+            if (_nextScene != null) {
+                _scene.OnLeave();
+                _scene.Dispose();
+                _scene = _nextScene;
+                _scene.OnEnter();
+                _nextScene = null;
+            }
+
             while (tickAccu < TICK_GOAL) {
                 GraphicsResources.Window.PumpEvents();
 
@@ -76,6 +86,7 @@ public class Game : Disposable {
     }
 
     protected override void DisposeImpl() {
+        _scene.OnLeave();
         _scene?.Dispose();
         GraphicsResources.Dispose();
     }

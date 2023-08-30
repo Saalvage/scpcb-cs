@@ -109,9 +109,13 @@ public class BaseScene : Disposable, IScene {
         // Don't deal with buffers here, rendering should NOT affect them.
     }
 
+    public virtual void OnEnter() { }
+    public virtual void OnLeave() { }
+
     protected override void DisposeImpl() {
-        foreach (var e in _entities) {
-            RemoveEntity(e);
+        // Remove in reverse order of addition, so that Dispose is called in the correct order.
+        for (var i = _entities.Count - 1; i >= 0; i--) {
+            RemoveEntity(_entities[i]);
         }
         DealWithEntityBuffers();
     }

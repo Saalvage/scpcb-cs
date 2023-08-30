@@ -16,7 +16,7 @@ public class RoomProviderCollector {
             .ToList();
     }
 
-    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, BillboardManager billboardManager, string path) {
+    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, BillboardManager billboardManager, string path) {
         var ext = Path.GetExtension(path)[1..];
         var provider = _providers.FirstOrDefault(x => x.SupportedExtensions.Contains(ext));
         if (provider == null) {

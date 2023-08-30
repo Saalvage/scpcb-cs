@@ -98,7 +98,7 @@ public class GraphicsResources : Disposable {
         MissingTexture = TextureCache.GetTexture("Assets/Textures/missing.png");
     }
 
-    public RoomData LoadRoom(PhysicsResources physics, BillboardManager billboardManager, string name)
+    public IRoomData LoadRoom(PhysicsResources physics, BillboardManager billboardManager, string name)
         => _roomProviderCollector.LoadRoom(this, physics, billboardManager, name);
 
     private readonly string[] _preferredShaderFileExtension;

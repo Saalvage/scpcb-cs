@@ -16,12 +16,10 @@ public partial class RMeshRoomProvider : IRoomProvider {
     public const float ROOM_SCALE_OLD = 8f / 2048f;
     public const float ROOM_SCALE = 1f / 100f;
 
-    private object[]? _globals;
-
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
-    public RoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, BillboardManager billboardManager, string filename) {
-        _globals ??= new object[] { gfxRes, physics, billboardManager };
+    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, BillboardManager billboardManager, string filename) {
+        var globals = new object[] { gfxRes, physics, billboardManager };
 
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
@@ -129,27 +127,29 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 }
             }
 
-            Span<Vector3> hiddenVertexStackBuffer = stackalloc Vector3[512];
-            var hiddenVertexHeapBuffer = Array.Empty<Vector3>();
+            Span<Vector3> invisVertexStackBuffer = stackalloc Vector3[512];
+            var invisVertexHeapBuffer = Array.Empty<Vector3>();
 
-            var hiddenMeshCount = reader.ReadInt32();
-            for (var i = 0; i < hiddenMeshCount; i++) {
+            var invisMeshCount = reader.ReadInt32();
+            physics.BufferPool.TakeAtLeast<Triangle>(invisMeshCount * 100, out var invisTriBuffer);
+            var totalInvisTriCount = 0;
+            for (var i = 0; i < invisMeshCount; i++) {
                 var vertexCount = reader.ReadInt32();
-                var vertices = GetBufferedSpan(vertexCount, hiddenVertexStackBuffer, ref hiddenVertexHeapBuffer);
+                var vertices = GetBufferedSpan(vertexCount, invisVertexStackBuffer, ref invisVertexHeapBuffer);
                 for (var j = 0; j < vertexCount; j++) {
                     vertices[j] = reader.ReadVector3() * ROOM_SCALE;
                 }
                 
                 var triCount = reader.ReadInt32();
-                physics.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triCount * 2, totalTriCount);
+                physics.BufferPool.ResizeToAtLeast(ref invisTriBuffer, totalInvisTriCount + triCount * 2, totalInvisTriCount);
                 for (var j = 0; j < triCount; j++) {
                     var i1 = reader.ReadInt32();
                     var i2 = reader.ReadInt32();
                     var i3 = reader.ReadInt32();
-                    triBuffer[totalTriCount] = new(vertices[i1], vertices[i2], vertices[i3]);
-                    totalTriCount++;
-                    triBuffer[totalTriCount] = new(vertices[i1], vertices[i3], vertices[i2]);
-                    totalTriCount++;
+                    invisTriBuffer[totalInvisTriCount] = new(vertices[i1], vertices[i2], vertices[i3]);
+                    totalInvisTriCount++;
+                    invisTriBuffer[totalInvisTriCount] = new(vertices[i1], vertices[i3], vertices[i2]);
+                    totalInvisTriCount++;
                 }
             }
 
@@ -157,7 +157,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 var triggerBoxCount = reader.ReadInt32();
                 for (var i = 0; i < triggerBoxCount; i++) {
                     var vertexCount = reader.ReadInt32();
-                    var vertices = GetBufferedSpan(vertexCount, hiddenVertexStackBuffer, ref hiddenVertexHeapBuffer);
+                    var vertices = GetBufferedSpan(vertexCount, invisVertexStackBuffer, ref invisVertexHeapBuffer);
                     for (var j = 0; j < vertexCount; j++) {
                         vertices[j] = reader.ReadVector3();
                     }
@@ -263,7 +263,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         var scale = reader.ReadVector3() * 10f * ROOM_SCALE;
 
                         if (file != "") {
-                            var data = new MapEntityData<Prop>(_globals);
+                            var data = new MapEntityData<Prop>(globals);
                             data.AddData("file", file);
                             data.AddData("position", position);
                             data.AddData("rotation", Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll));
@@ -287,7 +287,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     var intensity = MathF.Min(reader.ReadSingle() * 0.8f, 1);
 
                     if (position != Vector3.Zero) {
-                        var data = new MapEntityData<Light>(_globals);
+                        var data = new MapEntityData<Light>(globals);
                         data.AddData("position", position);
                         data.AddData("range", range);
                         data.AddData("color", intensity * new Vector3(color[0], color[1], color[2]));
@@ -299,7 +299,14 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 }
             }
 
-            return new(gfxRes, physics, meshes.ToArray(), Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physics.BufferPool), entities.ToArray());
+            Mesh? visible = totalTriCount > 0
+                ? Mesh.CreateWithSweepBuild(triBuffer[..totalTriCount], Vector3.One, physics.BufferPool)
+                : null;
+            Mesh? invisible = totalInvisTriCount > 0
+                ? Mesh.CreateWithSweepBuild(invisTriBuffer[..totalInvisTriCount], Vector3.One, physics.BufferPool)
+                : null;
+
+            return new RoomData(gfxRes, physics, meshes.ToArray(), visible, invisible, entities.ToArray());
         } catch {
             physics.BufferPool.Return(ref triBuffer);
             throw;

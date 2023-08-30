@@ -1,9 +1,5 @@
-﻿using System.Numerics;
-using scpcb.Entities;
-using scpcb.Graphics.Primitives;
+﻿using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Utility;
 using scpcb.Utility;
 using Veldrid;
 

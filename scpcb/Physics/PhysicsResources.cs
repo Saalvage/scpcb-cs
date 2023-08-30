@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using BepuPhysics;
-using BepuPhysics.Collidables;
+﻿using BepuPhysics;
 using BepuUtilities;
 using BepuUtilities.Memory;
 using scpcb.Entities;
@@ -11,6 +9,8 @@ namespace scpcb.Physics;
 public class PhysicsResources : Disposable, ITickable {
     public Simulation Simulation { get; }
 
+    public CollidableProperty<Visibility> Visibility { get; }
+
     public BufferPool BufferPool { get; } = new();
     
     private readonly ThreadDispatcher _threadDispatcher;
@@ -20,6 +20,7 @@ public class PhysicsResources : Disposable, ITickable {
 
     public PhysicsResources() {
         Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), new(4, 2));
+        Visibility = new(Simulation);
 
         var targetThreadCount = int.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
         _threadDispatcher = new(targetThreadCount);

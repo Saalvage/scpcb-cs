@@ -19,7 +19,7 @@ public class Video : Disposable, IUpdatable {
 
     public float Speed { get; set; } = 1f;
 
-    public bool Loop { get; set; } = true;
+    public bool Loop { get; set; } = false;
 
     public bool Paused { get; set; } = false;
 
@@ -27,6 +27,8 @@ public class Video : Disposable, IUpdatable {
 
     public event Action Finished;
 
+    // TODO: Do we really need this to be its own class?
+    // Modify CBTexture to allow for the same behavior?
     private class VideoTexture : Disposable, ICBTexture {
         private readonly GraphicsDevice _gfx;
 
