@@ -113,5 +113,5 @@ public class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empt
 
     public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ICBMaterial<Vertex> plugin) => plugin;
 
-    static ShaderParameters IAutoShader.DefaultParameters { get; } = ShaderParameters.Default with { BlendState = BlendStateDescription.SingleAdditiveBlend };
+    public static ShaderParameters DefaultParameters { get; } = ShaderParameters.Default with { BlendState = BlendStateDescription.SingleAdditiveBlend };
 }

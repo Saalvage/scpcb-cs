@@ -31,7 +31,7 @@ public class Game : Disposable {
 
         GraphicsResources = new(width, height);
 
-        _scene = new VideoScene(this, "Assets/Splash_UTG.mp4");
+        _scene = false ? new VideoScene(this, "Assets/Splash_UTG.mp4") : new MainScene(this);
         _scene.OnEnter();
     }
 

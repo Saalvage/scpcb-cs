@@ -29,7 +29,7 @@ public static class Helpers {
         throw new NotImplementedException();
     }
 
-    private static VertexElementSemantic PropertyToSemantic(PropertyInfo property) {
+    private static VertexElementSemantic MemberToSemantic(MemberInfo property) {
         var attr = property.GetCustomAttribute<VertexSemanticAttribute>();
         if (attr != null) {
             // TODO: This is fine for now, but why are they separate?
@@ -41,15 +41,27 @@ public static class Helpers {
     }
 
     public static unsafe VertexLayoutDescription GetDescriptionFromType<T>() where T : unmanaged {
-        var properties = typeof(T).GetProperties();
-        if (properties.Sum(x => Marshal.SizeOf(x.PropertyType)) != sizeof(T)) {
+        var properties = GetFieldsAndProperties<T>().ToArray();
+        if (properties.Sum(x => Marshal.SizeOf(x.Type)) != sizeof(T)) {
             throw new InvalidOperationException("Size of struct does not equal sum of properties");
         }
         return new(properties
-            .Select(x => new VertexElementDescription(x.Name, TypeToFormat(x.PropertyType).Format, PropertyToSemantic(x)))
+            .Select(x => new VertexElementDescription(x.Member.Name, TypeToFormat(x.Type).Format, MemberToSemantic(x.Member)))
             // If this continues causing issues, look into implementing the offset
             .ToArray());
     }
+
+    public static IEnumerable<(MemberInfo Member, Type Type)> GetFieldsAndProperties<T>() => GetFieldsAndProperties(typeof(T));
+
+    public static IEnumerable<(MemberInfo Member, Type Type)> GetFieldsAndProperties(Type type)
+        => type.GetMembers() // We're doing it like this to get them in the correct order.
+            .Where(x => x is PropertyInfo || x is FieldInfo)
+            .Select(x => (x, MemberToType(x)));
+
+    private static Type MemberToType(MemberInfo info) => info switch {
+        PropertyInfo prop => prop.PropertyType,
+        FieldInfo field => field.FieldType,
+    };
 
     public static unsafe DeviceBuffer CreateVertexBuffer<T>(this ResourceFactory factory, uint count) where T : unmanaged
         => factory.CreateBuffer(new(count * (uint)sizeof(T), BufferUsage.VertexBuffer));

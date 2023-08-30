@@ -39,6 +39,8 @@ public class MainScene : Scene3D {
 
         AddEntity(Physics);
 
+        AddEntity(new DebugLine(this, _gfxRes, TimeSpan.FromSeconds(5), new(0, 0, 0), new(1, 1, 1), new(5, 1, 1)));
+
         Camera = _controller.Camera;
 
         var gfx = _gfxRes.GraphicsDevice;
@@ -129,6 +131,12 @@ public class MainScene : Scene3D {
                     ? _otherMat : _logoMat, _scp173.Mesh) }));
         } else if (e.Key == Key.Escape) {
             _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
+        } else if (e.Key == Key.AltLeft) {
+            var from = _controller.Camera.Position;
+            var to = from + Vector3.Transform(Vector3.UnitZ, _controller.Camera.Rotation) * 5f;
+            var line = new DebugLine(_gfxRes, from, to);
+            line.Color = Physics.RayCastVisible(from, to) ? new(1, 0, 0) : new(0, 1, 0);
+            AddEntity(line);
         }
     }
 

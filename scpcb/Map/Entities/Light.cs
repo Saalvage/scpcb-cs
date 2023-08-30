@@ -18,6 +18,7 @@ public class Light : IMapEntity, IEntityHolder, IRenderable {
         _glimmer = billboardManager.Create(gfxRes.TextureCache.GetTexture("Assets/Textures/light1.jpg"), false);
         _glimmer.Transform = transform with {
             Scale = new(0.13f * RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD),
+            Rotation = Quaternion.Identity,
         };
 
         _lensflare = billboardManager.Create(gfxRes.TextureCache.GetTexture("Assets/Textures/lightsprite.jpg"), true);
@@ -37,7 +38,7 @@ public class Light : IMapEntity, IEntityHolder, IRenderable {
 
     public void Render(RenderTarget target, float interp) {
         // TODO: To avoid 1 frame of incorrect behavior we have to make sure this is executed BEFORE the actual render.
-        _lensflare.Model.IsVisible = !_scene.Physics.RayCastVisible(_glimmer.Transform.Position, _scene.Camera.Position);
+        _lensflare.Model.IsVisible = !_scene.Physics.RayCastVisible(_scene.Camera.Position, _glimmer.Transform.Position);
 
         _lensflare.Transform = _lensflare.Transform with { Scale = new(RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD
                                                                      * (Random.Shared.NextSingle() * 0.2f + 0.3f)) };
