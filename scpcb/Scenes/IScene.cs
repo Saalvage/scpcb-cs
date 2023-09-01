@@ -1,5 +1,5 @@
 ﻿using scpcb.Entities;
-using scpcb.Graphics;
+using scpcb.Graphics.Textures;
 
 namespace scpcb.Scenes; 
 

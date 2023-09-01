@@ -1,8 +1,9 @@
 ﻿using scpcb.Entities;
 using scpcb.Graphics;
+using scpcb.Graphics.Textures;
 using scpcb.Physics;
 
-namespace scpcb.Scenes; 
+namespace scpcb.Scenes;
 
 public class Scene3D : BaseScene {
     private readonly GraphicsResources _gfxRes;

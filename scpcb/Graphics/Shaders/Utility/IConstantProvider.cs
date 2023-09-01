@@ -1,7 +1,6 @@
 ﻿using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
 
-namespace scpcb.Graphics;
+namespace scpcb.Graphics.Shaders.Utility;
 
 public interface IConstantProvider {
     public void ApplyTo(IEnumerable<IConstantHolder?> holders, float interp);

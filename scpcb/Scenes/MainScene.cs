@@ -7,6 +7,7 @@ using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Graphics.Textures;
 using scpcb.Map;
 using scpcb.Utility;
 using Veldrid;

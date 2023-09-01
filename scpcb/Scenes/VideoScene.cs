@@ -1,10 +1,10 @@
-﻿using scpcb.Graphics;
-using scpcb.Graphics.Primitives;
+﻿using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
+using scpcb.Graphics.Textures;
 using scpcb.Utility;
 using Veldrid;
 
-namespace scpcb.Scenes; 
+namespace scpcb.Scenes;
 
 public class VideoScene : BaseScene {
     private readonly ICBModel _model;

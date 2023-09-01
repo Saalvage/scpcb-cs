@@ -2,7 +2,7 @@
 using scpcb.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics;
+namespace scpcb.Graphics.Textures;
 
 public interface IRenderTarget {
     void Start();

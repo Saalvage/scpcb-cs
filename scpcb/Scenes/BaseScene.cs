@@ -1,8 +1,8 @@
 ﻿using scpcb.Entities;
-using scpcb.Graphics;
+using scpcb.Graphics.Textures;
 using scpcb.Utility;
 
-namespace scpcb.Scenes; 
+namespace scpcb.Scenes;
 
 public class BaseScene : Disposable, IScene {
     private readonly List<IEntity> _entities = new();

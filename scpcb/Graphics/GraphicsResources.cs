@@ -1,4 +1,5 @@
 ﻿using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Textures;
 using scpcb.Graphics.Utility;
 using scpcb.Map;
 using scpcb.Map.RoomProviders;

@@ -6,7 +6,7 @@ using scpcb.Graphics.Primitives;
 using scpcb.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics.Textures; 
 
 public class Video : Disposable, IUpdatable {
     private readonly MediaFile _media;

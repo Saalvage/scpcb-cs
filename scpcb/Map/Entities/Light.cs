@@ -2,11 +2,12 @@
 using System.Numerics;
 using scpcb.Entities;
 using scpcb.Graphics;
+using scpcb.Graphics.Textures;
 using scpcb.Map.RoomProviders;
 using scpcb.Scenes;
 using scpcb.Utility;
 
-namespace scpcb.Map.Entities; 
+namespace scpcb.Map.Entities;
 
 public class Light : IMapEntity, IEntityHolder, IRenderable {
     private Billboard _glimmer;

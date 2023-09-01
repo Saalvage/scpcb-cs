@@ -4,6 +4,7 @@ using scpcb.Entities;
 using scpcb.Graphics;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Graphics.Shaders.Utility;
 using scpcb.Map.Entities;
 using scpcb.Physics;
 using scpcb.Utility;

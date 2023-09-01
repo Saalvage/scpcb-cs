@@ -3,11 +3,13 @@ using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Graphics.Shaders.Utility;
+using scpcb.Graphics.Textures;
 using scpcb.Scenes;
 using scpcb.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics;
 
 public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<IColorConstantMember, Vector3> {
     private readonly BaseScene? _scene;

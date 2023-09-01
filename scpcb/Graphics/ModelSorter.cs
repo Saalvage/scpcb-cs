@@ -2,8 +2,9 @@
 using System.Runtime.CompilerServices;
 using scpcb.Entities;
 using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Textures;
 
-namespace scpcb.Graphics; 
+namespace scpcb.Graphics;
 
 public class ModelSorter {
     private readonly List<I3DModel> _opaque = new();
