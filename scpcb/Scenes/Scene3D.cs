@@ -39,7 +39,7 @@ public class Scene3D : BaseScene {
         };
     }
 
-    public override void Render(RenderTarget target, float interp) {
+    public override void Render(IRenderTarget target, float interp) {
         Camera.ApplyTo(_gfxRes.ShaderCache.ActiveShaders.Select(x => x.Constants), interp);
 
         base.Render(target, interp);

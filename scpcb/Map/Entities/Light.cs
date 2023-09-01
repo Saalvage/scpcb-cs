@@ -36,7 +36,7 @@ public class Light : IMapEntity, IEntityHolder, IRenderable {
         }
     }
 
-    public void Render(RenderTarget target, float interp) {
+    public void Render(IRenderTarget target, float interp) {
         // TODO: To avoid 1 frame of incorrect behavior we have to make sure this is executed BEFORE the actual render.
         _lensflare.Model.IsVisible = !_scene.Physics.RayCastVisible(_scene.Camera.Position, _glimmer.Transform.Position);
 

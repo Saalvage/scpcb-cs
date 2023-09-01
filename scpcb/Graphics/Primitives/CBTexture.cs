@@ -10,10 +10,17 @@ public interface ICBTexture : IDisposable {
     uint Width { get; }
     uint Height { get; }
 
-    void GenerateMipmaps(CommandList commands);
+    /// <summary>
+    /// Whether the underlying view might change.
+    /// </summary>
+    /// <remarks>
+    /// The texture itself can change without issue (e.g. video playback),
+    /// this should only be true if the underlying view can be switched out.
+    /// </remarks>
+    bool IsStatic => true;
 }
 
-public class CBTexture : Disposable, ICBTexture {
+public class CBTexture : Disposable, ICBTexture, IMipmappable {
     private readonly Texture _texture;
     public TextureView View { get; }
     public uint Width { get; }
@@ -45,7 +52,7 @@ public class CBTexture : Disposable, ICBTexture {
         gfx.UpdateTexture(_texture, image.Data, 0, 0, 0, Width, Height, 1, 0, 0);
         View = gfx.ResourceFactory.CreateTextureView(_texture);
 
-        gfxRes.MainTarget.RegisterForMipmapGeneration(this);
+        gfxRes.RegisterForMipmapGeneration(this);
     }
 
     public void GenerateMipmaps(CommandList commands) {

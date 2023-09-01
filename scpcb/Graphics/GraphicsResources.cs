@@ -12,6 +12,28 @@ using Veldrid.StartupUtilities;
 namespace scpcb.Graphics;
 
 public class GraphicsResources : Disposable {
+    private class MainRenderTarget : RenderTarget {
+        private readonly GraphicsResources _gfxRes;
+
+        public MainRenderTarget(GraphicsResources gfxRes, Framebuffer buffer) : base(gfxRes.GraphicsDevice) {
+            _gfxRes = gfxRes;
+            Framebuffer = buffer;
+        }
+
+        public override void Start() {
+            base.Start();
+            foreach (var t in _gfxRes._generateMipTextures) {
+                t.GenerateMipmaps(_commands);
+            }
+            _gfxRes._generateMipTextures.Clear();
+        }
+
+        public override void End() {
+            base.End();
+            _gfx.SwapBuffers();
+        }
+    }
+
     public GraphicsDevice GraphicsDevice { get; }
 
     public ShaderCache ShaderCache { get; }
@@ -21,13 +43,16 @@ public class GraphicsResources : Disposable {
 
     public Sdl2Window Window { get; }
 
-    public RenderTarget MainTarget { get; }
+    private readonly MainRenderTarget _mainTarget;
+    public RenderTarget MainTarget => _mainTarget;
 
     public bool Debug { get; }
 
     public Sampler ClampAnisoSampler { get; }
 
     private readonly RoomProviderCollector _roomProviderCollector = new();
+
+    private readonly List<IMipmappable> _generateMipTextures = new();
 
     public GraphicsResources(int width, int height, bool debug =
 #if DEBUG
@@ -67,7 +92,7 @@ public class GraphicsResources : Disposable {
         ShaderCache = new(this);
         TextureCache = new(this);
 
-        MainTarget = new(GraphicsDevice);
+        _mainTarget = new(this, GraphicsDevice.SwapchainFramebuffer);
 
         ClampAnisoSampler = GraphicsDevice.ResourceFactory.CreateSampler(new() {
             AddressModeU = SamplerAddressMode.Clamp,
@@ -96,6 +121,10 @@ public class GraphicsResources : Disposable {
             => int.Parse(info.ShadingLanguageVersion[..info.ShadingLanguageVersion.IndexOf(' ')].Replace(".", ""));
 
         MissingTexture = TextureCache.GetTexture("Assets/Textures/missing.png");
+    }
+
+    public void RegisterForMipmapGeneration(IMipmappable texture) {
+        _generateMipTextures.Add(texture);
     }
 
     public IRoomData LoadRoom(PhysicsResources physics, BillboardManager billboardManager, string name)

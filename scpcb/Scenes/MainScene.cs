@@ -26,12 +26,15 @@ public class MainScene : Scene3D {
 
     private readonly Matrix4x4 _proj;
     private readonly ConvexHull _hull;
+    private readonly ICBMaterial<ModelShader.Vertex> _renderMat;
     private readonly ICBMaterial<ModelShader.Vertex> _otherMat;
     private readonly ICBMaterial<ModelShader.Vertex> _logoMat;
     private readonly ICBModel<ModelShader.Vertex> _scp173;
 
     private readonly IRoomData _room008;
     private readonly IRoomData _room4Tunnels;
+
+    private readonly RenderTexture _renderTexture;
 
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
@@ -42,6 +45,8 @@ public class MainScene : Scene3D {
         AddEntity(new DebugLine(this, _gfxRes, TimeSpan.FromSeconds(5), new(0, 0, 0), new(1, 1, 1), new(5, 1, 1)));
 
         Camera = _controller.Camera;
+
+        _renderTexture = new(_gfxRes, 100, 100, true);
 
         var gfx = _gfxRes.GraphicsDevice;
         var window = _gfxRes.Window;
@@ -64,9 +69,12 @@ public class MainScene : Scene3D {
         _otherMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement(),
             gfx.PointSampler.AsEnumerableElement());
 
+        _renderMat = modelShader.CreateMaterial(_renderTexture.AsEnumerableElement(),
+            gfx.PointSampler.AsEnumerableElement());
+
         _billboardManager = new(_gfxRes);
-        var billboard = _billboardManager.Create(video.Texture);
-        billboard.Transform = billboard.Transform with { Position = new(2, 0, -0.1f) };
+        var billboard = _billboardManager.Create(_renderTexture);
+        billboard.Transform = billboard.Transform with { Position = new(2, 2, -0.1f) };
         AddEntity(billboard);
 
         _room008 = _gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/008/008_opt.rmesh");
@@ -112,6 +120,14 @@ public class MainScene : Scene3D {
         base.Update(delta);
     }
 
+    public override void Render(IRenderTarget target, float interp) {
+        // TODO: This should offer great opportunities for optimization & parallelization!
+        _renderTexture.Start();
+        base.Render(_renderTexture, interp);
+        _renderTexture.End();
+        base.Render(target, interp);
+    }
+
     public override void OnLeave() {
         _gfxRes.Window.KeyDown -= HandleKeyDown;
         _gfxRes.Window.KeyUp -= HandleKeyUp;
@@ -127,8 +143,11 @@ public class MainScene : Scene3D {
                 1, sim.Shapes, _hull));
             var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
             AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<ModelShader.Vertex>(
-                _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().TryCreateInstanceConstants(), Random.Shared.NextSingle() > 0.5
-                    ? _otherMat : _logoMat, _scp173.Mesh) }));
+                _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
+                    0 => _renderMat,
+                    1 => _otherMat,
+                    2 => _logoMat,
+                }, _scp173.Mesh)}));
         } else if (e.Key == Key.Escape) {
             _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
         } else if (e.Key == Key.AltLeft) {
@@ -147,6 +166,8 @@ public class MainScene : Scene3D {
     protected override void DisposeImpl() {
         _room008.Dispose();
         _room4Tunnels.Dispose();
+        _renderMat.Dispose();
+        _renderTexture.Dispose();
         base.DisposeImpl();
     }
 }

@@ -42,7 +42,7 @@ public class VideoScene : BaseScene {
         gfxRes.Window.KeyDown += HandleKeyDown;
     }
 
-    public override void Render(RenderTarget target, float interp) {
+    public override void Render(IRenderTarget target, float interp) {
         target.Render(_model, interp);
     }
 

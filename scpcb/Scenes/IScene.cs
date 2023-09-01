@@ -8,7 +8,7 @@ public interface IScene : IDisposable {
 
     void Update(float delta);
     void Tick();
-    void Render(RenderTarget target, float interp);
+    void Render(IRenderTarget target, float interp);
 
     void OnEnter() { }
     void OnLeave() { }

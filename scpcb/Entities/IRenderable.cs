@@ -3,5 +3,5 @@
 namespace scpcb.Entities; 
 
 public interface IRenderable : IEntity {
-    public void Render(RenderTarget target, float interp);
+    public void Render(IRenderTarget target, float interp);
 }

@@ -4,10 +4,16 @@ using Veldrid;
 
 namespace scpcb.Graphics;
 
-public class RenderTarget : Disposable {
-    private readonly GraphicsDevice _gfx;
+public interface IRenderTarget {
+    void Start();
+    void End();
+    void Render(ICBModel model, float interp);
+}
 
-    private readonly CommandList _commands;
+public class RenderTarget : Disposable, IRenderTarget {
+    protected readonly GraphicsDevice _gfx;
+
+    protected readonly CommandList _commands;
 
     public RenderTarget(GraphicsDevice gfx) {
         _gfx = gfx;
@@ -18,28 +24,18 @@ public class RenderTarget : Disposable {
     private ICBMaterial? _lastMaterial;
     private ICBMesh? _lastMesh;
 
-    private readonly List<ICBTexture> _generateMipTextures = new();
+    protected virtual Framebuffer Framebuffer { get; init; }
 
-    public void RegisterForMipmapGeneration(ICBTexture texture) {
-        _generateMipTextures.Add(texture);
-    }
-
-    public void Start() {
+    public virtual void Start() {
         _commands.Begin();
-        _commands.SetFramebuffer(_gfx.SwapchainFramebuffer);
+        _commands.SetFramebuffer(Framebuffer);
         _commands.ClearColorTarget(0, RgbaFloat.Grey);
         _commands.ClearDepthStencil(1);
-
-        foreach (var t in _generateMipTextures) {
-            t.GenerateMipmaps(_commands);
-        }
-        _generateMipTextures.Clear();
     }
 
-    public void End() {
+    public virtual void End() {
         _commands.End();
         _gfx.SubmitCommands(_commands);
-        _gfx.SwapBuffers();
 
         _lastShader = null;
         _lastMaterial = null;
@@ -73,6 +69,7 @@ public class RenderTarget : Disposable {
             cp.ApplyTo(_lastShader.Constants!.AsEnumerableElement().Concat(model.Constants.AsEnumerableElementOrEmpty()), interp);
         }
         
+        // TODO: Do not hardcode the index! It's not constant!
         model.Constants?.UpdateAndSetBuffers(_commands, 1);
 
         _lastMesh.Draw(_commands);

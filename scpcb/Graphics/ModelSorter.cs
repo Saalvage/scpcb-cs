@@ -31,7 +31,7 @@ public class ModelSorter {
         }
     }
 
-    public void Render(RenderTarget target, Vector3 pos, float interp) {
+    public void Render(IRenderTarget target, Vector3 pos, float interp) {
         for (var i = 0; i < _opaque.Count; i++) {
             if (!_opaque[i].Model.IsOpaque) {
                 _transparent.Add(_opaque[i]);

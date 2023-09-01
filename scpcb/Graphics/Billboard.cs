@@ -2,7 +2,6 @@
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Utility;
 using scpcb.Utility;
 using System.Numerics;
 using scpcb.Graphics.Shaders.Utility;

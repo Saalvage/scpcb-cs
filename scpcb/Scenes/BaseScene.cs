@@ -101,7 +101,7 @@ public class BaseScene : Disposable, IScene {
         DealWithEntityBuffers();
     }
 
-    public virtual void Render(RenderTarget target, float interp) {
+    public virtual void Render(IRenderTarget target, float interp) {
         foreach (var r in _renderables) {
             r.Render(target, interp);
         }

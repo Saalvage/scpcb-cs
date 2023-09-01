@@ -54,10 +54,6 @@ public class Video : Disposable, IUpdatable {
             _gfx.UpdateTexture(_texture, data.Data, 0, 0, 0, Width, Height, 1, 0, 0);
         }
 
-        public void GenerateMipmaps(CommandList commands) {
-            throw new NotImplementedException();
-        }
-
         protected override void DisposeImpl() {
             View.Dispose();
             _texture.Dispose();
