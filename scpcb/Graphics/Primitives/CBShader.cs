@@ -13,8 +13,9 @@ public interface ICBShader : IDisposable {
     IConstantHolder? Constants { get; }
     void Apply(CommandList commands);
 
-    // TODO: Revisit this design?
-    int GetTextureSlot();
+    public uint ConstantSlot { get; }
+    public uint InstanceConstantSlot { get; }
+    public uint TextureSlot { get; }
 }
 
 public interface ICBShader<TVertex> : ICBShader {
@@ -73,6 +74,10 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
                 .ToArray()));
         }
 
+        ConstantSlot = 0u;
+        InstanceConstantSlot = ConstantSlot + (_instanceConstLayout == null ? 0u : 1u);
+        TextureSlot = InstanceConstantSlot + (_textureLayout == null ? 0u : 1u);
+
         // ReSharper disable once VirtualMemberCallInConstructor
         var shaderParameters = shaderParameterOverrides ?? GetDefaultParameters();
 
@@ -103,8 +108,9 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
     public IConstantHolder? TryCreateInstanceConstants()
         => ConstantHolder<TInstanceVertConstants, TInstanceFragConstants>.TryCreate(_gfx, _instanceConstLayout);
 
-    public int GetTextureSlot()
-        => (_constLayout == null ? 0 : 1) + (_instanceConstLayout == null ? 0 : 1);
+    public uint ConstantSlot { get; }
+    public uint InstanceConstantSlot { get; }
+    public uint TextureSlot { get; }
     
     /// <summary>
     /// Mustn't depend on instance variables.

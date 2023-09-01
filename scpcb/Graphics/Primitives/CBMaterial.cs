@@ -68,7 +68,7 @@ public class CBMaterial<TVertex> : Disposable, ICBMaterial<TVertex> {
                     _lastTextureHash = newHash;
                 }
             }
-            commands.SetGraphicsResourceSet((uint)Shader.GetTextureSlot(), _set);
+            commands.SetGraphicsResourceSet(Shader.TextureSlot, _set);
         }
     }
 

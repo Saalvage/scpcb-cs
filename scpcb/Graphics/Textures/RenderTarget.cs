@@ -51,7 +51,7 @@ public class RenderTarget : Disposable, IRenderTarget {
             _lastShader = model.Material.Shader;
             _lastShader.Apply(_commands);
         }
-        _lastShader.Constants?.UpdateAndSetBuffers(_commands, 0);
+        _lastShader.Constants?.UpdateAndSetBuffers(_commands, _lastShader.ConstantSlot);
 
         if (_lastMaterial != model.Material) {
             _lastMaterial = model.Material;
@@ -69,8 +69,7 @@ public class RenderTarget : Disposable, IRenderTarget {
             cp.ApplyTo(_lastShader.Constants!.AsEnumerableElement().Concat(model.Constants.AsEnumerableElementOrEmpty()), interp);
         }
         
-        // TODO: Do not hardcode the index! It's not constant!
-        model.Constants?.UpdateAndSetBuffers(_commands, 1);
+        model.Constants?.UpdateAndSetBuffers(_commands, _lastShader.InstanceConstantSlot);
 
         _lastMesh.Draw(_commands);
     }
