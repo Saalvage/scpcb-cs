@@ -44,9 +44,9 @@ public class BaseScene : Disposable, IScene {
     }
 
     private void HandleAddEntity(IEntity e) {
+        _entities.Add(e);
         e.OnAdd(this);
         OnAddEntity?.Invoke(e);
-        _entities.Add(e);
         if (e is IUpdatable u) { _updatables.Add(u); }
         if (e is ITickable t) { _tickables.Add(t); }
         if (e is IRenderable r) { _renderables.Add(r); }
@@ -58,9 +58,12 @@ public class BaseScene : Disposable, IScene {
     }
 
     private void HandleRemoveEntity(IEntity e, bool shouldDispose) {
+        if (!_entities.Remove(e)) {
+            return;
+        }
+
         e.OnRemove(this);
         OnRemoveEntity?.Invoke(e);
-        _entities.Remove(e);
         if (e is IUpdatable u) { _updatables.Remove(u); }
         if (e is ITickable t) { _tickables.Remove(t); }
         if (e is IRenderable r) { _renderables.Remove(r); }
