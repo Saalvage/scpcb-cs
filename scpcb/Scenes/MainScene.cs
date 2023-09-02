@@ -123,10 +123,17 @@ public class MainScene : Scene3D {
 
     public override void Render(IRenderTarget target, float interp) {
         // TODO: This should offer great opportunities for optimization & parallelization!
+        // On second consideration: Most render targets will differ in e.g. view position
+        // meaning potential for optimization might not actually be there. :(
         _renderTexture.Start();
-        base.Render(_renderTexture, interp);
-        _renderTexture.End();
-        base.Render(target, interp);
+        var a = Task.Run(() => {
+            base.Render(_renderTexture, interp);
+            _renderTexture.End();
+        });
+        var b = Task.Run(() => {
+            base.Render(target, interp);
+        });
+        Task.WaitAll(a, b);
     }
 
     public override void OnLeave() {

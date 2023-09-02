@@ -3,12 +3,19 @@ using System.Runtime.CompilerServices;
 using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Textures;
+using scpcb.Scenes;
 
 namespace scpcb.Graphics;
 
-public class ModelSorter {
+public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
     private readonly List<I3DModel> _opaque = new();
     private readonly List<I3DModel> _transparent = new();
+
+    private readonly Func<float, Vector3> _getPos;
+
+    public ModelSorter(IScene scene, Func<float, Vector3> getPos) : base(scene) {
+        _getPos = getPos;
+    }
 
     public void Add(I3DModel model) {
         // We can't/don't sort it into the transparent objects because we don't want to ask for the pos here.
@@ -32,7 +39,31 @@ public class ModelSorter {
         }
     }
 
-    public void Render(IRenderTarget target, Vector3 pos, float interp) {
+    protected override void OnAddEntity(IEntity e) {
+        switch (e) {
+            case I3DModelHolder p:
+                AddRange(p.Models);
+                break;
+            case I3DModel m:
+                Add(m);
+                break;
+        }
+    }
+
+    protected override void OnRemoveEntity(IEntity e) {
+        switch (e) {
+            case I3DModelHolder p:
+                RemoveRange(p.Models);
+                break;
+            case I3DModel m:
+                Remove(m);
+                break;
+        }
+    }
+
+    public void Prerender(float interp) {
+        var pos = _getPos(interp);
+
         for (var i = 0; i < _opaque.Count; i++) {
             if (!_opaque[i].Model.IsOpaque) {
                 _transparent.Add(_opaque[i]);
@@ -40,8 +71,6 @@ public class ModelSorter {
                 i--;
                 continue;
             }
-
-            target.Render(_opaque[i].Model, interp);
 
             // Bubblesort, since we call this more than abundantly often and don't need the order.
             if (i > 0 && Compare(_opaque[i - 1].Model, _opaque[i].Model) < 0) {
@@ -61,8 +90,6 @@ public class ModelSorter {
 
         for (var i = 0; i < _transparent.Count; i++) {
             if (_transparent[i].Model.IsOpaque) {
-                // Stragglers.
-                target.Render(_transparent[i].Model, interp);
                 _opaque.Add(_transparent[i]);
                 _transparent.RemoveAt(i);
                 i--;
@@ -84,9 +111,18 @@ public class ModelSorter {
                 }
             }
         }
+    }
+
+    public void Render(IRenderTarget target, float interp) {
+        foreach (var o in _opaque) {
+            target.Render(o.Model, interp);
+        }
 
         foreach (var model in _transparent) {
             target.Render(model.Model, interp);
         }
     }
+
+    // Must be slightly higher than normal so that regular renderables render behind the transparent models.
+    public int Priority => 10;
 }

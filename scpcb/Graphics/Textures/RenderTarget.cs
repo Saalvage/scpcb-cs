@@ -68,7 +68,7 @@ public class RenderTarget : Disposable, IRenderTarget {
         foreach (var cp in model.ConstantProviders) {
             cp.ApplyTo(_lastShader.Constants!.AsEnumerableElement().Concat(model.Constants.AsEnumerableElementOrEmpty()), interp);
         }
-        
+
         model.Constants?.UpdateAndSetBuffers(_commands, _lastShader.InstanceConstantSlot);
 
         _lastMesh.Draw(_commands);

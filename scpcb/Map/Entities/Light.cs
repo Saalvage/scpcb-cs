@@ -2,14 +2,13 @@
 using System.Numerics;
 using scpcb.Entities;
 using scpcb.Graphics;
-using scpcb.Graphics.Textures;
 using scpcb.Map.RoomProviders;
 using scpcb.Scenes;
 using scpcb.Utility;
 
 namespace scpcb.Map.Entities;
 
-public class Light : IMapEntity, IEntityHolder, IRenderable {
+public class Light : IMapEntity, IEntityHolder, IPrerenderable {
     private Billboard _glimmer;
     private Billboard _lensflare;
 
@@ -37,16 +36,17 @@ public class Light : IMapEntity, IEntityHolder, IRenderable {
         }
     }
 
-    public void Render(IRenderTarget target, float interp) {
-        // TODO: To avoid 1 frame of incorrect behavior we have to make sure this is executed BEFORE the actual render.
-        _lensflare.Model.IsVisible = !_scene.Physics.RayCastVisible(_scene.Camera.Position, _glimmer.Transform.Position);
-
-        _lensflare.Transform = _lensflare.Transform with { Scale = new(RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD
-                                                                     * (Random.Shared.NextSingle() * 0.2f + 0.3f)) };
-    }
-
     public void OnAdd(IScene scene) {
         Debug.Assert(scene is Scene3D);
         _scene = ((Scene3D)scene);
+    }
+
+    public void Prerender(float interp) {
+        _lensflare.Model.IsVisible = !_scene.Physics.RayCastVisible(_scene.Camera.Position, _glimmer.Transform.Position);
+
+        _lensflare.Transform = _lensflare.Transform with {
+            Scale = new(RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD
+                        * (Random.Shared.NextSingle() * 0.2f + 0.3f)),
+        };
     }
 }

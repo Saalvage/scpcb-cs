@@ -66,6 +66,9 @@ public class Game : Disposable {
                 GraphicsResources.MainTarget.Start();
                 var interp = (float)(tickAccu % TICK_GOAL) / TICK_GOAL;
                 Debug.Assert(interp is >= 0 and <= 1);
+
+                _scene.Prerender(interp);
+
                 _scene.Render(GraphicsResources.MainTarget, interp);
                 GraphicsResources.MainTarget.End();
 

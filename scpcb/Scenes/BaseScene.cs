@@ -8,6 +8,7 @@ public class BaseScene : Disposable, IScene {
     private readonly List<IEntity> _entities = new();
     private readonly List<IUpdatable> _updatables = new();
     private readonly List<ITickable> _tickables = new();
+    private readonly List<IPrerenderable> _prerenderables = new();
     private readonly List<IRenderable> _renderables = new();
 
     private readonly List<IEntity> _entitiesToAdd = new();
@@ -49,7 +50,12 @@ public class BaseScene : Disposable, IScene {
         OnAddEntity?.Invoke(e);
         if (e is IUpdatable u) { _updatables.Add(u); }
         if (e is ITickable t) { _tickables.Add(t); }
-        if (e is IRenderable r) { _renderables.Add(r); }
+        if (e is IPrerenderable p) { _prerenderables.Add(p); }
+        if (e is IRenderable r) {
+            var i = _renderables.BinarySearch(r);
+            i = i < 0 ? ~i : i;
+            _renderables.Insert(i, r);
+        }
         if (e is IEntityHolder h) {
             foreach (var he in h.Entities) {
                 HandleAddEntity(he);
@@ -66,6 +72,7 @@ public class BaseScene : Disposable, IScene {
         OnRemoveEntity?.Invoke(e);
         if (e is IUpdatable u) { _updatables.Remove(u); }
         if (e is ITickable t) { _tickables.Remove(t); }
+        if (e is IPrerenderable p) { _prerenderables.Remove(p); }
         if (e is IRenderable r) { _renderables.Remove(r); }
         if (e is IEntityHolder h) {
             foreach (var he in h.Entities) {
@@ -102,6 +109,10 @@ public class BaseScene : Disposable, IScene {
         }
 
         DealWithEntityBuffers();
+    }
+
+    public virtual void Prerender(float interp) {
+        Parallel.ForEach(_prerenderables, p => p.Prerender(interp));
     }
 
     public virtual void Render(IRenderTarget target, float interp) {
