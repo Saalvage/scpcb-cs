@@ -2,16 +2,12 @@
 using System.Reflection;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
-using scpcb.Utility;
 using ShaderGen;
 
 namespace scpcb.Graphics.Utility;
 
 // TODO: Add a way to get non-generated shaders.
-public class ShaderCache : Disposable {
-    // TODO: Consider reusing some shader resources between parameter sets.
-    private readonly WeakDictionary<ValueTuple<Type, ShaderParameters?>, ICBShader> _shaders = new();
-
+public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
     private readonly GraphicsResources _gfxRes;
 
     public ShaderCache(GraphicsResources gfxRes) {
@@ -30,12 +26,12 @@ public class ShaderCache : Disposable {
 
         var usedParams = shaderParameterModifications?.Invoke(TShader.DefaultParameters) ?? TShader.DefaultParameters;
 
-        if (_shaders.TryGetValue((type, usedParams), out var shader)) {
+        if (_dic.TryGetValue((type, usedParams), out var shader)) {
             return shader;
         }
 
         var newShader = CreateGeneratedShader<TShader>(vertexType, usedParams);
-        _shaders.Add((type, usedParams), newShader);
+        _dic.Add((type, usedParams), newShader);
         return newShader;
     }
 
@@ -65,11 +61,5 @@ public class ShaderCache : Disposable {
             .GetParameters()
             .Single().ParameterType;
 
-    public IEnumerable<ICBShader> ActiveShaders => _shaders.Select(x => x.Value);
-
-    protected override void DisposeImpl() {
-        foreach (var (_, shaderWeak) in _shaders) {
-            shaderWeak.Dispose();
-        }
-    }
+    public IEnumerable<ICBShader> ActiveShaders => _dic.Select(x => x.Value);
 }

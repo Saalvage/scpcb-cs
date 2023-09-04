@@ -21,9 +21,9 @@ public class VideoScene : BaseScene {
         video.Finished += MoveToMain;
 
         AddEntity(video);
-        _model = new CBModel<UIShader.Vertex>(null, gfxRes.ShaderCache.GetShader<UIShader, UIShader.Vertex>()
-                .CreateMaterial(video.Texture.AsEnumerableElement(),
-                    gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement()),
+        _model = new CBModel<UIShader.Vertex>(null, gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>(
+                video.Texture.AsEnumerableElement(),
+                gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement()),
             new CBMesh<UIShader.Vertex>(gfxRes.GraphicsDevice,
                 new UIShader.Vertex[] {
                     new(new(-1, -1), new(0, 1)),

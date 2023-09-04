@@ -12,7 +12,7 @@ public class BaseScene : Disposable, IScene {
     private readonly List<IRenderable> _renderables = new();
 
     private readonly List<IEntity> _entitiesToAdd = new();
-    private readonly List<ValueTuple<IEntity, bool>> _entitiesToRemove = new();
+    private readonly List<(IEntity, bool)> _entitiesToRemove = new();
 
     public IEnumerable<IEntity> Entities => _entities;
 

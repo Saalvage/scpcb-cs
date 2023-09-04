@@ -25,7 +25,7 @@ public class Prop : Disposable, IMapEntity, IEntityHolder {
         _physics = physics;
 
         // TODO: Cache this shit!!
-        var (meshes, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, ValueTuple<GraphicsResources, string>>((gfxRes, "Assets/Props/"))
+        var (meshes, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, (GraphicsResources, string)>((gfxRes, "Assets/Props/"))
             .LoadMeshes(gfxRes.GraphicsDevice, physics, PROP_PATH + file);
 
         Matrix3x3.CreateScale(transform.Scale, out var scaleMat);

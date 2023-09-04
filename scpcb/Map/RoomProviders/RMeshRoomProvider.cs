@@ -18,8 +18,8 @@ public partial class RMeshRoomProvider : IRoomProvider {
 
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
-    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, BillboardManager billboardManager, string filename) {
-        var globals = new object[] { gfxRes, physics, billboardManager };
+    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, string filename) {
+        var globals = new object[] { gfxRes, physics };
 
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
@@ -80,7 +80,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 textures[0] ??= gfxRes.TextureCache.GetTexture(Color.White);
                 textures[1] ??= gfxRes.MissingTexture;
 
-                var mat = shader.CreateMaterial(textures!, gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
+                var mat = gfxRes.MaterialCache.GetMaterial(shader, textures!, gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
 
                 var vertexCount = reader.ReadInt32();
                 var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);

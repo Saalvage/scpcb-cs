@@ -1,4 +1,5 @@
-﻿using scpcb.Graphics.Shaders.Utility;
+﻿using System.Diagnostics;
+using scpcb.Graphics.Shaders.Utility;
 using scpcb.Utility;
 using Veldrid;
 using Veldrid.SPIRV;
@@ -13,9 +14,12 @@ public interface ICBShader : IDisposable {
     IConstantHolder? Constants { get; }
     void Apply(CommandList commands);
 
-    public uint ConstantSlot { get; }
-    public uint InstanceConstantSlot { get; }
-    public uint TextureSlot { get; }
+    int TextureCount { get; }
+    int SamplerCount { get; } 
+
+    uint ConstantSlot { get; }
+    uint InstanceConstantSlot { get; }
+    uint TextureSlot { get; }
 }
 
 public interface ICBShader<TVertex> : ICBShader {
@@ -30,6 +34,85 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
         where TVertex : unmanaged
         where TVertConstants : unmanaged where TFragConstants : unmanaged
         where TInstanceVertConstants : unmanaged where TInstanceFragConstants : unmanaged {
+
+    private class CBMaterial : Disposable, ICBMaterial<TVertex> {
+        private readonly GraphicsDevice _gfx;
+        private readonly ResourceLayout _layout;
+
+        private ResourceSet? _set;
+        public ICBShader<TVertex> Shader { get; }
+
+        private readonly bool _isStatic;
+        private long _lastTextureHash;
+        private readonly Dictionary<long, ResourceSet> _sets;
+
+        private readonly Sampler[] _samplers;
+        private readonly ICBTexture[] _textures;
+        public IReadOnlyList<ICBTexture> Textures => _textures;
+
+        public CBMaterial(GraphicsDevice gfx, ICBShader<TVertex> shader, ResourceLayout? layout,
+                IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers) {
+            _gfx = gfx;
+            _layout = layout;
+
+            _samplers = samplers.ToArray();
+
+            Shader = shader;
+
+            // Defensive copy.
+            _textures = textures.ToArray();
+            _lastTextureHash = GetTexturesHashCode();
+            if (layout != null) {
+                _set = CreateSet();
+
+                _isStatic = _textures.All(x => x.IsStatic);
+                if (!_isStatic) {
+                    _sets = new() {
+                        [GetTexturesHashCode()] = _set,
+                    };
+                }
+            }
+        }
+
+        public void ApplyTextures(CommandList commands) {
+            if (_set != null) {
+                if (!_isStatic) {
+                    var newHash = GetTexturesHashCode();
+                    if (newHash != _lastTextureHash) {
+                        _set = _sets.TryGetValue(newHash, out var set)
+                            ? set
+                            : _sets[newHash] = CreateSet();
+                        _lastTextureHash = newHash;
+                    }
+                }
+                commands.SetGraphicsResourceSet(Shader.TextureSlot, _set);
+            }
+        }
+
+        private long GetTexturesHashCode()
+            => Textures.Count switch {
+                0 => 0,
+                1 => Textures[0].View.GetHashCode(),
+                2 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode()),
+                3 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode()),
+                4 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode()),
+                5 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode()),
+                6 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode(), Textures[5].View.GetHashCode()),
+                7 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode(), Textures[5].View.GetHashCode(), Textures[6].View.GetHashCode()),
+                8 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode(), Textures[5].View.GetHashCode(), Textures[6].View.GetHashCode(), Textures[7].View.GetHashCode()),
+            };
+
+        private ResourceSet CreateSet()
+            => _gfx.ResourceFactory.CreateResourceSet(new(_layout, _textures
+                .Select(t => (BindableResource)t.View)
+                .Concat(_samplers)
+                .ToArray()));
+
+        protected override void DisposeImpl() {
+            _set?.Dispose();
+        }
+    }
+
     private readonly GraphicsDevice _gfx;
 
     private readonly Shader[] _shaders;
@@ -66,6 +149,8 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
             ConstantHolder<TInstanceVertConstants, TInstanceFragConstants>.TryCreateLayout(_gfx, instanceVertConstNames,
                 instanceFragConstantNames);
 
+        SamplerCount = samplerNames.Count;
+        TextureCount = textureNames.Count;
         if (textureNames.Count > 0) {
             _textureLayout = _gfx.ResourceFactory.CreateResourceLayout(new(textureNames
                 .Select(x => new ResourceLayoutElementDescription(x, ResourceKind.TextureReadOnly, ShaderStages.Fragment))
@@ -102,11 +187,17 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
         commands.SetPipeline(_pipeline);
     }
 
-    public ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers)
-        => new CBMaterial<TVertex>(_gfx, this, _textureLayout, textures, samplers);
+    public ICBMaterial<TVertex> CreateMaterial(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers) {
+        Debug.Assert(textures.Count() == TextureCount);
+        Debug.Assert(samplers.Count() == SamplerCount);
+        return new CBMaterial(_gfx, this, _textureLayout, textures, samplers);
+    }
 
     public IConstantHolder? TryCreateInstanceConstants()
         => ConstantHolder<TInstanceVertConstants, TInstanceFragConstants>.TryCreate(_gfx, _instanceConstLayout);
+
+    public int TextureCount { get; }
+    public int SamplerCount { get; }
 
     public uint ConstantSlot { get; }
     public uint InstanceConstantSlot { get; }

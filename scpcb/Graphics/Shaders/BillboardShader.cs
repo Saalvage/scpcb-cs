@@ -1,11 +1,11 @@
 ﻿using ShaderGen;
 using System.Numerics;
-using Assimp;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
-using Veldrid;
 using static ShaderGen.ShaderBuiltins;
+using scpcb.Graphics.Shaders.Vertices;
+using scpcb.Graphics.Utility;
 
 #pragma warning disable CS8618
 
@@ -13,8 +13,6 @@ namespace scpcb.Graphics.Shaders;
 
 public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empty,
         BillboardShader.InstanceVertexConstants, BillboardShader.InstanceFragmentConstants> {
-
-    public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
 
     public struct FragmentInput {
         [SystemPositionSemantic] public Vector4 Position;
@@ -69,7 +67,7 @@ public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstan
     }
 
     [VertexShader]
-    public FragmentInput VS(Vertex input) {
+    public FragmentInput VS(VPositionTexture input) {
         // TODO: Multiple things to be considered here:
         // - It seems like the matrices get transposed on their way to the GPU (at least the way we access them seems inverted)
         // - Support for stuff like Matrix4x4.CreateLookAt would be neat.
@@ -103,8 +101,4 @@ public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstan
     public Vector4 FS(FragmentInput input) {
         return new(Sample(SurfaceTexture, Sampler, input.TextureCoord).XYZ() * InstanceFragmentBlock.Color, 1f);
     }
-
-    public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ICBMaterial<Vertex> plugin) => plugin;
-
-    public static ShaderParameters DefaultParameters { get; } = ShaderParameters.Default with { BlendState = BlendStateDescription.SingleAdditiveBlend };
 }

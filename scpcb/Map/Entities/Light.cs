@@ -14,14 +14,14 @@ public class Light : IMapEntity, IEntityHolder, IPrerenderable {
 
     private Scene3D _scene;
 
-    public Light(GraphicsResources gfxRes, BillboardManager billboardManager, Transform transform, Vector3 color) {
-        _glimmer = billboardManager.Create(gfxRes.TextureCache.GetTexture("Assets/Textures/light1.jpg"), false);
+    public Light(GraphicsResources gfxRes, Transform transform, Vector3 color) {
+        _glimmer = Billboard.Create(gfxRes, gfxRes.TextureCache.GetTexture("Assets/Textures/light1.jpg"), true, true, false);
         _glimmer.Transform = transform with {
             Scale = new(0.13f * RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD),
             Rotation = Quaternion.Identity,
         };
 
-        _lensflare = billboardManager.Create(gfxRes.TextureCache.GetTexture("Assets/Textures/lightsprite.jpg"), true);
+        _lensflare = Billboard.Create(gfxRes, gfxRes.TextureCache.GetTexture("Assets/Textures/lightsprite.jpg"), true, true, true);
         _lensflare.Transform = transform with {
             Scale = new(0.6f * RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD),
             Rotation = Quaternion.CreateFromYawPitchRoll(0f, 0f, Random.Shared.NextSingle() * MathF.PI * 2f),

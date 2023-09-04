@@ -16,14 +16,14 @@ public class RoomProviderCollector {
             .ToList();
     }
 
-    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, BillboardManager billboardManager, string path) {
+    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physRes, string path) {
         var ext = Path.GetExtension(path)[1..];
         var provider = _providers.FirstOrDefault(x => x.SupportedExtensions.Contains(ext));
         if (provider == null) {
             throw new ArgumentException($"No provider found for extension {ext}!");
         }
 
-        return provider.LoadRoom(gfxRes, physRes, billboardManager, path);
+        return provider.LoadRoom(gfxRes, physRes, path);
     }
 
     public void RegisterProvider(IRoomProvider provider) {

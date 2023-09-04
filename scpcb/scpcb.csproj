@@ -8,6 +8,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <LangVersion>preview</LangVersion>
 
     <!-- We need to manually construct this because $(OutputPath) is not available to us here (I think) -->
     <ShaderOutputPath>bin/$(Configuration)/$(TargetFramework)/Assets/Shaders/</ShaderOutputPath>

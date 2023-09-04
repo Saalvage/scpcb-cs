@@ -39,6 +39,8 @@ public class GraphicsResources : Disposable {
 
     public ShaderCache ShaderCache { get; }
     public TextureCache TextureCache { get; }
+    public MaterialCache MaterialCache { get; }
+    public MeshCache MeshCache { get; }
 
     public ICBTexture MissingTexture { get; }
 
@@ -92,6 +94,8 @@ public class GraphicsResources : Disposable {
 
         ShaderCache = new(this);
         TextureCache = new(this);
+        MaterialCache = new(GraphicsDevice, ShaderCache);
+        MeshCache = new(this);
 
         _mainTarget = new(this, GraphicsDevice.SwapchainFramebuffer);
 
@@ -128,8 +132,8 @@ public class GraphicsResources : Disposable {
         _generateMipTextures.Add(texture);
     }
 
-    public IRoomData LoadRoom(PhysicsResources physics, BillboardManager billboardManager, string name)
-        => _roomProviderCollector.LoadRoom(this, physics, billboardManager, name);
+    public IRoomData LoadRoom(PhysicsResources physics, string name)
+        => _roomProviderCollector.LoadRoom(this, physics, name);
 
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.
@@ -162,6 +166,8 @@ public class GraphicsResources : Disposable {
     protected override void DisposeImpl() {
         ShaderCache.Dispose();
         TextureCache.Dispose();
+        MaterialCache.Dispose();
+        MeshCache.Dispose();
         MainTarget.Dispose();
         ClampAnisoSampler.Dispose();
         GraphicsDevice.Dispose();

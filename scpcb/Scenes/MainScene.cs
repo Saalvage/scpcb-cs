@@ -20,8 +20,6 @@ public class MainScene : Scene3D {
     
     private readonly Player _controller = new();
 
-    private readonly BillboardManager _billboardManager;
-
     private readonly Dictionary<Key, bool> _keysDown = new();
     private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;
 
@@ -64,22 +62,21 @@ public class MainScene : Scene3D {
         Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
 
         var coolTexture = _gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
-        _logoMat = modelShader.CreateMaterial(video.Texture.AsEnumerableElement(),
+        _logoMat = _gfxRes.MaterialCache.GetMaterial(modelShader, video.Texture.AsEnumerableElement(),
             gfx.PointSampler.AsEnumerableElement());
 
-        _otherMat = modelShader.CreateMaterial(coolTexture.AsEnumerableElement(),
+        _otherMat = _gfxRes.MaterialCache.GetMaterial(modelShader, coolTexture.AsEnumerableElement(),
             gfx.PointSampler.AsEnumerableElement());
 
-        _renderMat = modelShader.CreateMaterial(_renderTexture.AsEnumerableElement(),
+        _renderMat = _gfxRes.MaterialCache.GetMaterial(modelShader, _renderTexture.AsEnumerableElement(),
             gfx.PointSampler.AsEnumerableElement());
 
-        _billboardManager = new(_gfxRes);
-        var billboard = _billboardManager.Create(_renderTexture);
+        var billboard = Billboard.Create(_gfxRes, _renderTexture);
         billboard.Transform = billboard.Transform with { Position = new(2, 2, -0.1f) };
         AddEntity(billboard);
 
-        _room008 = _gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/008/008_opt.rmesh");
-        _room4Tunnels = _gfxRes.LoadRoom(Physics, _billboardManager, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
+        _room008 = _gfxRes.LoadRoom(Physics, "Assets/Rooms/008/008_opt.rmesh");
+        _room4Tunnels = _gfxRes.LoadRoom(Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {
                 var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : _room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),

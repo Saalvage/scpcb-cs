@@ -12,7 +12,9 @@ using scpcb.Utility;
 
 namespace scpcb.Graphics.Shaders;
 
-public partial class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, ValueTuple<GraphicsResources, string>>,
+using Plugin = (GraphicsResources GraphicsResources, string BaseFilePath);
+
+public partial class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex, Plugin>,
         IAutoShader<ModelShader.VertexConstants, Empty, ModelShader.InstanceVertexConstants, Empty> {
 
     public record struct Vertex([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord)
@@ -52,7 +54,8 @@ public partial class ModelShader : IAssimpMaterialConvertible<ModelShader.Vertex
         return Sample(SurfaceTexture, Sampler, input.TextureCoord);
     }
 
-    public static ICBMaterial<Vertex> ConvertMaterial(Material mat, ValueTuple<GraphicsResources, string> gfxRes_baseFilePath) => gfxRes_baseFilePath.Item1.ShaderCache.GetShader<ModelShader, Vertex>()
-        .CreateMaterial(gfxRes_baseFilePath.Item1.TextureCache.GetTexture(gfxRes_baseFilePath.Item2 + mat.TextureDiffuse.FilePath).AsEnumerableElement(),
-            gfxRes_baseFilePath.Item1.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
+    public static ICBMaterial<Vertex> ConvertMaterial(Material mat, Plugin plugin)
+        => plugin.GraphicsResources.MaterialCache.GetMaterial<ModelShader, Vertex>(
+            plugin.GraphicsResources.TextureCache.GetTexture(plugin.BaseFilePath + mat.TextureDiffuse.FilePath).AsEnumerableElement(),
+            plugin.GraphicsResources.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
 }

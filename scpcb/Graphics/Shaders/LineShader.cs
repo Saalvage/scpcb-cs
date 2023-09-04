@@ -2,6 +2,7 @@
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Utility;
+using scpcb.Graphics.Shaders.Vertices;
 using ShaderGen;
 using Veldrid;
 using static ShaderGen.ShaderBuiltins;
@@ -10,11 +11,6 @@ namespace scpcb.Graphics.Shaders;
 
 public partial class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
         LineShader.InstanceVertexConstants, LineShader.InstanceFragmentConstants> {
-
-    // TODO: This breaks when turned into a record struct (without args).
-    public struct Vertex {
-        [PositionSemantic] public Vector3 Position;
-    }
 
     public struct FragmentInput {
         [SystemPositionSemantic] public Vector4 Position;
@@ -34,7 +30,7 @@ public partial class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
     }
 
     [VertexShader]
-    public FragmentInput VS(Vertex input) {
+    public FragmentInput VS(VPosition input) {
         FragmentInput output;
         output.Position = Mul(InstanceVertexBlock.WorldMatrix, new(input.Position, 1));
         output.Position = Mul(VertexBlock.ViewMatrix, output.Position);
