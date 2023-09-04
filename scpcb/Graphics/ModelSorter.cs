@@ -13,7 +13,7 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
 
     private readonly Func<float, Vector3> _getPos;
 
-    public ModelSorter(IScene scene, Func<float, Vector3> getPos) : base(scene) {
+    public ModelSorter(IScene scene, Func<float, Vector3> getPos) : base(scene, true) {
         _getPos = getPos;
     }
 
