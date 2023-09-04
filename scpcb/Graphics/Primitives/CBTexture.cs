@@ -21,7 +21,7 @@ public interface ICBTexture : IDisposable {
     bool IsStatic => true;
 }
 
-public class CBTexture : Disposable, ICBTexture, IMipmappable {
+public class CBTexture : Disposable, IMipmappable {
     private readonly Texture _texture;
     public TextureView View { get; }
     public uint Width { get; }

@@ -85,10 +85,14 @@ public class Video : Disposable, IUpdatable {
         }
 
         _acc += delta * Speed;
-        while (_acc >= _timePerFrame) {
+        if (_acc >= 2 * _timePerFrame) {
+            var time = _media.Video.Position + TimeSpan.FromSeconds(_acc);
+            time = TimeSpan.FromTicks(time.Ticks % _media.Video.Info.Duration.Ticks);
+            ResetTo(time);
+        } else if (_acc >= _timePerFrame) {
             AdvanceFrame();
-            _acc -= _timePerFrame;
         }
+        _acc %= _timePerFrame;
     }
 
     private void ResetTo(TimeSpan time) {
