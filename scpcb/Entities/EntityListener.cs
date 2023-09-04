@@ -9,15 +9,8 @@ namespace scpcb.Entities;
 public abstract class EntityListener : Disposable, IEntity {
     protected readonly IScene _scene;
 
-    /// <param name="wantInitial">Whether the entities already in the scene should be passed to the OnAddEntity method.</param>
-    protected EntityListener(IScene scene, bool wantInitial) {
+    protected EntityListener(IScene scene) {
         _scene = scene;
-
-        if (wantInitial) {
-            foreach (var entity in _scene.Entities) {
-                OnAddEntity(entity);
-            }
-        }
 
         _scene.OnAddEntity += OnAddEntity;
         _scene.OnRemoveEntity += OnRemoveEntity;
