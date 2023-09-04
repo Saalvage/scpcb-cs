@@ -5,7 +5,6 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
 using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Graphics.Utility;
 
 #pragma warning disable CS8618
 

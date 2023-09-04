@@ -123,6 +123,6 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
         }
     }
 
-    // Must be slightly higher than normal so that regular renderables render behind the transparent models.
-    public int Priority => 10;
+    // Must be higher than normal so that regular renderables render behind the transparent models.
+    public int Priority => 1000;
 }

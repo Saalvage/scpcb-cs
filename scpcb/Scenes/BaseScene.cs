@@ -1,15 +1,26 @@
-﻿using scpcb.Entities;
+﻿using System.Collections;
+using scpcb.Entities;
 using scpcb.Graphics.Textures;
 using scpcb.Utility;
 
 namespace scpcb.Scenes;
 
 public class BaseScene : Disposable, IScene {
+    // This fucking sucks, all because BinarySearch is not an extension method for some reason??
+    private interface IListWrapper {
+        IList List { get; }
+        int BinarySearch(IPriorizableEntity entity);
+    }
+
+    private record ListWrapper<T>(List<T> List) : IListWrapper {
+        IList IListWrapper.List => List;
+
+        public int BinarySearch(IPriorizableEntity entity)
+            => List.BinarySearch((T)entity);
+    }
+
     private readonly List<IEntity> _entities = new();
-    private readonly List<IUpdatable> _updatables = new();
-    private readonly List<ITickable> _tickables = new();
-    private readonly List<IPrerenderable> _prerenderables = new();
-    private readonly List<IRenderable> _renderables = new();
+    private readonly Dictionary<Type, IListWrapper> _entitiesByType = new();
 
     private readonly List<IEntity> _entitiesToAdd = new();
     private readonly List<(IEntity, bool)> _entitiesToRemove = new();
@@ -48,13 +59,16 @@ public class BaseScene : Disposable, IScene {
         _entities.Add(e);
         e.OnAdd(this);
         OnAddEntity?.Invoke(e);
-        if (e is IUpdatable u) { _updatables.Add(u); }
-        if (e is ITickable t) { _tickables.Add(t); }
-        if (e is IPrerenderable p) { _prerenderables.Add(p); }
-        if (e is IRenderable r) {
-            var i = _renderables.BinarySearch(r);
-            i = i < 0 ? ~i : i;
-            _renderables.Insert(i, r);
+        foreach (var (type, ebt) in _entitiesByType) {
+            if (e.GetType().IsAssignableTo(type)) {
+                if (type.IsAssignableTo(typeof(IPriorizableEntity))) {
+                    var i = ebt.BinarySearch((IPriorizableEntity)e);
+                    i = i < 0 ? ~i : i;
+                    ebt.List.Insert(i, e);
+                } else {
+                    ebt.List.Add(e);
+                }
+            }
         }
         if (e is IEntityHolder h) {
             foreach (var he in h.Entities) {
@@ -70,10 +84,11 @@ public class BaseScene : Disposable, IScene {
 
         e.OnRemove(this);
         OnRemoveEntity?.Invoke(e);
-        if (e is IUpdatable u) { _updatables.Remove(u); }
-        if (e is ITickable t) { _tickables.Remove(t); }
-        if (e is IPrerenderable p) { _prerenderables.Remove(p); }
-        if (e is IRenderable r) { _renderables.Remove(r); }
+        foreach (var (type, ebt) in _entitiesByType) {
+            if (e.GetType().IsAssignableTo(type)) {
+                ebt.List.Remove(e);
+            }
+        }
         if (e is IEntityHolder h) {
             foreach (var he in h.Entities) {
                 HandleRemoveEntity(he, shouldDispose);
@@ -94,9 +109,22 @@ public class BaseScene : Disposable, IScene {
         _entitiesToRemove.Clear();
     }
 
+    public IReadOnlyList<T> GetEntitiesOfType<T>() where T : IEntity {
+        if (_entitiesByType.TryGetValue(typeof(T), out var val)) {
+            return (IReadOnlyList<T>)val.List;
+        }
+
+        var ofType = _entities.OfType<T>();
+        if (typeof(T).IsAssignableTo(typeof(IPriorizableEntity))) {
+            ofType = ofType.OrderBy(e => ((IPriorizableEntity)e).Priority);
+        }
+
+        return (IReadOnlyList<T>)(_entitiesByType[typeof(T)] = new ListWrapper<T>(ofType.ToList())).List;
+    }
+
     // TODO: Consider: Events instead of virtual?
     public virtual void Update(float delta) {
-        foreach (var u in _updatables) {
+        foreach (var u in GetEntitiesOfType<IUpdatable>()) {
             u.Update(delta);
         }
 
@@ -104,7 +132,7 @@ public class BaseScene : Disposable, IScene {
     }
 
     public virtual void Tick() {
-        foreach (var t in _tickables) {
+        foreach (var t in GetEntitiesOfType<ITickable>()) {
             t.Tick();
         }
 
@@ -112,11 +140,11 @@ public class BaseScene : Disposable, IScene {
     }
 
     public virtual void Prerender(float interp) {
-        Parallel.ForEach(_prerenderables, p => p.Prerender(interp));
+        Parallel.ForEach(GetEntitiesOfType<IPrerenderable>(), p => p.Prerender(interp));
     }
 
     public virtual void Render(IRenderTarget target, float interp) {
-        foreach (var r in _renderables) {
+        foreach (var r in GetEntitiesOfType<IRenderable>()) {
             r.Render(target, interp);
         }
 

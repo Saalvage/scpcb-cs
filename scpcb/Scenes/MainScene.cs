@@ -134,6 +134,7 @@ public class MainScene : Scene3D {
     }
 
     public override void OnLeave() {
+        // TODO: This sucks! Might as well eliminate the entire method.
         _gfxRes.Window.KeyDown -= HandleKeyDown;
         _gfxRes.Window.KeyUp -= HandleKeyUp;
     }
