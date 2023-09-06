@@ -22,6 +22,27 @@ public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Sc
             Vector3.Lerp(a.Scale, b.Scale, amount)
         );
     }
+
+    /// <returns>
+    /// Transform representing the application of two transforms in series.
+    /// </returns>
+    public static Transform operator+(Transform a, Transform b)
+        => new(Vector3.Transform(b.Position * a.Scale, b.Rotation) + a.Position,
+            a.Rotation * b.Rotation,
+            a.Scale * b.Scale);
+
+    /// <returns>
+    /// The required transform to get from b to a.
+    /// </returns>
+    public static Transform operator-(Transform a, Transform b)
+        => a + (-b);
+
+    public static Transform operator-(Transform trans) {
+        var inv = Quaternion.Inverse(trans.Rotation);
+        return new(Vector3.Transform(-trans.Position, inv) / trans.Scale,
+            inv,
+            Vector3.One / trans.Scale);
+    }
 }
 
 public static class TransformExtensions {
