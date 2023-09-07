@@ -23,7 +23,7 @@ public class PerspectiveCamera : ICamera {
         }
     }
 
-    private Quaternion _rot;
+    private Quaternion _rot = Quaternion.Identity;
     public Quaternion Rotation {
         get => _rot;
         set {
