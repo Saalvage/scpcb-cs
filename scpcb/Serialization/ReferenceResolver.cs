@@ -1,4 +1,5 @@
 ﻿using scpcb.Entities;
+using scpcb.Utility;
 
 namespace scpcb.Serialization;
 
@@ -9,7 +10,11 @@ public interface IReferenceResolver {
     void Resolve(long hashCode, Action<IEntity> onResolve);
 }
 
-public class ReferenceResolver : IReferenceResolver {
+public interface IReferenceResolverImpl : IReferenceResolver {
+    void SubmitEntity(long hashCode, IEntity entity);
+}
+
+public class ReferenceResolver : Disposable, IReferenceResolverImpl {
     private readonly Dictionary<long, List<Action<IEntity>>> _hashReferences = new();
 
     private readonly Dictionary<long, IEntity> _entities = new();
@@ -38,5 +43,9 @@ public class ReferenceResolver : IReferenceResolver {
         if (_hashReferences.Count != 0) {
             throw new();
         }
+    }
+
+    protected override void DisposeImpl() {
+        AssertAllReferencesResolved();
     }
 }

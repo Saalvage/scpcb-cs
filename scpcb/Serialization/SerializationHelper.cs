@@ -21,12 +21,9 @@ public static class SerializationHelper {
     }
 
     public static IEnumerable<IEntity> DeserializeTest(string data, GraphicsResources gfxRes, IScene scene) {
-        var refResolver = new ReferenceResolver();
+        using var refResolver = new ReferenceResolver();
         foreach (var d in JsonSerializer.Deserialize<IEnumerable<SerializableData>>(data, _opt)!) {
-            var entity = d.Deserialize(gfxRes, scene, refResolver);
-            refResolver.SubmitEntity(d.HashCode, entity);
-            yield return entity;
+            yield return d.Deserialize(gfxRes, scene, refResolver);
         }
-        refResolver.AssertAllReferencesResolved();
     }
 }

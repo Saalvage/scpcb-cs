@@ -14,10 +14,10 @@ using scpcb.Utility;
 
 namespace scpcb.Map.Entities;
 
-public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity<Prop, Prop.PropData> {
+public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     public record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic)
-            : BaseSerializableData<PropData, Prop> {
-        protected override Prop DeserializeImpl(GraphicsResources gfxRes, IScene scene, ReferenceResolver refResolver) {
+            : SerializableData {
+        protected override ISerializableEntity DeserializeImpl(GraphicsResources gfxRes, IScene scene, IReferenceResolver refResolver) {
             var prop = new Prop(gfxRes, scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic);
             if (prop.Models is PhysicsModelCollection pmc) {
                 pmc.Body.Velocity = Velocity;
@@ -79,8 +79,8 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity<P
         _physics.Simulation.Shapes.RecursivelyRemoveAndDispose(_hullIndex, _physics.BufferPool);
     }
 
-    public PropData SerializeImpl() {
+    public SerializableData SerializeImpl() {
         var pmc = Models as PhysicsModelCollection;
-        return new(_file, Models.WorldTransform, pmc?.Body.Velocity ?? default, pmc == null);
+        return new PropData(_file, Models.WorldTransform, pmc?.Body.Velocity ?? default, pmc == null);
     }
 }
