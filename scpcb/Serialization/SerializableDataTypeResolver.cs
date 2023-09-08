@@ -15,14 +15,14 @@ public class SerializableDataTypeResolver : DefaultJsonTypeInfoResolver {
             UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
         };
         _polyOpt.DerivedTypes.AddRange(Helpers.GetAllLoadedTypes()
-            .Where(x => x.IsSubclassOf(typeof(BaseSerializableData)) && !x.IsAbstract)
+            .Where(x => x.IsSubclassOf(typeof(SerializableData)) && !x.IsAbstract)
             .Select(x => new JsonDerivedType(x, x.FullName ?? x.Name))
         );
     }
 
     public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options) {
         var jsonTypeInfo = base.GetTypeInfo(type, options);
-        if (type == typeof(BaseSerializableData)) {
+        if (type == typeof(SerializableData)) {
             jsonTypeInfo.PolymorphismOptions = _polyOpt;
         }
 

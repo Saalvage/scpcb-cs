@@ -145,34 +145,44 @@ public class MainScene : Scene3D {
     private void HandleKeyDown(KeyEvent e) {
         _keysDown[e.Key] = true;
 
-        if (e.Key == Key.Space) {
-            var sim = Physics.Simulation;
-            var bodyHandle = sim.Bodies.Add(BodyDescription.CreateConvexDynamic(
-                new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
-                1, sim.Shapes, _hull));
-            var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
-            AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<ModelShader.Vertex>(
-                _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
-                    0 => _renderMat,
-                    1 => _otherMat,
-                    2 => _logoMat,
-                }, _scp173.Mesh)}));
-        } else if (e.Key == Key.Escape) {
-            _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
-        } else if (e.Key == Key.AltLeft) {
-            var from = _controller.Camera.Position;
-            var to = from + Vector3.Transform(Vector3.UnitZ, _controller.Camera.Rotation) * 5f;
-            var line = new DebugLine(_gfxRes, from, to);
-            line.Color = Physics.RayCastVisible(from, to) ? new(1, 0, 0) : new(0, 1, 0);
-            AddEntity(line);
-        } else if (e.Key == Key.F5) {
-            _serialized = SerializationHelper.SerializeTest(GetEntitiesOfType<ISerializableEntity>());
-            foreach (var i in GetEntitiesOfType<ISerializableEntity>()) {
-                RemoveEntity(i);
+        switch (e.Key) {
+            case Key.Space: {
+                var sim = Physics.Simulation;
+                var bodyHandle = sim.Bodies.Add(BodyDescription.CreateConvexDynamic(
+                    new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
+                    1, sim.Shapes, _hull));
+                var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
+                AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<ModelShader.Vertex>(
+                    _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
+                        0 => _renderMat,
+                        1 => _otherMat,
+                        2 => _logoMat,
+                    }, _scp173.Mesh)}));
+                break;
             }
-        } else if (e.Key == Key.BackSpace) {
-            if (_serialized != null) {
-                AddEntities(SerializationHelper.DeserializeTest(_serialized, _gfxRes, this));
+            case Key.Escape:
+                _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
+                break;
+            case Key.AltLeft: {
+                var from = _controller.Camera.Position;
+                var to = from + Vector3.Transform(Vector3.UnitZ, _controller.Camera.Rotation) * 5f;
+                var line = new DebugLine(_gfxRes, from, to);
+                line.Color = Physics.RayCastVisible(from, to) ? new(1, 0, 0) : new(0, 1, 0);
+                AddEntity(line);
+                break;
+            }
+            case Key.F5: {
+                _serialized = SerializationHelper.SerializeTest(GetEntitiesOfType<ISerializableEntity>());
+                foreach (var i in GetEntitiesOfType<ISerializableEntity>()) {
+                    RemoveEntity(i);
+                }
+                break;
+            }
+            case Key.BackSpace: {
+                if (_serialized != null) {
+                    AddEntities(SerializationHelper.DeserializeTest(_serialized, _gfxRes, this));
+                }
+                break;
             }
         }
     }

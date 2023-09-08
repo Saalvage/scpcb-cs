@@ -17,7 +17,7 @@ namespace scpcb.Map.Entities;
 public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity<Prop, Prop.PropData> {
     public record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic)
             : BaseSerializableData<PropData, Prop> {
-        protected override Prop DeserializeImpl(GraphicsResources gfxRes, IScene scene, IReferenceResolver refResolver) {
+        protected override Prop DeserializeImpl(GraphicsResources gfxRes, IScene scene, ReferenceResolver refResolver) {
             var prop = new Prop(gfxRes, scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic);
             if (prop.Models is PhysicsModelCollection pmc) {
                 pmc.Body.Velocity = Velocity;

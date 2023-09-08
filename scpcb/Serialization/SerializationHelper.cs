@@ -7,9 +7,7 @@ using Serilog;
 namespace scpcb.Serialization; 
 
 public static class SerializationHelper {
-    // TODO: For some reason it doesn't like it when we reuse this..
-    // I assume the reason is the changing number of 
-    public static readonly JsonSerializerOptions _opt = new() {
+    private static readonly JsonSerializerOptions _opt = new() {
         TypeInfoResolver = SerializableDataTypeResolver.Instance,
         IncludeFields = true,
         WriteIndented = true,
@@ -23,6 +21,12 @@ public static class SerializationHelper {
     }
 
     public static IEnumerable<IEntity> DeserializeTest(string data, GraphicsResources gfxRes, IScene scene) {
-        return JsonSerializer.Deserialize<IEnumerable<BaseSerializableData>>(data, _opt).Select(x => x.Deserialize(gfxRes, scene, new ReferenceResolver()));
+        var refResolver = new ReferenceResolver();
+        foreach (var d in JsonSerializer.Deserialize<IEnumerable<SerializableData>>(data, _opt)!) {
+            var entity = d.Deserialize(gfxRes, scene, refResolver);
+            refResolver.SubmitEntity(d.HashCode, entity);
+            yield return entity;
+        }
+        refResolver.AssertAllReferencesResolved();
     }
 }
