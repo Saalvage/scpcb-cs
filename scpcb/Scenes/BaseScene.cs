@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using scpcb.Entities;
 using scpcb.Graphics.Textures;
 using scpcb.Utility;
@@ -41,18 +42,29 @@ public class BaseScene : Disposable, IScene {
     /// <summary>
     /// Removes and disposes.
     /// </summary>
-    /// <param name="entity"></param>
     public void RemoveEntity(IEntity entity) {
-        _entitiesToRemove.Add(new(entity, true));
+        _entitiesToRemove.Add((entity, true));
+    }
+
+    /// <see cref="RemoveEntity"/>
+    public void RemoveEntities(IEnumerable<IEntity> entities) {
+        _entitiesToRemove.AddRange(entities.Select(x => (x, true)));
     }
 
     /// <summary>
     /// Removes without disposing, moving it to the other scene if provided.
     /// </summary>
-    /// <param name="entity"></param>
     public void MoveEntity(IEntity entity, BaseScene? other = null) {
-        _entitiesToRemove.Add(new(entity, false));
+        _entitiesToRemove.Add((entity, false));
         other?.AddEntity(entity);
+    }
+
+    /// <see cref="MoveEntity"/>
+    /// <remarks><paramref name="entities"/> is enumerated twice.</remarks>
+    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+    public void MoveEntities(IEnumerable<IEntity> entities, BaseScene? other = null) {
+        _entitiesToRemove.AddRange(entities.Select(x => (x, false)));
+        other?.AddEntities(entities);
     }
 
     private void HandleAddEntity(IEntity e) {
@@ -124,6 +136,7 @@ public class BaseScene : Disposable, IScene {
 
     // TODO: Consider: Events instead of virtual?
     public virtual void Update(float delta) {
+        // TODO: There appears to be a race condition here??
         foreach (var u in GetEntitiesOfType<IUpdatable>()) {
             u.Update(delta);
         }

@@ -157,4 +157,8 @@ public static class Helpers {
             }
         }
     }
+
+    public static IEnumerable<Type> GetAllLoadedTypes()
+        => AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(x => x.ExportedTypes);
 }

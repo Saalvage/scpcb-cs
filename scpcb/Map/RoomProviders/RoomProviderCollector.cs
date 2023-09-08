@@ -1,5 +1,6 @@
 ﻿using scpcb.Graphics;
 using scpcb.Physics;
+using scpcb.Utility;
 
 namespace scpcb.Map.RoomProviders;
 
@@ -7,11 +8,10 @@ public class RoomProviderCollector {
     private readonly List<IRoomProvider> _providers = new();
 
     public RoomProviderCollector() {
-        _providers = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.ExportedTypes
+        _providers = Helpers.GetAllLoadedTypes()
                 .Where(x => x.GetInterfaces().Any(x => x == typeof(IRoomProvider)))
                 .Select(x => x.GetConstructor(Array.Empty<Type>()))
-                .Where(x => x is not null))
+                .Where(x => x is not null)
             .Select(x => (IRoomProvider)x!.Invoke(null))
             .ToList();
     }

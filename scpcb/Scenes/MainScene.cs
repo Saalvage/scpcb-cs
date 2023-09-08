@@ -9,6 +9,7 @@ using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Textures;
 using scpcb.Map;
+using scpcb.Serialization;
 using scpcb.Utility;
 using Veldrid;
 
@@ -139,6 +140,8 @@ public class MainScene : Scene3D {
         _gfxRes.Window.KeyUp -= HandleKeyUp;
     }
 
+    private static string? _serialized;
+
     private void HandleKeyDown(KeyEvent e) {
         _keysDown[e.Key] = true;
 
@@ -162,6 +165,15 @@ public class MainScene : Scene3D {
             var line = new DebugLine(_gfxRes, from, to);
             line.Color = Physics.RayCastVisible(from, to) ? new(1, 0, 0) : new(0, 1, 0);
             AddEntity(line);
+        } else if (e.Key == Key.F5) {
+            _serialized = SerializationHelper.SerializeTest(GetEntitiesOfType<ISerializableEntity>());
+            foreach (var i in GetEntitiesOfType<ISerializableEntity>()) {
+                RemoveEntity(i);
+            }
+        } else if (e.Key == Key.BackSpace) {
+            if (_serialized != null) {
+                AddEntities(SerializationHelper.DeserializeTest(_serialized, _gfxRes, this));
+            }
         }
     }
 
