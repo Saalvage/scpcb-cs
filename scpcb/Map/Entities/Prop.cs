@@ -47,9 +47,10 @@ public class Prop : Disposable, IMapEntity, IEntityHolder {
                 LocalInertia = scaledHull.ComputeInertia(1f),
             });
 
-            Models = new PhysicsModelCollection(physics, physics.Simulation.Bodies.GetBodyReference(body), meshes) {
-                WorldTransform = transform,
-            };
+            
+            var pmc = new PhysicsModelCollection(physics, physics.Simulation.Bodies.GetBodyReference(body), meshes);
+            pmc.Teleport(transform);
+            Models = pmc;
         }
     }
 
