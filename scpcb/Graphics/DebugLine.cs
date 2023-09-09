@@ -13,7 +13,7 @@ using Veldrid;
 namespace scpcb.Graphics;
 
 public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<IColorConstantMember, Vector3> {
-    private readonly BaseScene? _scene;
+    private readonly IScene? _scene;
 
     private readonly ICBModel _model;
 
@@ -23,7 +23,7 @@ public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<
     private float _countDown;
 
     // TODO: The fact that we need to use a BaseScene suggests to me that we should consider moving the add/remove functions to IScene.
-    public DebugLine(BaseScene? scene, GraphicsResources gfxRes, TimeSpan? disappearsAfter, params Vector3[] points) {
+    public DebugLine(IScene? scene, GraphicsResources gfxRes, TimeSpan? disappearsAfter, params Vector3[] points) {
         _scene = scene;
         var shader = gfxRes.ShaderCache.GetShader<LineShader, VPosition>();
         var mat = gfxRes.MaterialCache.GetMaterial(shader, Enumerable.Empty<ICBTexture>(), Enumerable.Empty<Sampler>());

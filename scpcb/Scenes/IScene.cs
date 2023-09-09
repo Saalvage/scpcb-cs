@@ -13,6 +13,37 @@ public interface IScene : IDisposable {
     void Prerender(float interp);
     void Render(IRenderTarget target, float interp);
 
+    void AddEntity(IEntity entity);
+    void AddEntities(IEnumerable<IEntity> entities) {
+        foreach (var e in entities) {
+            AddEntity(e);
+        }
+    }
+
+    /// <summary>
+    /// Removes and disposes.
+    /// </summary>
+    void RemoveEntity(IEntity entity);
+    /// <see cref="RemoveEntity"/>
+    void RemoveEntities(IEnumerable<IEntity> entities) {
+        foreach (var e in entities) {
+            RemoveEntity(e);
+        }
+    }
+
+    /// <summary>
+    /// Removes without disposing, moving it to the other scene if provided.
+    /// </summary>
+    void MoveEntity(IEntity entity, IScene? other);
+
+    /// <see cref="MoveEntity"/>
+    /// <remarks><paramref name="entities"/> is enumerated twice.</remarks>
+    void MoveEntities(IEnumerable<IEntity> entities, IScene? other) {
+        foreach (var e in entities) {
+            MoveEntity(e, other);
+        }
+    }
+
     event Action<IEntity> OnAddEntity;
     event Action<IEntity> OnRemoveEntity;
 

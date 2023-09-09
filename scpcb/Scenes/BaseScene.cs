@@ -39,30 +39,21 @@ public class BaseScene : Disposable, IScene {
         _entitiesToAdd.AddRange(entities);
     }
 
-    /// <summary>
-    /// Removes and disposes.
-    /// </summary>
     public void RemoveEntity(IEntity entity) {
         _entitiesToRemove.Add((entity, true));
     }
 
-    /// <see cref="RemoveEntity"/>
     public void RemoveEntities(IEnumerable<IEntity> entities) {
         _entitiesToRemove.AddRange(entities.Select(x => (x, true)));
     }
 
-    /// <summary>
-    /// Removes without disposing, moving it to the other scene if provided.
-    /// </summary>
-    public void MoveEntity(IEntity entity, BaseScene? other = null) {
+    public void MoveEntity(IEntity entity, IScene? other = null) {
         _entitiesToRemove.Add((entity, false));
         other?.AddEntity(entity);
     }
 
-    /// <see cref="MoveEntity"/>
-    /// <remarks><paramref name="entities"/> is enumerated twice.</remarks>
     [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-    public void MoveEntities(IEnumerable<IEntity> entities, BaseScene? other = null) {
+    public void MoveEntities(IEnumerable<IEntity> entities, IScene? other = null) {
         _entitiesToRemove.AddRange(entities.Select(x => (x, false)));
         other?.AddEntities(entities);
     }
