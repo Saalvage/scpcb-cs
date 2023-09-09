@@ -2,7 +2,7 @@
 using scpcb.Physics;
 using scpcb.Utility;
 
-namespace scpcb.Graphics.Utility;
+namespace scpcb.Graphics.Caches;
 
 public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IModelLoader loader) : BaseCache<string, ModelCache.CacheEntry> {
     public class CacheEntry : Disposable {

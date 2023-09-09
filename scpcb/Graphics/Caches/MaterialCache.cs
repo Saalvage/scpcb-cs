@@ -2,7 +2,7 @@
 using scpcb.Graphics.Shaders.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.Utility; 
+namespace scpcb.Graphics.Caches; 
 
 public class MaterialCache : BaseCache<int, ICBMaterial> {
     private readonly GraphicsDevice _gfx;

@@ -4,7 +4,7 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
 using ShaderGen;
 
-namespace scpcb.Graphics.Utility;
+namespace scpcb.Graphics.Caches;
 
 // TODO: Add a way to get non-generated shaders.
 public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {

@@ -4,9 +4,9 @@ using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders;
 using scpcb.Utility;
 using System.Numerics;
+using scpcb.Graphics.Caches;
 using scpcb.Graphics.Shaders.Utility;
 using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Graphics.Utility;
 using Veldrid;
 
 namespace scpcb.Graphics;

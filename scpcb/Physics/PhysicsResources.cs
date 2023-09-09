@@ -4,9 +4,9 @@ using BepuUtilities.Memory;
 using scpcb.Entities;
 using scpcb.Graphics;
 using scpcb.Graphics.Assimp;
+using scpcb.Graphics.Caches;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Graphics.Utility;
 using scpcb.Utility;
 
 namespace scpcb.Physics;

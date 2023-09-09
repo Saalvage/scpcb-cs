@@ -36,6 +36,6 @@ public sealed class PhysicsModelCollection : InterpolatedModelCollection, IEntit
 
     void IEntity.OnRemove(IScene scene) {
         _physics.Simulation.Bodies.Remove(Body.Handle);
-        _physics.AfterUpdate -= UpdateTransform; // TODO: Implement IDisposable?
+        _physics.AfterUpdate -= UpdateTransform;
     }
 }

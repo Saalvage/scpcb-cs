@@ -2,7 +2,7 @@
 using scpcb.Graphics.Primitives;
 using scpcb.Utility;
 
-namespace scpcb.Graphics.Utility;
+namespace scpcb.Graphics.Caches;
 
 public class TextureCache : Disposable {
     private readonly WeakDictionary<string, ICBTexture> _textures = new();
