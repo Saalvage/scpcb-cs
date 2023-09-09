@@ -57,7 +57,7 @@ public class RoomData : Disposable, IRoomData {
 public interface IRoomInstance : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, I3DModelHolder, IEntityHolder { }
 
 public class RoomInstance : IRoomInstance {
-    private record Model3D(Vector3 Position, ICBModel Model) : I3DModel;
+    private record Model3D(Vector3 Position, ICBModel Model, bool IsOpaque) : I3DModel;
 
     IEnumerable<I3DModel> I3DModelHolder.Models => Models;
     public I3DModel[] Models { get; }
@@ -76,7 +76,7 @@ public class RoomInstance : IRoomInstance {
         var constants = meshes[0].Material.Shader.TryCreateInstanceConstants();
 
         Models = meshes.Select(x => (I3DModel)new Model3D(Vector3.Transform(x.PositionInRoom, rotation) + offset,
-                x.Geometry.CreateModel(x.Material, constants, x.IsOpaque)))
+                x.Geometry.CreateModel(x.Material, constants), x.IsOpaque))
             .ToArray();
 
         Entites = mapEntities;

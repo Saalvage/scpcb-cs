@@ -20,14 +20,15 @@ public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember,
 
     public ICBModel Model { get; }
 
+    public bool IsOpaque => false;
+
     /// <summary>
     /// Do not call this directly, use a <see cref="BillboardManager"/> instead.
     /// </summary>
     /// <param name="mesh"></param>
     /// <param name="mat"></param>
     public Billboard(ICBMesh<VPositionTexture> mesh, ICBMaterial<VPositionTexture> mat) {
-        Model = new CBModel<VPositionTexture>(mat.Shader.TryCreateInstanceConstants(),
-            mat, mesh, false);
+        Model = new CBModel<VPositionTexture>(mat.Shader.TryCreateInstanceConstants(), mat, mesh);
         Model.ConstantProviders.Add(this);
     }
 

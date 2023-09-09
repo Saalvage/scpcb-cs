@@ -19,7 +19,7 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
 
     public void Add(I3DModel model) {
         // We can't/don't sort it into the transparent objects because we don't want to ask for the pos here.
-        (model.Model.IsOpaque ? _opaque : _transparent).Add(model);
+        (model.IsOpaque ? _opaque : _transparent).Add(model);
     }
 
     public void AddRange(IEnumerable<I3DModel> models) {
@@ -65,7 +65,7 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
         var pos = _getPos(interp);
 
         for (var i = 0; i < _opaque.Count; i++) {
-            if (!_opaque[i].Model.IsOpaque) {
+            if (!_opaque[i].IsOpaque) {
                 _transparent.Add(_opaque[i]);
                 _opaque.RemoveAt(i);
                 i--;
@@ -89,7 +89,7 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
         }
 
         for (var i = 0; i < _transparent.Count; i++) {
-            if (_transparent[i].Model.IsOpaque) {
+            if (_transparent[i].IsOpaque) {
                 _opaque.Add(_transparent[i]);
                 _transparent.RemoveAt(i);
                 i--;

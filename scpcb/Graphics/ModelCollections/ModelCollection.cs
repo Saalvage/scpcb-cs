@@ -24,6 +24,7 @@ public class ModelCollection : IConstantProvider<IWorldMatrixConstantMember, Mat
 
         public Vector3 Position => _coll.WorldTransform.Position;
         public ICBModel Model { get; }
+        public bool IsOpaque { get; }
     }
 
     public virtual Transform WorldTransform { get; set; } = new();

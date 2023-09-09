@@ -41,7 +41,7 @@ public static class MeshMaterialExtensions {
             var constants = dic.TryGetValue(mat.Shader, out var val) ? val
                 : dic[mat.Shader] = mat.Shader.TryCreateInstanceConstants();
 
-            yield return mesh.CreateModel(mat, constants, true);
+            yield return mesh.CreateModel(mat, constants);
         }
     }
 }

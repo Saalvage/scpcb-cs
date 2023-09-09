@@ -11,4 +11,6 @@ public interface I3DModel : IEntity {
 
     // TODO: Should we expose the model here? Could alternatively be done via a render method.
     ICBModel Model { get; }
+
+    bool IsOpaque { get; }
 }

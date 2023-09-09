@@ -10,9 +10,6 @@ public interface ICBModel {
 
     List<IConstantProvider> ConstantProviders { get; }
 
-    // TODO: Move this to material.. or actually to I3DModel?
-    bool IsOpaque { get; }
-
     bool IsVisible { get; set; }
 }
 
@@ -30,7 +27,7 @@ public interface ICBModel<TVertConstants, TFragConstants> : ICBModel
     IConstantHolder? ICBModel.Constants => Constants;
 }
 
-public record CBModel<TVertex>(IConstantHolder? Constants, ICBMaterial<TVertex> Material, ICBMesh<TVertex> Mesh, bool IsOpaque = true)
+public record CBModel<TVertex>(IConstantHolder? Constants, ICBMaterial<TVertex> Material, ICBMesh<TVertex> Mesh)
         : ICBModel<TVertex> where TVertex : unmanaged {
     public List<IConstantProvider> ConstantProviders { get; } = new();
     public bool IsVisible { get; set; } = true;
