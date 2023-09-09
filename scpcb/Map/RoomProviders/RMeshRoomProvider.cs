@@ -48,8 +48,10 @@ public partial class RMeshRoomProvider : IRoomProvider {
         meshes.EnsureCapacity(meshCount);
         // TODO: Estimate number of tris per mesh better
         physics.BufferPool.TakeAtLeast<Triangle>(meshCount * 100, out var triBuffer);
+        physics.BufferPool.TakeAtLeast<Triangle>(meshCount * 5, out var invisTriBuffer);
         try {
             var totalTriCount = 0;
+            var totalInvisTriCount = 0;
             for (var i = 0; i < meshCount; i++) {
                 var textures = new ICBTexture?[2];
 
@@ -97,9 +99,12 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     vertices[j] = new(pos * ROOM_SCALE, uv1, uv2, new(r, g, b));
                 }
 
+                ref var thisTriBuffer = ref isOpaque ? ref triBuffer : ref invisTriBuffer;
+                ref var thisTotalTriCount = ref isOpaque ? ref totalTriCount : ref totalInvisTriCount;
+
                 var triCount = reader.ReadInt32() * (isOpaque ? 1 : 2);
                 var stride = isOpaque ? 3 : 6;
-                physics.BufferPool.ResizeToAtLeast(ref triBuffer, totalTriCount + triCount, totalTriCount);
+                physics.BufferPool.ResizeToAtLeast(ref thisTriBuffer, totalTriCount + triCount, totalTriCount);
                 var indices = GetBufferedSpan(triCount * 3, indexStackBuffer, ref indexHeapBuffer);
                 for (var j = 0; j < indices.Length; j += stride) {
                     var i1 = indices[j + 2] = (uint)reader.ReadInt32();
@@ -109,11 +114,11 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         var i4 = indices[j + 3] = i1;
                         var i5 = indices[j + 4] = i2;
                         var i6 = indices[j + 5] = i3;
-                        triBuffer[totalTriCount] = new(vertices[(int)i6].Position, vertices[(int)i5].Position, vertices[(int)i4].Position);
-                        totalTriCount++;
+                        thisTriBuffer[thisTotalTriCount] = new(vertices[(int)i6].Position, vertices[(int)i5].Position, vertices[(int)i4].Position);
+                        thisTotalTriCount++;
                     }
-                    triBuffer[totalTriCount] = new(vertices[(int)i1].Position, vertices[(int)i2].Position, vertices[(int)i3].Position);
-                    totalTriCount++;
+                    thisTriBuffer[thisTotalTriCount] = new(vertices[(int)i1].Position, vertices[(int)i2].Position, vertices[(int)i3].Position);
+                    thisTotalTriCount++;
                 }
 
                 if (isOpaque) {
@@ -131,8 +136,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
             var invisVertexHeapBuffer = Array.Empty<Vector3>();
 
             var invisMeshCount = reader.ReadInt32();
-            physics.BufferPool.TakeAtLeast<Triangle>(invisMeshCount * 100, out var invisTriBuffer);
-            var totalInvisTriCount = 0;
+            physics.BufferPool.ResizeToAtLeast(ref invisTriBuffer, totalInvisTriCount + meshCount * 100, totalInvisTriCount);
             for (var i = 0; i < invisMeshCount; i++) {
                 var vertexCount = reader.ReadInt32();
                 var vertices = GetBufferedSpan(vertexCount, invisVertexStackBuffer, ref invisVertexHeapBuffer);
