@@ -9,10 +9,11 @@ public class Scene3D : BaseScene {
 
     public ICamera Camera { get; protected set; }
 
-    public PhysicsResources Physics { get; } = new();
+    public PhysicsResources Physics { get; }
 
     public Scene3D(GraphicsResources gfxRes) {
         _gfxRes = gfxRes;
+        Physics = new(_gfxRes); 
 
         AddEntity(new ModelSorter(this, interp => Camera.Position));
     }

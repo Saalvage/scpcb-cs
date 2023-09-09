@@ -4,9 +4,8 @@ using BepuPhysics.Collidables;
 using BepuUtilities;
 using scpcb.Entities;
 using scpcb.Graphics;
-using scpcb.Graphics.Assimp;
 using scpcb.Graphics.ModelCollections;
-using scpcb.Graphics.Shaders;
+using scpcb.Graphics.Utility;
 using scpcb.Physics;
 using scpcb.Scenes;
 using scpcb.Serialization;
@@ -18,7 +17,7 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     public record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic)
             : SerializableData {
         protected override ISerializableEntity DeserializeImpl(GraphicsResources gfxRes, IScene scene, IReferenceResolver refResolver) {
-            var prop = new Prop(gfxRes, scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic);
+            var prop = new Prop(scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic);
             if (prop.Models is PhysicsModelCollection pmc) {
                 pmc.Body.Velocity = Velocity;
             }
@@ -32,20 +31,22 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     private readonly TypedIndex _hullIndex;
 
     private readonly string _file;
+    
+    // TODO: Keep alive, indicative of a design issue.
+    private readonly ModelCache.CacheEntry _cacheEntry;
 
     public ModelCollection Models { get; }
 
-    public Prop(GraphicsResources gfxRes, PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
+    public Prop(PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
         _physics = physics;
         _file = file;
 
-        // TODO: Cache this shit!!
-        var (meshes, hull) = new AutomaticAssimpMeshConverter<ModelShader, ModelShader.Vertex, (GraphicsResources, string)>((gfxRes, "Assets/Props/"))
-            .LoadMeshes(gfxRes.GraphicsDevice, physics, PROP_PATH + file);
+        _cacheEntry = physics.ModelCache.GetModel(PROP_PATH + file);
+        var meshes = _cacheEntry.Models.Instantiate().ToArray();
+        var hull = _cacheEntry.Collision;
 
         Matrix3x3.CreateScale(transform.Scale, out var scaleMat);
         ConvexHullHelper.CreateTransformedCopy(hull, scaleMat, physics.BufferPool, out var scaledHull);
-        hull.Dispose(_physics.BufferPool);
 
         _hullIndex = physics.Simulation.Shapes.Add(scaledHull);
         if (isStatic) {

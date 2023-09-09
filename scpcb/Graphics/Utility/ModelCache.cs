@@ -1,0 +1,31 @@
+﻿using BepuPhysics.Collidables;
+using scpcb.Physics;
+using scpcb.Utility;
+
+namespace scpcb.Graphics.Utility;
+
+public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IModelLoader loader) : BaseCache<string, ModelCache.CacheEntry> {
+    public class CacheEntry : Disposable {
+        public IMeshMaterial[] Models { get; }
+        public ConvexHull Collision { get; }
+
+        private readonly PhysicsResources _physics;
+
+        public CacheEntry(IModelLoader converter, GraphicsResources gfxRes, PhysicsResources physics, string file) {
+            _physics = physics;
+            (Models, Collision) = converter.LoadMeshes(gfxRes.GraphicsDevice, physics, file);
+        }
+
+        protected override void DisposeImpl() {
+            foreach (var m in Models) {
+                m.Mesh.Dispose();
+            }
+
+            Collision.Dispose(_physics.BufferPool);
+        }
+    }
+
+    public CacheEntry GetModel(string file)
+        => _dic.TryGetValue(file, out var val) ? val
+            : _dic[file] = new(loader, gfxRes, physics, file);
+}

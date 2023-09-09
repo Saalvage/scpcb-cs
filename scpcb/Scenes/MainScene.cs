@@ -2,13 +2,13 @@
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using scpcb.Graphics;
-using scpcb.Graphics.Assimp;
 using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
+using scpcb.Graphics.Utility;
 using scpcb.Map;
 using scpcb.Serialization;
 using scpcb.Utility;
@@ -36,6 +36,7 @@ public class MainScene : Scene3D {
     private readonly IRoomData _room4Tunnels;
 
     private readonly RenderTexture _renderTexture;
+    private readonly ModelCache.CacheEntry _cacheEntry;
 
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
@@ -87,12 +88,9 @@ public class MainScene : Scene3D {
             }
         }
 
-        var (scp173, hull) = new PluginAssimpModelLoader<VPositionTexture>(VPositionTexture.ConvertVertex,
-                _ => _logoMat)
-            .LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
-
-        _scp173 = scp173[0];
-        _hull = hull;
+        _cacheEntry = Physics.ModelCache.GetModel("Assets/173_2.b3d"); ;
+        _scp173 = _cacheEntry.Models.Instantiate().OfType<ICBModel<VPositionTexture>>().First();
+        _hull = _cacheEntry.Collision;
 
         window.KeyDown += HandleKeyDown;
         window.KeyUp += HandleKeyUp;

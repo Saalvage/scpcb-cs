@@ -5,13 +5,22 @@ using Veldrid;
 namespace scpcb.Graphics.Primitives;
 
 public interface ICBMesh : IDisposable {
-    public void ApplyGeometry(CommandList commands);
-    public void Draw(CommandList commands);
+    void ApplyGeometry(CommandList commands);
+    void Draw(CommandList commands);
 
-    public ICBModel CreateModel(ICBMaterial mat, IConstantHolder constants, bool isOpaque);
+    ICBModel CreateModel(ICBMaterial mat, IConstantHolder constants, bool isOpaque);
 }
 
-public interface ICBMesh<TVertex> : ICBMesh where TVertex : unmanaged { }
+public interface ICBMesh<TVertex> : ICBMesh where TVertex : unmanaged {
+    ICBModel ICBMesh.CreateModel(ICBMaterial mat, IConstantHolder constants, bool isOpaque) {
+        if (mat is not ICBMaterial<TVertex> vMat) {
+            throw new ArgumentException($"Material must have vertex type {typeof(TVertex)}", nameof(mat));
+        }
+        return CreateModel(vMat, constants, isOpaque);
+    }
+
+    ICBModel<TVertex> CreateModel(ICBMaterial<TVertex> mat, IConstantHolder constants, bool isOpaque);
+}
 
 public class CBMesh<TVertex> : Disposable, ICBMesh<TVertex> where TVertex : unmanaged {
     private readonly DeviceBuffer _vertexBuffer;
@@ -36,8 +45,8 @@ public class CBMesh<TVertex> : Disposable, ICBMesh<TVertex> where TVertex : unma
         commands.DrawIndexed(_indexCount, 1, 0, 0, 0);
     }
 
-    public ICBModel CreateModel(ICBMaterial mat, IConstantHolder constants, bool isOpaque)
-        => new CBModel<TVertex>(constants, (ICBMaterial<TVertex>)mat, this, isOpaque);
+    public ICBModel<TVertex> CreateModel(ICBMaterial<TVertex> mat, IConstantHolder constants, bool isOpaque)
+        => new CBModel<TVertex>(constants, mat, this, isOpaque);
 
     protected override void DisposeImpl() {
         _vertexBuffer.Dispose();

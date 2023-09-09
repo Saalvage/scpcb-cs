@@ -2,6 +2,11 @@
 using BepuUtilities;
 using BepuUtilities.Memory;
 using scpcb.Entities;
+using scpcb.Graphics;
+using scpcb.Graphics.Assimp;
+using scpcb.Graphics.Shaders;
+using scpcb.Graphics.Shaders.Vertices;
+using scpcb.Graphics.Utility;
 using scpcb.Utility;
 
 namespace scpcb.Physics;
@@ -13,12 +18,17 @@ public class PhysicsResources : Disposable, ITickable {
 
     public BufferPool BufferPool { get; } = new();
     
+    // TODO: This doesn't really belong here..
+    public ModelCache ModelCache { get; }
+
     private readonly ThreadDispatcher _threadDispatcher;
 
     public event Action BeforeUpdate;
     public event Action AfterUpdate;
 
-    public PhysicsResources() {
+    public PhysicsResources(GraphicsResources gfxRes) {
+        ModelCache = new(gfxRes, this, new AutomaticAssimpModelLoader<ModelShader, VPositionTexture, GraphicsResources>(gfxRes));
+
         Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), new(4, 2));
         Visibility = new(Simulation);
 

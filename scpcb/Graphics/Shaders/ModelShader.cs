@@ -13,9 +13,7 @@ using scpcb.Utility;
 
 namespace scpcb.Graphics.Shaders;
 
-using Plugin = (GraphicsResources GraphicsResources, string BaseFilePath);
-
-public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, Plugin>,
+public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, GraphicsResources>,
         IAutoShader<ModelShader.VertexConstants, Empty, ModelShader.InstanceVertexConstants, Empty> {
 
     public struct FragmentInput {
@@ -50,8 +48,8 @@ public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, 
         return Sample(SurfaceTexture, Sampler, input.TextureCoord);
     }
 
-    public static ICBMaterial<VPositionTexture> ConvertMaterial(Material mat, Plugin plugin)
-        => plugin.GraphicsResources.MaterialCache.GetMaterial<ModelShader, VPositionTexture>(
-            plugin.GraphicsResources.TextureCache.GetTexture(plugin.BaseFilePath + mat.TextureDiffuse.FilePath).AsEnumerableElement(),
-            plugin.GraphicsResources.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
+    public static ICBMaterial<VPositionTexture> ConvertMaterial(Material mat, string fileDir, GraphicsResources gfxRes)
+        => gfxRes.MaterialCache.GetMaterial<ModelShader, VPositionTexture>(
+            gfxRes.TextureCache.GetTexture(fileDir + '/' + Path.GetFileName(mat.TextureDiffuse.FilePath)).AsEnumerableElement(),
+            gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
 }

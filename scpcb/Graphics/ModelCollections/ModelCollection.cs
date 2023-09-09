@@ -31,7 +31,7 @@ public class ModelCollection : IConstantProvider<IWorldMatrixConstantMember, Mat
     protected virtual Transform GetUsedTransform(double interpolation) => WorldTransform;
 
     public ModelCollection(IReadOnlyList<ICBModel> meshes) {
-        foreach (var mesh in meshes) {
+        foreach (var mesh in meshes.DistinctBy(x => x.Constants)) {
             mesh.ConstantProviders.Add(this);
         }
 
