@@ -67,7 +67,6 @@ public class VideoScene : BaseScene {
     }
 
     protected override void DisposeImpl() {
-        _model.Material.Dispose();
         _model.Mesh.Dispose();
         base.DisposeImpl();
     }

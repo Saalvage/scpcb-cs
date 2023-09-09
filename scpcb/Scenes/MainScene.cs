@@ -7,6 +7,7 @@ using scpcb.Graphics.ModelCollections;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
 using scpcb.Map;
 using scpcb.Serialization;
@@ -26,10 +27,10 @@ public class MainScene : Scene3D {
 
     private readonly Matrix4x4 _proj;
     private readonly ConvexHull _hull;
-    private readonly ICBMaterial<ModelShader.Vertex> _renderMat;
-    private readonly ICBMaterial<ModelShader.Vertex> _otherMat;
-    private readonly ICBMaterial<ModelShader.Vertex> _logoMat;
-    private readonly ICBModel<ModelShader.Vertex> _scp173;
+    private readonly ICBMaterial<VPositionTexture> _renderMat;
+    private readonly ICBMaterial<VPositionTexture> _otherMat;
+    private readonly ICBMaterial<VPositionTexture> _logoMat;
+    private readonly ICBModel<VPositionTexture> _scp173;
 
     private readonly IRoomData _room008;
     private readonly IRoomData _room4Tunnels;
@@ -55,7 +56,7 @@ public class MainScene : Scene3D {
         video.Loop = true;
         AddEntity(video);
 
-        var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>();
+        var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
 
         // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
         _proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f);
@@ -86,7 +87,7 @@ public class MainScene : Scene3D {
             }
         }
 
-        var (scp173, hull) = new PluginAssimpMeshConverter<ModelShader.Vertex>(ModelShader.Vertex.ConvertVertex,
+        var (scp173, hull) = new PluginAssimpModelLoader<VPositionTexture>(VPositionTexture.ConvertVertex,
                 _ => _logoMat)
             .LoadMeshes(gfx, Physics, "Assets/173_2.b3d");
 
@@ -152,8 +153,8 @@ public class MainScene : Scene3D {
                     new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
                     1, sim.Shapes, _hull));
                 var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
-                AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<ModelShader.Vertex>(
-                    _gfxRes.ShaderCache.GetShader<ModelShader, ModelShader.Vertex>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
+                AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<VPositionTexture>(
+                    _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
                         0 => _renderMat,
                         1 => _otherMat,
                         2 => _logoMat,
