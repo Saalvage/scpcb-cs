@@ -1,5 +1,6 @@
 ﻿using BepuPhysics.Collidables;
 using scpcb.Physics;
+using scpcb.Physics.Primitives;
 using scpcb.Utility;
 
 namespace scpcb.Graphics.Caches;
@@ -7,7 +8,7 @@ namespace scpcb.Graphics.Caches;
 public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IModelLoader loader) : BaseCache<string, ModelCache.CacheEntry> {
     public class CacheEntry : Disposable {
         public IMeshMaterial[] Models { get; }
-        public ConvexHull Collision { get; }
+        public ICBShape<ConvexHull> Collision { get; }
 
         private readonly PhysicsResources _physics;
 
@@ -21,7 +22,7 @@ public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IMod
                 m.Mesh.Dispose();
             }
 
-            Collision.Dispose(_physics.BufferPool);
+            Collision.Dispose();
         }
     }
 

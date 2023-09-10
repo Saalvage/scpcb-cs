@@ -44,6 +44,7 @@ public class PhysicsResources : Disposable, ITickable {
     }
 
     protected override void DisposeImpl() {
+        ModelCache.Dispose();
         _threadDispatcher.Dispose();
         Simulation.Dispose();
         BufferPool.Clear();

@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
-using BepuPhysics;
 using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Physics;
+using scpcb.Physics.Primitives;
 using scpcb.Scenes;
 using scpcb.Utility;
 
@@ -11,9 +11,9 @@ namespace scpcb.Graphics.ModelCollections;
 public sealed class PhysicsModelCollection : InterpolatedModelCollection, IEntity {
     private readonly PhysicsResources _physics;
 
-    public BodyReference Body { get; }
+    public CBBody Body { get; }
 
-    public PhysicsModelCollection(PhysicsResources physics, BodyReference body, IReadOnlyList<ICBModel> models) : base(models) {
+    public PhysicsModelCollection(PhysicsResources physics, CBBody body, IReadOnlyList<ICBModel> models) : base(models) {
         _physics = physics;
         Body = body;
         physics.AfterUpdate += UpdateTransform;
@@ -35,7 +35,7 @@ public sealed class PhysicsModelCollection : InterpolatedModelCollection, IEntit
     }
 
     void IEntity.OnRemove(IScene scene) {
-        _physics.Simulation.Bodies.Remove(Body.Handle);
+        Body.Dispose();
         _physics.AfterUpdate -= UpdateTransform;
     }
 }

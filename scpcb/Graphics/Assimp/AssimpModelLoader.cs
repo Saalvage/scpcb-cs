@@ -3,6 +3,7 @@ using Assimp;
 using BepuPhysics.Collidables;
 using scpcb.Graphics.Primitives;
 using scpcb.Physics;
+using scpcb.Physics.Primitives;
 using Veldrid;
 using Mesh = Assimp.Mesh;
 
@@ -39,15 +40,15 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
         return new(new CBMesh<TVertex>(gfx, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32)), mat);
     }
 
-    public ConvexHull ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset) {
+    public ICBShape<ConvexHull> ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset) {
         ConvexHullHelper.CreateShape(meshes
             .SelectMany(x => x.Vertices)
             .Select(x => x / 10)
             .ToArray(), physics.BufferPool, out offset, out var hull);
-        return hull;
+        return new CBShape<ConvexHull>(physics.Simulation, hull);
     }
 
-    public (IMeshMaterial<TVertex>[] Models, ConvexHull Collision) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
         using var assimp = new AssimpContext();
         var fileDir = Path.GetDirectoryName(file);
         var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);

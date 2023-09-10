@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using BepuPhysics;
 using BepuPhysics.Collidables;
 using scpcb.Graphics;
 using scpcb.Graphics.Caches;
@@ -10,6 +9,8 @@ using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
 using scpcb.Map;
+using scpcb.Physics;
+using scpcb.Physics.Primitives;
 using scpcb.Serialization;
 using scpcb.Utility;
 using Veldrid;
@@ -26,7 +27,7 @@ public class MainScene : Scene3D {
     private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;
 
     private readonly Matrix4x4 _proj;
-    private readonly ConvexHull _hull;
+    private readonly ICBShape<ConvexHull> _hull;
     private readonly ICBMaterial<VPositionTexture> _renderMat;
     private readonly ICBMaterial<VPositionTexture> _otherMat;
     private readonly ICBMaterial<VPositionTexture> _logoMat;
@@ -147,11 +148,9 @@ public class MainScene : Scene3D {
         switch (e.Key) {
             case Key.Space: {
                 var sim = Physics.Simulation;
-                var bodyHandle = sim.Bodies.Add(BodyDescription.CreateConvexDynamic(
-                    new(_controller.Camera.Position, _controller.Camera.Rotation), new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation)),
-                    1, sim.Shapes, _hull));
-                var bodyRef = sim.Bodies.GetBodyReference(bodyHandle);
-                AddEntity(new PhysicsModelCollection(Physics, bodyRef, new[] { new CBModel<VPositionTexture>(
+                var body = _hull.CreateDynamic(new(_controller.Camera.Position, _controller.Camera.Rotation), 1);
+                body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation));
+                AddEntity(new PhysicsModelCollection(Physics, body, new[] { new CBModel<VPositionTexture>(
                     _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
                         0 => _renderMat,
                         1 => _otherMat,
