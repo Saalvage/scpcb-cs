@@ -233,9 +233,11 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         break;
 
                     case "soundemitter":
+                        var sound = reader.ReadInt32();
+                        var range = reader.ReadSingle();
                         //dic.Add("position", position);
-                        //dic.Add("sound", reader.ReadInt32());
-                        //dic.Add("range", reader.ReadSingle());
+                        //dic.Add("sound", sound);
+                        //dic.Add("range", range);
                         //entities.Add(new(null, dic));
                         break;
 
