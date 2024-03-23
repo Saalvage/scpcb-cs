@@ -55,7 +55,7 @@ public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
             args.EnsureCapacity(parameters.Length);
             args.Clear();
             foreach (var prop in parameters) {
-                var fromGlobals = globals.FirstOrDefault(x => x.GetType() == prop.ParameterType);
+                var fromGlobals = globals.FirstOrDefault(x => x.GetType().IsAssignableTo(prop.ParameterType));
                 if (fromGlobals != null) {
                     args.Add(fromGlobals);
                 } else if (prop.ParameterType == typeof(Transform)) {

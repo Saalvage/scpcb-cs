@@ -7,6 +7,7 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Map.Entities;
 using scpcb.Physics;
+using scpcb.Scenes;
 using scpcb.Utility;
 using Serilog;
 
@@ -18,8 +19,8 @@ public partial class RMeshRoomProvider : IRoomProvider {
 
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
-    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, string filename) {
-        var globals = new object[] { gfxRes, physics };
+    public IRoomData LoadRoom(IScene scene, GraphicsResources gfxRes, PhysicsResources physics, string filename) {
+        object[] globals = [scene, gfxRes, physics];
 
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
@@ -183,7 +184,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
             for (var i = 0; i < entityCount; i++) {
                 var typeName = reader.ReadB3DString();
                 float[] angles;
-                Vector3 position = Vector3.Zero;
+                var position = Vector3.Zero;
                 // The pinnacle of the rmesh spec.
                 if (typeName != "model") {
                     position = reader.ReadVector3() * ROOM_SCALE;

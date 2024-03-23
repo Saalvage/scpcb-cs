@@ -79,8 +79,8 @@ public class MainScene : Scene3D {
         billboard.Transform = billboard.Transform with { Position = new(2, 2, -0.1f) };
         AddEntity(billboard);
 
-        _room008 = _gfxRes.LoadRoom(Physics, "Assets/Rooms/008/008_opt.rmesh");
-        _room4Tunnels = _gfxRes.LoadRoom(Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
+        _room008 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/008/008_opt.rmesh");
+        _room4Tunnels = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {
                 var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : _room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),

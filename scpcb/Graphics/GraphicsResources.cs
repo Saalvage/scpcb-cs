@@ -4,6 +4,7 @@ using scpcb.Graphics.Textures;
 using scpcb.Map;
 using scpcb.Map.RoomProviders;
 using scpcb.Physics;
+using scpcb.Scenes;
 using scpcb.Utility;
 using Serilog;
 using Veldrid;
@@ -132,8 +133,8 @@ public class GraphicsResources : Disposable {
         _generateMipTextures.Add(texture);
     }
 
-    public IRoomData LoadRoom(PhysicsResources physics, string name)
-        => _roomProviderCollector.LoadRoom(this, physics, name);
+    public IRoomData LoadRoom(IScene scene, PhysicsResources physics, string name)
+        => _roomProviderCollector.LoadRoom(scene, this, physics, name);
 
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.

@@ -1,5 +1,6 @@
 ﻿using scpcb.Graphics;
 using scpcb.Physics;
+using scpcb.Scenes;
 
 namespace scpcb.Map.RoomProviders;
 
@@ -9,5 +10,5 @@ public interface IRoomProvider {
     /// </summary>
     public IEnumerable<string> SupportedExtensions { get; }
 
-    public IRoomData LoadRoom(GraphicsResources gfxRes, PhysicsResources physics, string path);
+    public IRoomData LoadRoom(IScene scene, GraphicsResources gfxRes, PhysicsResources physics, string path);
 }
