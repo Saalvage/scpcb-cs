@@ -2,13 +2,17 @@
 using System.Numerics;
 using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Utility;
+using Veldrid;
 
 #pragma warning disable CS8618
 
 namespace scpcb.Graphics.Shaders;
 
-public partial class UIShader : IAutoShader<Empty, Empty, Empty, Empty> {
+public partial class UIShader : IAutoShader<UIShader.VertexConstants, Empty, Empty, Empty> {
+    public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector3 Position, float Pad, Vector2 Scale)
+        : IPositionConstantMember, IUIProjectionMatrixConstantMember, IUIScaleConstantMember;
 
     public record struct Vertex([PositionSemantic] Vector2 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
 
@@ -23,7 +27,8 @@ public partial class UIShader : IAutoShader<Empty, Empty, Empty, Empty> {
     [VertexShader]
     public FragmentInput VS(Vertex input) {
         FragmentInput output;
-        output.Position = new(input.Position, 1, 1);
+        var originalPos = VertexBlock.Position + new Vector3(input.Position * VertexBlock.Scale, 1);
+        output.Position = new(Vector3.Transform(originalPos, VertexBlock.ProjectionMatrix), 1);
         output.TextureCoord = input.TextureCoord;
         return output;
     }

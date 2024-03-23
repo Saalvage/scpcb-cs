@@ -179,6 +179,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 }
             }
 
+            IMapEntityData data;
             var entityCount = reader.ReadInt32();
             var entities = new List<IMapEntityData>(entityCount);
             for (var i = 0; i < entityCount; i++) {
@@ -193,11 +194,12 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 }
                 switch (typeName) {
                     case "screen":
+                        data = new MapEntityData<Screen>(globals);
                         var imgpath = reader.ReadB3DString();
                         if (position != Vector3.Zero) {
-                            //dic.Add("position", position);
-                            //dic.Add("imgpath", imgpath);
-                            //entities.Add(new(null, dic));
+                            data.AddData("position", position);
+                            data.AddData("imgpath", imgpath);
+                            entities.Add(data);
                         }
                         break;
 
@@ -272,7 +274,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         var scale = reader.ReadVector3() * 10f * ROOM_SCALE;
 
                         if (file != "") {
-                            var data = new MapEntityData<Prop>(globals);
+                            data = new MapEntityData<Prop>(globals);
                             data.AddData("file", file);
                             data.AddData("position", position);
                             data.AddData("rotation", Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll));

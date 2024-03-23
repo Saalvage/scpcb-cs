@@ -13,7 +13,7 @@ namespace scpcb.Graphics;
 
 public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, IConstantProvider<IColorConstantMember, Vector3>,
         ISharedMeshProvider<Billboard, VPositionTexture> {
-    Vector3 I3DModel.Position => Transform.Position;
+    Vector3 I3DEntity.Position => Transform.Position;
     public Transform Transform { get; set; } = new();
 
     public Vector3 Color { get; set; } = Vector3.One;

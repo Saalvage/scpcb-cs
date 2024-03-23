@@ -98,7 +98,7 @@ public class BaseScene : Disposable, IScene {
         if (shouldDispose && e is IDisposable d) { d.Dispose(); }
     }
 
-    private void DealWithEntityBuffers() {
+    protected void DealWithEntityBuffers() {
         foreach (var e in _entitiesToAdd) {
             HandleAddEntity(e);
         }

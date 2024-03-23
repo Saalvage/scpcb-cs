@@ -8,6 +8,7 @@ public interface IRenderTarget {
     void Start();
     void End();
     void Render(ICBModel model, float interp);
+    void ClearDepthStencil();
 }
 
 public class RenderTarget : Disposable, IRenderTarget {
@@ -30,7 +31,7 @@ public class RenderTarget : Disposable, IRenderTarget {
         _commands.Begin();
         _commands.SetFramebuffer(Framebuffer);
         _commands.ClearColorTarget(0, RgbaFloat.Grey);
-        _commands.ClearDepthStencil(1);
+        ClearDepthStencil();
     }
 
     public virtual void End() {
@@ -72,6 +73,10 @@ public class RenderTarget : Disposable, IRenderTarget {
         model.Constants?.UpdateAndSetBuffers(_commands, _lastShader.InstanceConstantSlot);
 
         _lastMesh.Draw(_commands);
+    }
+
+    public void ClearDepthStencil() {
+        _commands.ClearDepthStencil(1);
     }
 
     protected override void DisposeImpl() {

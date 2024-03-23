@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using BepuPhysics.Collidables;
 using scpcb.Graphics;
 using scpcb.Graphics.Caches;
@@ -8,6 +9,7 @@ using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
+using scpcb.Graphics.UserInterface;
 using scpcb.Map;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
@@ -21,12 +23,16 @@ public class MainScene : Scene3D {
     private readonly Game _game;
     private readonly GraphicsResources _gfxRes;
     
-    private readonly Player _controller = new();
+    private readonly Player _player;
 
-    private readonly Dictionary<Key, bool> _keysDown = new();
+    private readonly Dictionary<Key, bool> _keysDown = [];
     private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;
 
+    private readonly Dictionary<MouseButton, bool> _mouseButtonsDown = [];
+    private bool MouseButtonDown(MouseButton x) => _mouseButtonsDown.TryGetValue(x, out var y) && y;
+
     private readonly Matrix4x4 _proj;
+    private readonly Matrix4x4 _uiProj;
     private readonly ICBShape<ConvexHull> _hull;
     private readonly ICBMaterial<VPositionTexture> _renderMat;
     private readonly ICBMaterial<VPositionTexture> _otherMat;
@@ -39,6 +45,8 @@ public class MainScene : Scene3D {
     private readonly RenderTexture _renderTexture;
     private readonly ModelCache.CacheEntry _cacheEntry;
 
+    private readonly HUD _hud;
+
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
         _gfxRes = game.GraphicsResources;
@@ -47,7 +55,9 @@ public class MainScene : Scene3D {
 
         AddEntity(new DebugLine(this, _gfxRes, TimeSpan.FromSeconds(5), new(0, 0, 0), new(1, 1, 1), new(5, 1, 1)));
 
-        Camera = _controller.Camera;
+        _player = new(this);
+        Camera = _player.Camera;
+        AddEntity(_player);
 
         _renderTexture = new(_gfxRes, 100, 100, true);
 
@@ -58,12 +68,29 @@ public class MainScene : Scene3D {
         video.Loop = true;
         AddEntity(video);
 
-        var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
+        var ui = new UIManager(_gfxRes);
+        var uiElem = new TextureElement(ui, _gfxRes.TextureCache.GetTexture(Color.Aqua));
+        ui.Root.Children.Add(uiElem);
+        uiElem.Alignment = Alignment.TopRight;
+        uiElem.Position = new(-10, 0);
+        uiElem.PixelSize = new(500, 50);
+
+        var uiElem2 = new TextureElement(ui, _gfxRes.TextureCache.GetTexture(Color.GreenYellow));
+        ui.Root.Children[0].Children.Add(uiElem2);
+        uiElem2.Alignment = Alignment.BottomRight;
+        uiElem2.PixelSize = new(10, 10);
+        AddEntity(ui);
+
+        _hud = new(ui);
+        AddEntity(_hud);
 
         // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
         _proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f);
+        _uiProj = Matrix4x4.CreateOrthographic(_gfxRes.Window.Width, _gfxRes.Window.Height, -100, 100);
 
         Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
+
+        var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
 
         var coolTexture = _gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
         _logoMat = _gfxRes.MaterialCache.GetMaterial(modelShader, video.Texture.AsEnumerableElement(),
@@ -78,6 +105,9 @@ public class MainScene : Scene3D {
         var billboard = Billboard.Create(_gfxRes, _renderTexture);
         billboard.Transform = billboard.Transform with { Position = new(2, 2, -0.1f) };
         AddEntity(billboard);
+
+        // TODO: Remove call and make method private again.
+        DealWithEntityBuffers();
 
         _room008 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/008/008_opt.rmesh");
         _room4Tunnels = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
@@ -95,11 +125,13 @@ public class MainScene : Scene3D {
 
         window.KeyDown += HandleKeyDown;
         window.KeyUp += HandleKeyUp;
+        window.MouseDown += HandleMouseEvent;
+        window.MouseUp += HandleMouseEvent;
     }
 
     public override void Update(float delta) {
         if (_gfxRes.Window.MouseDelta != Vector2.Zero) {
-            _controller.HandleMouse(_gfxRes.Window.MouseDelta * 0.01f);
+            _player.HandleMouse(_gfxRes.Window.MouseDelta * 0.01f);
         }
 
         var dir = Vector2.Zero;
@@ -109,11 +141,12 @@ public class MainScene : Scene3D {
         if (KeyDown(Key.D)) dir -= Vector2.UnitX;
 
         if (dir != Vector2.Zero) {
-            _controller.HandleMove(Vector2.Normalize(dir), delta);
+            _player.HandleMove(Vector2.Normalize(dir), delta);
         }
 
         foreach (var sh in _gfxRes.ShaderCache.ActiveShaders) {
             sh.Constants?.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(_proj);
+            sh.Constants?.SetValue<IUIProjectionMatrixConstantMember, Matrix4x4>(_uiProj);
         }
 
         base.Update(delta);
@@ -123,21 +156,29 @@ public class MainScene : Scene3D {
         // TODO: This should offer great opportunities for optimization & parallelization!
         // On second consideration: Most render targets will differ in e.g. view position
         // meaning potential for optimization might not actually be there. :(
+
+        // TODO: This also messes with objects that utilize non-instance shader constants
+        // on a per-instance basis (e.g. for objects intended to be very light weight (UI components))
+        // which is why it's been disabled for now. Either the usage of shader constants in the manner
+        // described above or the parallelism here needs to be revisited.
+
         _renderTexture.Start();
-        var a = Task.Run(() => {
+        //var a = Task.Run(() => {
             base.Render(_renderTexture, interp);
             _renderTexture.End();
-        });
-        var b = Task.Run(() => {
+        //});
+        //var b = Task.Run(() => {
             base.Render(target, interp);
-        });
-        Task.WaitAll(a, b);
+        //});
+        //Task.WaitAll(a, b);
     }
 
     public override void OnLeave() {
         // TODO: This sucks! Might as well eliminate the entire method.
         _gfxRes.Window.KeyDown -= HandleKeyDown;
         _gfxRes.Window.KeyUp -= HandleKeyUp;
+        _gfxRes.Window.MouseDown -= HandleMouseEvent;
+        _gfxRes.Window.MouseUp -= HandleMouseEvent;
     }
 
     private static string? _serialized;
@@ -147,9 +188,8 @@ public class MainScene : Scene3D {
 
         switch (e.Key) {
             case Key.Space: {
-                var sim = Physics.Simulation;
-                var body = _hull.CreateDynamic(new(_controller.Camera.Position, _controller.Camera.Rotation), 1);
-                body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _controller.Camera.Rotation));
+                var body = _hull.CreateDynamic(new(_player.Camera.Position, _player.Camera.Rotation), 1);
+                body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
                 AddEntity(new PhysicsModelCollection(Physics, body, new[] { new CBModel<VPositionTexture>(
                     _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
                         0 => _renderMat,
@@ -162,8 +202,8 @@ public class MainScene : Scene3D {
                 _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
                 break;
             case Key.AltLeft: {
-                var from = _controller.Camera.Position;
-                var to = from + Vector3.Transform(Vector3.UnitZ, _controller.Camera.Rotation) * 5f;
+                var from = _player.Camera.Position;
+                var to = from + Vector3.Transform(Vector3.UnitZ, _player.Camera.Rotation) * 5f;
                 var line = new DebugLine(_gfxRes, from, to);
                 line.Color = Physics.RayCastVisible(from, to) ? new(1, 0, 0) : new(0, 1, 0);
                 AddEntity(line);
@@ -187,6 +227,21 @@ public class MainScene : Scene3D {
 
     private void HandleKeyUp(KeyEvent e) {
         _keysDown[e.Key] = false;
+    }
+
+    private void HandleMouseEvent(MouseEvent e) {
+        _mouseButtonsDown[e.MouseButton] = e.Down;
+
+        if (e.Down) {
+            switch (e.MouseButton) {
+                case MouseButton.Left:
+                    _player.TryPick();
+                    break;
+                case MouseButton.Right:
+                    _hud.ClearItem();
+                    break;
+            }
+        }
     }
 
     protected override void DisposeImpl() {
