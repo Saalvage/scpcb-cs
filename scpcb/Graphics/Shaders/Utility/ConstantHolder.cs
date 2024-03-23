@@ -137,7 +137,7 @@ public class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConst
 
                     var differentUntil = sizeof(T) - 1;
                     for (; differentUntil > offset; differentUntil--) {
-                        if (currBytes[differentUntil] == prevBytes[differentUntil]) {
+                        if (currBytes[differentUntil] != prevBytes[differentUntil]) {
                             break;
                         }
                     }
