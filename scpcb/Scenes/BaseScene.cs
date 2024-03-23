@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using scpcb.Entities;
 using scpcb.Graphics.Textures;
 using scpcb.Utility;
@@ -24,7 +23,7 @@ public class BaseScene : Disposable, IScene {
     private readonly Dictionary<Type, IListWrapper> _entitiesByType = new();
 
     private readonly List<IEntity> _entitiesToAdd = new();
-    private readonly List<(IEntity, bool)> _entitiesToRemove = new();
+    private readonly List<(IEntity, bool ShouldDispose)> _entitiesToRemove = new();
 
     public IEnumerable<IEntity> Entities => _entities;
 
@@ -52,7 +51,6 @@ public class BaseScene : Disposable, IScene {
         other?.AddEntity(entity);
     }
 
-    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
     public void MoveEntities(IEnumerable<IEntity> entities, IScene? other = null) {
         _entitiesToRemove.AddRange(entities.Select(x => (x, false)));
         other?.AddEntities(entities);

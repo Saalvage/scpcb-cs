@@ -6,7 +6,6 @@ using scpcb.Graphics.Caches;
 using scpcb.Graphics.ModelCollections;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
-using scpcb.Physics.Primitives;
 using scpcb.Scenes;
 using scpcb.Serialization;
 using scpcb.Utility;

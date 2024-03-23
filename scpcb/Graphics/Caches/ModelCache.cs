@@ -10,10 +10,7 @@ public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IMod
         public IMeshMaterial[] Models { get; }
         public ICBShape<ConvexHull> Collision { get; }
 
-        private readonly PhysicsResources _physics;
-
         public CacheEntry(IModelLoader converter, GraphicsResources gfxRes, PhysicsResources physics, string file) {
-            _physics = physics;
             (Models, Collision) = converter.LoadMeshes(gfxRes.GraphicsDevice, physics, file);
         }
 
