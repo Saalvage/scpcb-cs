@@ -11,7 +11,7 @@ public interface ICamera : IConstantProvider<IViewMatrixConstantMember, Matrix4x
 
     Matrix4x4 IConstantProvider<IViewMatrixConstantMember, Matrix4x4>.GetValue(float interp) => ViewMatrix;
     Vector3 IConstantProvider<IViewPositionConstantMember, Vector3>.GetValue(float interp) => Position;
-};
+}
 
 public class PerspectiveCamera : ICamera {
     private Vector3 _pos;

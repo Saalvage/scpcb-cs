@@ -10,6 +10,8 @@ namespace scpcb.Graphics.UserInterface;
 public class UIManager : Disposable, IRenderable {
     public IUIElement Root { get; }
 
+    public float MenuScale { get; }
+
     public int Priority => 200000;
 
     public ICBMesh<UIShader.Vertex> UIMesh { get; }
@@ -25,6 +27,7 @@ public class UIManager : Disposable, IRenderable {
             new(new(0.5f, 0.5f), new(1, 0)),
         ], [0, 1, 2, 3, 2, 1]);
         Root = new UIElement { PixelSize = new(gfxRes.Window.Width, gfxRes.Window.Height) };
+        MenuScale = Math.Min(gfxRes.Window.Height, gfxRes.Window.Width) / 1024f;
     }
 
     public void Render(IRenderTarget target, float interp) {

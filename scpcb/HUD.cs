@@ -8,7 +8,7 @@ namespace scpcb;
 public class HUD : Disposable, IEntity {
     private readonly UIManager _ui;
 
-    private IUIElement? _singleHeadsUpItem;
+    private TextureElement? _singleHeadsUpItem;
 
     public HUD(UIManager ui) {
         _ui = ui;
@@ -16,7 +16,8 @@ public class HUD : Disposable, IEntity {
 
     public void SetItem(ICBTexture texture) {
         ClearItem();
-        _singleHeadsUpItem = new TextureElement(_ui, texture) { Alignment = Alignment.Center, Z = 1 };
+        _singleHeadsUpItem = new(_ui, texture) { Alignment = Alignment.Center, Z = 1 };
+        _singleHeadsUpItem.PixelSize *= _ui.MenuScale;
         _ui.Root.Children.Add(_singleHeadsUpItem);
     }
 
