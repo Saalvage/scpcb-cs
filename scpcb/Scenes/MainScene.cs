@@ -119,7 +119,7 @@ public class MainScene : Scene3D {
             }
         }
 
-        _cacheEntry = Physics.ModelCache.GetModel("Assets/173_2.b3d"); ;
+        _cacheEntry = Physics.ModelCache.GetModel("Assets/173_2.b3d");
         _scp173 = _cacheEntry.Models.Instantiate().OfType<ICBModel<VPositionTexture>>().First();
         _hull = _cacheEntry.Collision;
 

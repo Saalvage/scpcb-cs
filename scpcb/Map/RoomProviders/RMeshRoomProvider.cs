@@ -247,20 +247,8 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         break;
 
                     case "playerstart":
-                        angles = reader.ReadB3DString()
-                            .Split(' ')
-                            .Select(x =>
-                                float.TryParse(x, out var y)
-                                    ? y
-                                    : throw new ArgumentException("Invalid playerstart rotation!"))
-                            .ToArray();
-                        if (angles.Length != 3) {
-                            throw new ArgumentException("Invalid playerstart angles!");
-                        }
-
-                        //dic.Add("position", position);
-                        //dic.Add("rotation", Quaternion.CreateFromYawPitchRoll(angles[1], angles[0], angles[2]));
-                        //entities.Add(new(null, dic));
+                        // Unused, don't bother parsing angles.
+                        reader.ReadB3DString();
                         break;
 
                     case "model":
