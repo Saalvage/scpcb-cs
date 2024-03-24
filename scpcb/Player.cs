@@ -65,7 +65,7 @@ public class Player : IPlayer, IUpdatable {
             }
 
             if (newClosestPickable != null) {
-                _currHand = new TextureElement(ui, newClosestPickable.GetHandTexture()) { Alignment = Alignment.Center };
+                _currHand = new TextureElement(ui.GraphicsResources, newClosestPickable.GetHandTexture()) { Alignment = Alignment.Center };
                 ui.Root.Children.Add(_currHand);
             }
         }

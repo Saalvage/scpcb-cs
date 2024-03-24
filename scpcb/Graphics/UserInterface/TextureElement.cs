@@ -3,17 +3,17 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Textures;
+using scpcb.Graphics.Caches;
 
 namespace scpcb.Graphics.UserInterface;
 
-public class TextureElement : UIElement {
+public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIShader.Vertex> {
     private readonly ICBModel _model;
 
-    public TextureElement(UIManager manager, ICBTexture texture) {
-        var gfxRes = manager.GraphicsResources;
+    public TextureElement(GraphicsResources gfxRes, ICBTexture texture) {
         _model = new CBModel<UIShader.Vertex>(null,
             gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>([texture], [gfxRes.ClampAnisoSampler]),
-            manager.UIMesh);
+            gfxRes.MeshCache.GetMesh<TextureElement, UIShader.Vertex>());
         PixelSize = new(texture.Width, texture.Height);
     }
 
@@ -22,4 +22,12 @@ public class TextureElement : UIElement {
         _model.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
         target.Render(_model, 0f);
     }
+
+    public static ICBMesh<UIShader.Vertex> CreateSharedMesh(GraphicsResources gfxRes)
+        => new CBMesh<UIShader.Vertex>(gfxRes.GraphicsDevice, [
+            new(new(-0.5f, -0.5f), new(0, 1)),
+            new(new(0.5f, -0.5f), new(1, 1)),
+            new(new(-0.5f, 0.5f), new(0, 0)),
+            new(new(0.5f, 0.5f), new(1, 0)),
+        ], [0, 1, 2, 3, 2, 1]);
 }

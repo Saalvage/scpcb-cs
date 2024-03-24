@@ -1,11 +1,10 @@
 ﻿using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.UserInterface;
-using scpcb.Utility;
 
 namespace scpcb;
 
-public class HUD : Disposable, IEntity {
+public class HUD : IEntity {
     private readonly UIManager _ui;
 
     private TextureElement? _singleHeadsUpItem;
@@ -16,7 +15,7 @@ public class HUD : Disposable, IEntity {
 
     public void SetItem(ICBTexture texture) {
         ClearItem();
-        _singleHeadsUpItem = new(_ui, texture) { Alignment = Alignment.Center, Z = 1 };
+        _singleHeadsUpItem = new(_ui.GraphicsResources, texture) { Alignment = Alignment.Center, Z = 1 };
         _singleHeadsUpItem.PixelSize *= _ui.MenuScale;
         _ui.Root.Children.Add(_singleHeadsUpItem);
     }
@@ -26,9 +25,5 @@ public class HUD : Disposable, IEntity {
             _ui.Root.Children.Remove(_singleHeadsUpItem);
             _singleHeadsUpItem = null;
         }
-    }
-
-    protected override void DisposeImpl() {
-        _ui.Dispose();
     }
 }

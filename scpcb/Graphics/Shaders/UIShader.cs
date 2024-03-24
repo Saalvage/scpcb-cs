@@ -4,7 +4,6 @@ using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Utility;
-using Veldrid;
 
 #pragma warning disable CS8618
 

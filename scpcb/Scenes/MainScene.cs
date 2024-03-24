@@ -68,16 +68,16 @@ public class MainScene : Scene3D {
         AddEntity(video);
 
         var ui = new UIManager(_gfxRes);
-        var uiElem = new TextureElement(ui, _gfxRes.TextureCache.GetTexture(Color.Aqua));
-        ui.Root.Children.Add(uiElem);
+        var uiElem = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.Aqua));
         uiElem.Alignment = Alignment.TopRight;
         uiElem.Position = new(-10, 0);
         uiElem.PixelSize = new(500, 50);
+        ui.Root.Children.Add(uiElem);
 
-        var uiElem2 = new TextureElement(ui, _gfxRes.TextureCache.GetTexture(Color.GreenYellow));
-        ui.Root.Children[0].Children.Add(uiElem2);
+        var uiElem2 = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.GreenYellow));
         uiElem2.Alignment = Alignment.BottomRight;
         uiElem2.PixelSize = new(10, 10);
+        ui.Root.Children[0].Children.Add(uiElem2);
         AddEntity(ui);
 
         _hud = new(ui);

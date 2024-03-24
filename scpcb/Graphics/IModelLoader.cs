@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using BepuPhysics.Collidables;
+﻿using BepuPhysics.Collidables;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
 using System.Numerics;
