@@ -78,7 +78,7 @@ public class GraphicsResources : Disposable {
         Window.CursorVisible = false;
 
         var backend = GraphicsBackend.Direct3D11;
-        Log.Information("Starting game {backend} ({width}x{height})", backend, width, height);
+        Log.Information("Starting game {backend} ({width}x{height}) DEBUG={debug}", backend, width, height, debug);
 
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new() {
             Debug = Debug,

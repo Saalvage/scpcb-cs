@@ -41,7 +41,8 @@ public class UIElement : IUIElement {
         var distanceToEdge = -parent.PixelSize / 2 + PixelSize / 2;
         drawPos += direction * distanceToEdge;
 
-        drawPos += Position;
+        drawPos.X += Position.X;
+        drawPos.Y -= Position.Y; // Positive Y = down.
 
         DrawInternal(target, drawPos);
         foreach (var child in Children) {
