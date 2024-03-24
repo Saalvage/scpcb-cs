@@ -114,7 +114,7 @@ public class MainScene : Scene3D {
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {
                 var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : _room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),
-                    Quaternion.CreateFromYawPitchRoll(i % 2 == 0 ? MathF.PI : 0 + j % 2 == 0 ? MathF.PI : 0, 0, 0));
+                    Quaternion.CreateFromYawPitchRoll((i % 2 == 0 ? MathF.PI : 0) + (j % 2 == 0 ? MathF.PI : 0), 0, 0));
                 AddEntity(room);
             }
         }
