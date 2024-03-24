@@ -48,7 +48,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
         return new CBShape<ConvexHull>(physics.Simulation, hull);
     }
 
-    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision, Vector3 centerOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision, Vector3 CenterOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
         using var assimp = new AssimpContext();
         var fileDir = Path.GetDirectoryName(file);
         var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
