@@ -15,15 +15,15 @@ public interface IReferenceResolverImpl : IReferenceResolver {
 }
 
 public class ReferenceResolver : Disposable, IReferenceResolverImpl {
-    private readonly Dictionary<long, List<Action<IEntity>>> _hashReferences = new();
+    private readonly Dictionary<long, List<Action<IEntity>>> _hashReferences = [];
 
-    private readonly Dictionary<long, IEntity> _entities = new();
+    private readonly Dictionary<long, IEntity> _entities = [];
 
     public void Resolve(long id, Action<IEntity> onResolve) {
         if (_entities.TryGetValue(id, out var entity)) {
             onResolve(entity);
         } else {
-            _hashReferences[id] = _hashReferences.TryGetValue(id, out var list) ? list : new();
+            _hashReferences[id] = _hashReferences.TryGetValue(id, out var list) ? list : [];
             _hashReferences[id].Add(onResolve);
         }
     }

@@ -34,7 +34,7 @@ public class HierarchicalTransform {
         }
     }
 
-    private readonly List<HierarchicalTransform> _children = new();
+    private readonly List<HierarchicalTransform> _children = [];
     public IReadOnlyList<HierarchicalTransform> Children => _children;
 
     public IEnumerable<HierarchicalTransform> Descendants {

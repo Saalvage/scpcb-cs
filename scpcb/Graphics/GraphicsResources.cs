@@ -56,7 +56,7 @@ public class GraphicsResources : Disposable {
 
     private readonly RoomProviderCollector _roomProviderCollector = new();
 
-    private readonly List<IMipmappable> _generateMipTextures = new();
+    private readonly List<IMipmappable> _generateMipTextures = [];
 
     public GraphicsResources(int width, int height, bool debug =
 #if DEBUG

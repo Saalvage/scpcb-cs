@@ -14,7 +14,7 @@ public interface IMapEntityData {
 }
 
 public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
-    private readonly Dictionary<string, object> _values = new();
+    private readonly Dictionary<string, object> _values = [];
 
     private static readonly object _transformMarker = new();
 
@@ -45,7 +45,7 @@ public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
     }
 
     public (ConstructorInfo Ctor, object[] Args, Transform LocalTransform) DoThing(object[] globals) {
-        List<object> args = new();
+        List<object> args = [];
         // TODO: Dealing with transforms like this sucks balls!
         var transform = new Transform((Vector3)_values["position"],
             _values.TryGetValue("rotation", out var rot) ? (Quaternion)rot : Quaternion.Identity,

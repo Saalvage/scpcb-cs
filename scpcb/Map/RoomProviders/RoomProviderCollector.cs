@@ -7,12 +7,12 @@ using Serilog;
 namespace scpcb.Map.RoomProviders;
 
 public class RoomProviderCollector {
-    private readonly List<IRoomProvider> _providers = new();
+    private readonly List<IRoomProvider> _providers;
 
     public RoomProviderCollector() {
         _providers = Helpers.GetAllLoadedTypes()
                 .Where(x => x.GetInterfaces().Any(x => x == typeof(IRoomProvider)))
-                .Select(x => x.GetConstructor(Array.Empty<Type>()))
+                .Select(x => x.GetConstructor([]))
                 .Where(x => x is not null)
             .Select(x => (IRoomProvider)x!.Invoke(null))
             .ToList();

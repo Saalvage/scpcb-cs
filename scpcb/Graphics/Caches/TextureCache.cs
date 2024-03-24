@@ -6,8 +6,8 @@ using Serilog;
 namespace scpcb.Graphics.Caches;
 
 public class TextureCache : Disposable {
-    private readonly WeakDictionary<string, ICBTexture> _textures = new();
-    private readonly WeakDictionary<Color, ICBTexture> _colorTextures = new();
+    private readonly WeakDictionary<string, ICBTexture> _textures = [];
+    private readonly WeakDictionary<Color, ICBTexture> _colorTextures = [];
 
     private readonly GraphicsResources _gfxRes;
 

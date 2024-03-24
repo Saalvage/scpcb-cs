@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace scpcb.Utility; 
 
 public class WeakDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TValue : class {
-    private readonly Dictionary<TKey, WeakReference<TValue>> _dict = new();
+    private readonly Dictionary<TKey, WeakReference<TValue>> _dict = [];
 
     private void CleanUp() {
         foreach (var (key, value) in _dict) {

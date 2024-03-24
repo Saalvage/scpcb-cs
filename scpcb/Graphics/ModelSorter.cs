@@ -8,8 +8,8 @@ using scpcb.Scenes;
 namespace scpcb.Graphics;
 
 public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
-    private readonly List<I3DModel> _opaque = new();
-    private readonly List<I3DModel> _transparent = new();
+    private readonly List<I3DModel> _opaque = [];
+    private readonly List<I3DModel> _transparent = [];
 
     private readonly Func<float, Vector3> _getPos;
 

@@ -19,11 +19,11 @@ public class BaseScene : Disposable, IScene {
             => List.BinarySearch((T)entity);
     }
 
-    private readonly List<IEntity> _entities = new();
-    private readonly Dictionary<Type, IListWrapper> _entitiesByType = new();
+    private readonly List<IEntity> _entities = [];
+    private readonly Dictionary<Type, IListWrapper> _entitiesByType = [];
 
-    private readonly List<IEntity> _entitiesToAdd = new();
-    private readonly List<(IEntity, bool ShouldDispose)> _entitiesToRemove = new();
+    private readonly List<IEntity> _entitiesToAdd = [];
+    private readonly List<(IEntity, bool ShouldDispose)> _entitiesToRemove = [];
 
     public IEnumerable<IEntity> Entities => _entities;
 
