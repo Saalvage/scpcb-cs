@@ -81,7 +81,7 @@ public class RoomInstance : IRoomInstance {
 
         Entites = mapEntities;
 
-        // TODO: This illustrates the current shittyness of the current design.
+        // TODO: This illustrates the shittyness of the current design.
         foreach (var m in Models) {
             m.Model.ConstantProviders.Add(this);
         }

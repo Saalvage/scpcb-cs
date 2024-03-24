@@ -189,8 +189,8 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 // The pinnacle of the rmesh spec.
                 if (typeName != "model") {
                     position = reader.ReadVector3() * ROOM_SCALE;
-                    // I have no idea why, but we have to flip the Z here!
-                    position.Z = -position.Z;
+                    // Not entirely sure why we need to flip here, we do flip the mesh x above, still seems weird...
+                    position.X = -position.X;
                 }
                 switch (typeName) {
                     case "screen":

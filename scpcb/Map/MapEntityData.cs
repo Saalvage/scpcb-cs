@@ -27,7 +27,7 @@ public class MapEntityData<T> : IMapEntityData where T : IMapEntity {
 
     public IMapEntity Instantiate(GraphicsResources gfxRes, PhysicsResources physics, Transform roomTransform) {
         var (ctor, args, transform) = _ctor;
-        object boxedTransform = new Transform(roomTransform.Position + transform.Position,
+        object boxedTransform = new Transform(roomTransform.Position + Vector3.Transform(transform.Position, roomTransform.Rotation),
             roomTransform.Rotation * transform.Rotation,
             roomTransform.Scale * transform.Scale);
         for (var i = 0; i < args.Length; i++) {
