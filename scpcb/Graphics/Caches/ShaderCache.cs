@@ -35,7 +35,8 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
         return newShader;
     }
 
-    private static readonly Type[] GENERATED_SHADER_CTOR_ARG_TYPES = { typeof(GraphicsResources), typeof(ShaderParameters?) };
+    private static readonly Type[] GENERATED_SHADER_CTOR_ARG_TYPES = [typeof(GraphicsResources), typeof(ShaderParameters?),
+    ];
 
     private ICBShader CreateGeneratedShader<TShader>(Type vertexType, ShaderParameters? shaderParameterOverrides)
             where TShader : IAutoShader {
@@ -52,7 +53,7 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
             );
         var ctor = parameterizedType.GetConstructor(GENERATED_SHADER_CTOR_ARG_TYPES);
         Debug.Assert(ctor != null, "Could not find required ctor on GeneratedShader!?");
-        return (ICBShader)ctor.Invoke(new object?[] { _gfxRes, shaderParameterOverrides });
+        return (ICBShader)ctor.Invoke([_gfxRes, shaderParameterOverrides]);
     }
 
     private Type GetVertexTypeFromVS<TShader>()

@@ -77,12 +77,15 @@ public class GraphicsResources : Disposable {
 
         Window.CursorVisible = false;
 
+        var backend = GraphicsBackend.Direct3D11;
+        Log.Information("Starting game {backend} ({width}x{height})", backend, width, height);
+
         GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new() {
             Debug = Debug,
             SwapchainDepthFormat = PixelFormat.D24_UNorm_S8_UInt,
             PreferStandardClipSpaceYDirection = true,
             PreferDepthRangeZeroToOne = true,
-        }, GraphicsBackend.Direct3D11);
+        }, backend);
 
         if (GraphicsDevice.IsClipSpaceYInverted) {
             throw new("Graphics device does not support a correctly oriented clip space, this is currently unsupported!");
@@ -113,14 +116,14 @@ public class GraphicsResources : Disposable {
 
         GraphicsDevice.GetOpenGLInfo(out var info);
         _preferredShaderFileExtension = GraphicsDevice.BackendType switch {
-            GraphicsBackend.Direct3D11 => new [] { "hlsl.dxbc", "hlsl" },
-            GraphicsBackend.OpenGL => new[] { "330.glsl" }, //TODO: Reinvestigate?
+            GraphicsBackend.Direct3D11 => ["hlsl.dxbc", "hlsl"],
+            GraphicsBackend.OpenGL => ["330.glsl"], //TODO: Reinvestigate?
                 //GetOpenGLShaderVersion() >= 450
                 //? "450.glsl" + (/*info.Extensions.Contains("GL_ARB_gl_spirv") ? ".spv" :*/ "")
                 //: "330.glsl",
-            GraphicsBackend.OpenGLES => new[] { "300.glsles" },
-            GraphicsBackend.Vulkan => new [] { "450.glsl.spv" },
-            GraphicsBackend.Metal => new [] { "metallib" },
+            GraphicsBackend.OpenGLES => ["300.glsles"],
+            GraphicsBackend.Vulkan => ["450.glsl.spv"],
+            GraphicsBackend.Metal => ["metallib"],
         };
 
         int GetOpenGLShaderVersion()
@@ -139,7 +142,7 @@ public class GraphicsResources : Disposable {
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.
     // Can we support other GLSL versions?
-    private static readonly string[] _fallbackShaderFileExtension = { "450.glsl.spv", "450.glsl" };
+    private static readonly string[] _fallbackShaderFileExtension = ["450.glsl.spv", "450.glsl"];
 
     /// <summary>
     /// Gets the best supported extension for the given shader.

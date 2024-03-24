@@ -135,10 +135,10 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
             // TODO: Veldrid.SPIRV seems to translate away all entrypoint names, so why does it even ask for them??
             ? _gfx.ResourceFactory.CreateFromSpirv(new(ShaderStages.Vertex, vertexCode, "main"),
                 new ShaderDescription(ShaderStages.Fragment, fragmentCode, "main"))
-            : new[] {
+            : [
                 _gfx.ResourceFactory.CreateShader(new(ShaderStages.Vertex, vertexCode, vertexEntryPoint, gfxRes.Debug)),
                 _gfx.ResourceFactory.CreateShader(new(ShaderStages.Fragment, fragmentCode, fragmentEntryPoint, gfxRes.Debug)),
-            };
+            ];
 
         _constLayout =
             ConstantHolder<TVertConstants, TFragConstants>.TryCreateLayout(_gfx, vertConstantNames, fragConstantNames);
@@ -176,9 +176,9 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
                 .Concat(_instanceConstLayout.AsEnumerableElementOrEmpty())
                 .Concat(_textureLayout.AsEnumerableElementOrEmpty())
                 .ToArray(),
-            ShaderSet = new(new[] {
+            ShaderSet = new([
                 Helpers.GetDescriptionFromType<TVertex>(),
-            }, _shaders),
+            ], _shaders),
             Outputs = _gfx.SwapchainFramebuffer.OutputDescription,
         });
     }
