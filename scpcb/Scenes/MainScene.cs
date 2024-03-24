@@ -54,8 +54,6 @@ public class MainScene : Scene3D {
 
         AddEntity(Physics);
 
-        AddEntity(new DebugLine(this, _gfxRes, TimeSpan.FromSeconds(5), new(0, 0, 0), new(1, 1, 1), new(5, 1, 1)));
-
         _player = new(this);
         Camera = _player.Camera;
         AddEntity(_player);
@@ -104,7 +102,10 @@ public class MainScene : Scene3D {
             gfx.PointSampler.AsEnumerableElement());
 
         var billboard = Billboard.Create(_gfxRes, _renderTexture);
-        billboard.Transform = billboard.Transform with { Position = new(2, 2, -0.1f) };
+        billboard.Transform = billboard.Transform with {
+            Position = new(-2, 2, -0.1f),
+            Rotation = Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0),
+        };
         AddEntity(billboard);
 
         // TODO: Remove call and make method private again.

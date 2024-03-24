@@ -17,7 +17,7 @@ public class Screen : IMapEntity, IPickableEntity {
 
     public Screen(GraphicsResources gfxRes, IScene scene, Transform transform, string imgPath) {
         // TODO: Maybe a centralized location to store the hand textures instead of having each screen store a reference?
-        _handTexture = gfxRes.TextureCache.GetTexture("Assets/Textures/handssymbol.png");
+        _handTexture = gfxRes.TextureCache.GetTexture("Assets/Textures/handsymbol.png");
         _screenTexture = gfxRes.TextureCache.GetTexture("Assets/Textures/Screens/" + imgPath);
 
         _scene = scene;
