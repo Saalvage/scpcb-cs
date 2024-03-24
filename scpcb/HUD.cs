@@ -1,10 +1,11 @@
 ﻿using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.UserInterface;
+using scpcb.Utility;
 
 namespace scpcb;
 
-public class HUD : IEntity {
+public class HUD : Disposable, IEntity {
     private readonly UIManager _ui;
 
     private IUIElement? _singleHeadsUpItem;
@@ -24,5 +25,9 @@ public class HUD : IEntity {
             _ui.Root.Children.Remove(_singleHeadsUpItem);
             _singleHeadsUpItem = null;
         }
+    }
+
+    protected override void DisposeImpl() {
+        _ui.Dispose();
     }
 }

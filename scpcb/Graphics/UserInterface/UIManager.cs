@@ -3,10 +3,11 @@ using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Textures;
+using scpcb.Utility;
 
 namespace scpcb.Graphics.UserInterface;
 
-public class UIManager : IRenderable {
+public class UIManager : Disposable, IRenderable {
     public IUIElement Root { get; }
 
     public int Priority => 200000;
@@ -29,5 +30,9 @@ public class UIManager : IRenderable {
     public void Render(IRenderTarget target, float interp) {
         target.ClearDepthStencil();
         Root.Draw(target, Root, Vector2.Zero);
+    }
+
+    protected override void DisposeImpl() {
+        UIMesh.Dispose();
     }
 }
