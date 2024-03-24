@@ -61,7 +61,9 @@ public class CBTexture : Disposable, IMipmappable {
     }
 
     protected override void DisposeImpl() {
-        View.Dispose();
-        _texture.Dispose();
+        // TODO: We only need to use null-coalescing operators here
+        // because we have to deal with partially constructed objects..
+        View?.Dispose();
+        _texture?.Dispose();
     }
 }

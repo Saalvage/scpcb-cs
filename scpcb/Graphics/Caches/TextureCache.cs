@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using scpcb.Graphics.Primitives;
 using scpcb.Utility;
+using Serilog;
 
 namespace scpcb.Graphics.Caches;
 
@@ -19,7 +20,13 @@ public class TextureCache : Disposable {
             return texture;
         }
 
-        var newTexture = new CBTexture(_gfxRes, filename);
+        ICBTexture newTexture;
+        try {
+            newTexture = new CBTexture(_gfxRes, filename);
+        } catch (Exception e) {
+            newTexture = _gfxRes.MissingTexture;
+            Log.Warning(e, "Could not load texture {filename}", filename);
+        }
         _textures.Add(filename, newTexture);
         return newTexture;
     }
