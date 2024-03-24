@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using scpcb.Graphics.Primitives;
 using scpcb.Utility;
+using Serilog;
 using ShaderGen;
 
 namespace scpcb.Graphics.Shaders.Utility;
@@ -34,7 +35,9 @@ public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, T
         GetMembersOfType<Texture2DResource>().ToArray(),
         GetMembersOfType<SamplerResource>().ToArray(),
         shaderParameterOverrides,
-        spirVRequired) { }
+        spirVRequired) {
+        Log.Information("Loading shader {type}", typeof(TShader));
+    }
 
     protected override ShaderParameters GetDefaultParameters() => TShader.DefaultParameters;
 

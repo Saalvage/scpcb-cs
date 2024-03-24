@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using scpcb.Graphics.Textures;
 using scpcb.Utility;
+using Serilog;
 using StbImageSharp;
 using Veldrid;
 
@@ -28,6 +29,8 @@ public class CBTexture : Disposable, IMipmappable {
     public uint Height { get; }
 
     public CBTexture(GraphicsResources gfxRes, Color color) {
+        Log.Information("Creating texture with {color}", color);
+
         Width = 1;
         Height = 1;
         var gfx = gfxRes.GraphicsDevice;
@@ -42,6 +45,8 @@ public class CBTexture : Disposable, IMipmappable {
     }
 
     public CBTexture(GraphicsResources gfxRes, string file) {
+        Log.Information("Loading texture {file}", file);
+
         using var stream = File.OpenRead(file);
         var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
         Width = (uint)image.Width;

@@ -2,6 +2,7 @@
 using scpcb.Physics;
 using scpcb.Scenes;
 using scpcb.Utility;
+using Serilog;
 
 namespace scpcb.Map.RoomProviders;
 
@@ -15,6 +16,7 @@ public class RoomProviderCollector {
                 .Where(x => x is not null)
             .Select(x => (IRoomProvider)x!.Invoke(null))
             .ToList();
+        Log.Information("Available room providers: {providers}", _providers);
     }
 
     public IRoomData LoadRoom(IScene scene, GraphicsResources gfxRes, PhysicsResources physRes, string path) {
@@ -24,6 +26,7 @@ public class RoomProviderCollector {
             throw new ArgumentException($"No provider found for extension {ext}!");
         }
 
+        Log.Information("Loading room {path} with provider {provider}", path, provider);
         return provider.LoadRoom(scene, gfxRes, physRes, path);
     }
 

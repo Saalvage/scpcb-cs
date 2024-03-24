@@ -3,6 +3,7 @@ using BepuPhysics.Collidables;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
 using scpcb.Utility;
+using Serilog;
 
 namespace scpcb.Graphics.Caches;
 
@@ -13,6 +14,7 @@ public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IMod
         public Vector3 MiddleOffset { get; }
 
         public CacheEntry(IModelLoader converter, GraphicsResources gfxRes, PhysicsResources physics, string file) {
+            Log.Information("Loading model {file} via {converter}", file, converter);
             (Models, Collision, MiddleOffset) = converter.LoadMeshes(gfxRes.GraphicsDevice, physics, file);
         }
 

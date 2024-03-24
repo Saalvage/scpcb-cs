@@ -20,7 +20,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
     public IRoomData LoadRoom(IScene scene, GraphicsResources gfxRes, PhysicsResources physics, string filename) {
-        object[] globals = [scene, gfxRes, physics];
+        object[] globals = [scene, gfxRes, physics]; // TODO: Physics could be extracted from the scene, should we pass it explicitly?
 
         using var fileHandle = File.OpenRead(filename);
         using var reader = new BinaryReader(fileHandle);
@@ -179,7 +179,6 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 }
             }
 
-            IMapEntityData data;
             var entityCount = reader.ReadInt32();
             var entities = new List<IMapEntityData>(entityCount);
             for (var i = 0; i < entityCount; i++) {
@@ -192,6 +191,8 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     // Not entirely sure why we need to flip here, we do flip the mesh x above, still seems weird...
                     position.X = -position.X;
                 }
+
+                IMapEntityData data;
                 switch (typeName) {
                     case "screen":
                         data = new MapEntityData<Screen>(globals);
