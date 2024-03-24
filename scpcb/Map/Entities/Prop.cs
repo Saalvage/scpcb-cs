@@ -1,4 +1,5 @@
-﻿using BepuPhysics;
+﻿using System.Numerics;
+using BepuPhysics;
 using BepuPhysics.Collidables;
 using scpcb.Entities;
 using scpcb.Graphics;
@@ -41,6 +42,7 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
         _cacheEntry = physics.ModelCache.GetModel(PROP_PATH + file);
         var meshes = _cacheEntry.Models.Instantiate().ToArray();
         var hull = _cacheEntry.Collision;
+        transform.Position += Vector3.Transform(_cacheEntry.MiddleOffset * transform.Scale, transform.Rotation);
 
         _hull = hull.CreateScaledCopy(transform.Scale);
         if (isStatic) {

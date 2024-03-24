@@ -1,4 +1,5 @@
-﻿using BepuPhysics.Collidables;
+﻿using System.Numerics;
+using BepuPhysics.Collidables;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
 using scpcb.Utility;
@@ -9,9 +10,10 @@ public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IMod
     public class CacheEntry : Disposable {
         public IMeshMaterial[] Models { get; }
         public ICBShape<ConvexHull> Collision { get; }
+        public Vector3 MiddleOffset { get; }
 
         public CacheEntry(IModelLoader converter, GraphicsResources gfxRes, PhysicsResources physics, string file) {
-            (Models, Collision) = converter.LoadMeshes(gfxRes.GraphicsDevice, physics, file);
+            (Models, Collision, MiddleOffset) = converter.LoadMeshes(gfxRes.GraphicsDevice, physics, file);
         }
 
         protected override void DisposeImpl() {

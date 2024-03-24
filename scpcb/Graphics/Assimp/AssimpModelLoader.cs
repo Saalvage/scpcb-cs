@@ -11,7 +11,7 @@ namespace scpcb.Graphics.Assimp;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
 public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where TVertex : unmanaged {
-    public MeshMaterial<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 middle) {
+    public MeshMaterial<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 center) {
         // TODO: Upper limit to stackalloc size
         Span<Vector3> textureCoords = stackalloc Vector3[mesh.TextureCoordinateChannelCount];
         Span<Vector4> vertexColors = stackalloc Vector4[mesh.VertexColorChannelCount];
@@ -27,7 +27,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
             }
 
             var sv = new AssimpVertex {
-                Position = mesh.Vertices[i] / 10 - middle, // TODO: Better way to handle this :(
+                Position = mesh.Vertices[i] / 10 - center, // TODO: Better way to handle this :(
                 TexCoords = textureCoords,
                 VertexColors = vertexColors,
                 Normal = mesh.HasNormals ? mesh.Normals[i] : Vector3.Zero,
@@ -40,21 +40,21 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
         return new(new CBMesh<TVertex>(gfx, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32)), mat);
     }
 
-    public ICBShape<ConvexHull> ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 offset) {
+    public ICBShape<ConvexHull> ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 center) {
         ConvexHullHelper.CreateShape(meshes
             .SelectMany(x => x.Vertices)
             .Select(x => x / 10)
-            .ToArray(), physics.BufferPool, out offset, out var hull);
+            .ToArray(), physics.BufferPool, out center, out var hull);
         return new CBShape<ConvexHull>(physics.Simulation, hull);
     }
 
-    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision, Vector3 centerOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
         using var assimp = new AssimpContext();
         var fileDir = Path.GetDirectoryName(file);
         var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
-        var hull = ConvertToConvexHull(physics, scene.Meshes, out var middle);
+        var hull = ConvertToConvexHull(physics, scene.Meshes, out var center);
         var mats = scene.Materials.Select(x => ConvertMaterial(x, fileDir)).ToArray();
-        return (scene.Meshes.Select(x => (IMeshMaterial<TVertex>)ConvertMesh(gfx, x, mats[x.MaterialIndex], middle)).ToArray(), hull);
+        return (scene.Meshes.Select(x => (IMeshMaterial<TVertex>)ConvertMesh(gfx, x, mats[x.MaterialIndex], center)).ToArray(), hull, center);
     }
 
     protected abstract TVertex ConvertVertex(AssimpVertex vert);

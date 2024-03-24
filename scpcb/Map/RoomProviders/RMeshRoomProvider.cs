@@ -254,11 +254,13 @@ public partial class RMeshRoomProvider : IRoomProvider {
                     case "model":
                         var file = reader.ReadB3DString();
                         position = reader.ReadVector3() * ROOM_SCALE;
+                        position.X = -position.X;
 
-                        var pitch = reader.ReadSingle();
-                        var yaw = reader.ReadSingle();
-                        var roll = reader.ReadSingle();
+                        var pitch = reader.ReadSingle() / 180 * MathF.PI;
+                        var yaw = reader.ReadSingle() / 180 * MathF.PI - MathF.PI; // Rotate 180° because x-flip.
+                        var roll = reader.ReadSingle() / 180 * MathF.PI;
 
+                        // TODO: Remove the * 10f scaling.
                         var scale = reader.ReadVector3() * 10f * ROOM_SCALE;
 
                         if (file != "") {

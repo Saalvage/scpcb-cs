@@ -40,6 +40,7 @@ public class MainScene : Scene3D {
     private readonly ICBModel<VPositionTexture> _scp173;
 
     private readonly IRoomData _room008;
+    private readonly IRoomData _room895;
     private readonly IRoomData _room4Tunnels;
 
     private readonly RenderTexture _renderTexture;
@@ -110,11 +111,13 @@ public class MainScene : Scene3D {
         DealWithEntityBuffers();
 
         _room008 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/008/008_opt.rmesh");
+        _room895 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/coffin/coffin_opt.rmesh");
         _room4Tunnels = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {
-                var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : _room4Tunnels).Instantiate(new(j * -20.5f, 0, i * -20.5f),
-                    Quaternion.CreateFromYawPitchRoll(((i + j) % 4) * MathF.PI / 2f, 0, 0));
+                var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : i == 2 || j == 5 ? _room895 : _room4Tunnels)
+                    .Instantiate(new(j * -20.5f, 0, i * -20.5f),
+                        Quaternion.CreateFromYawPitchRoll(((i + j) % 4) * MathF.PI / 2f, 0, 0));
                 AddEntity(room);
             }
         }
