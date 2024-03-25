@@ -14,8 +14,7 @@ using scpcb.Utility;
 namespace scpcb.Map.Entities;
 
 public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
-    public record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic)
-            : SerializableData {
+    private record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic) : SerializableData {
         protected override ISerializableEntity DeserializeImpl(GraphicsResources gfxRes, IScene scene, IReferenceResolver refResolver) {
             var prop = new Prop(scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic);
             if (prop.Models is PhysicsModelCollection pmc) {
