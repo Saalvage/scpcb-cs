@@ -27,6 +27,8 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     public const string PROP_PATH = "Assets/Props/";
 
     private readonly ICBShape<ConvexHull> _hull;
+    // TODO: Keepalive, can perhaps be kept alive another way?
+    private readonly CBStatic? _static;
 
     private readonly string _file;
     
@@ -45,7 +47,7 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
 
         _hull = hull.CreateScaledCopy(transform.Scale);
         if (isStatic) {
-            _hull.CreateStatic(new(transform.Position, transform.Rotation));
+            _static = _hull.CreateStatic(new(transform.Position, transform.Rotation));
             Models = new(meshes) {
                 WorldTransform = transform,
             };

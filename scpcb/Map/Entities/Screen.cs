@@ -2,6 +2,7 @@
 using scpcb.Entities;
 using scpcb.Graphics;
 using scpcb.Graphics.Primitives;
+using scpcb.PlayerController;
 using scpcb.Scenes;
 using scpcb.Utility;
 

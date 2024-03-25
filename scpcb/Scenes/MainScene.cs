@@ -13,6 +13,7 @@ using scpcb.Graphics.UserInterface;
 using scpcb.Map;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
+using scpcb.PlayerController;
 using scpcb.Serialization;
 using scpcb.Utility;
 using Veldrid;
