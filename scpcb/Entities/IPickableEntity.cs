@@ -3,7 +3,7 @@
 namespace scpcb.Entities;
 
 public interface IPickableEntity : I3DEntity {
-    bool CanBePicked(IPlayer player) => true;
-    void OnPicked(IPlayer player);
+    bool CanBePicked(Player player) => true;
+    void OnPicked(Player player);
     ICBTexture GetHandTexture();
 }

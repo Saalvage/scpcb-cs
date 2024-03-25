@@ -25,7 +25,7 @@ public class Screen : IMapEntity, IPickableEntity {
         Position = transform.Position;
     }
 
-    public void OnPicked(IPlayer player) {
+    public void OnPicked(Player player) {
         _scene.GetEntitiesOfType<HUD>().Single().SetItem(_screenTexture);
     }
 

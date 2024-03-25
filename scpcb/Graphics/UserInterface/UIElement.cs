@@ -9,6 +9,7 @@ public interface IUIElement {
     Vector2 PixelSize { get; }
     float Z { get; }
     Alignment Alignment { get; }
+    bool IsVisible { get; }
     void Draw(IRenderTarget target, IUIElement parent, Vector2 drawPos);
 }
 
@@ -21,6 +22,7 @@ public class UIElement : IUIElement {
     public Vector2 PixelSize { get; set; }
 
     public Alignment Alignment { get; set; }
+    public bool IsVisible { get; set; } = true;
 
     protected virtual void DrawInternal(IRenderTarget target, Vector2 position) { }
 
@@ -44,7 +46,9 @@ public class UIElement : IUIElement {
         drawPos.X += Position.X;
         drawPos.Y -= Position.Y; // Positive Y = down.
 
-        DrawInternal(target, drawPos);
+        if (IsVisible) {
+            DrawInternal(target, drawPos);
+        }
         foreach (var child in Children) {
             child.Draw(target, this, drawPos);
         }

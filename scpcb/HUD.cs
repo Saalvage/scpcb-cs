@@ -5,36 +5,43 @@ using scpcb.Graphics.UserInterface;
 
 namespace scpcb;
 
-public class HUD : IEntity {
+public class HUD : IUpdatable {
+    private readonly Player _player;
     private readonly UIManager _ui;
 
     private TextureElement? _singleHeadsUpItem;
 
-    public HUD(UIManager ui) {
+    private readonly LoadingBar _blinkBar;
+    private readonly LoadingBar _staminaBar;
+
+    public HUD(Player player, UIManager ui) {
+        _player = player;
         _ui = ui;
         var gfxRes = _ui.GraphicsResources;
 
         const int X = 30; const int Y = -65;
 
-        var blinkBar = new BorderedImage(gfxRes, new(32), 1, Color.White,
+        var blinkIcon = new BorderedImage(gfxRes, new(32), 1, Color.White,
                 gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/BlinkIcon.png")) {
             Alignment = Alignment.BottomLeft,
             Position = new(X - 1, Y + 1),
         };
-        blinkBar.Children.Add(new LoadingBar(gfxRes, 20, gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/BlinkMeter.jpg")) {
+        _blinkBar = new(gfxRes, 20, gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/BlinkMeter.jpg")) {
             Position = new(1 + 50, 1),
-        });
-        _ui.Root.Children.Add(blinkBar);
+        };
+        blinkIcon.Children.Add(_blinkBar);
+        _ui.Root.Children.Add(blinkIcon);
 
-        var staminaBar = new BorderedImage(gfxRes, new(32), 1, Color.White,
+        var staminaIcon = new BorderedImage(gfxRes, new(32), 1, Color.White,
                 gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/sprinticon.png")) {
             Alignment = Alignment.BottomLeft,
             Position = new(X - 1, Y + 1 + 40),
         };
-        staminaBar.Children.Add(new LoadingBar(gfxRes, 20, gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/StaminaMeter.jpg")) {
+        _staminaBar = new(gfxRes, 20, gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/StaminaMeter.jpg")) {
             Position = new(1 + 50, 1),
-        });
-        _ui.Root.Children.Add(staminaBar);
+        };
+        staminaIcon.Children.Add(_staminaBar);
+        _ui.Root.Children.Add(staminaIcon);
     }
 
     public void SetItem(ICBTexture texture) {
@@ -49,5 +56,10 @@ public class HUD : IEntity {
             _ui.Root.Children.Remove(_singleHeadsUpItem);
             _singleHeadsUpItem = null;
         }
+    }
+
+    public void Update(float delta) {
+        _blinkBar.BarCount = 10;
+        _staminaBar.SetProgress(_player.Stamina / _player.MaxStamina, ProgressHandling.Ceiling);
     }
 }

@@ -7,6 +7,12 @@ using Veldrid;
 namespace scpcb.Utility; 
 
 public static class Helpers {
+    /// <summary>
+    /// FPSfactor is commonly used in various formulas within CB.
+    /// </summary>
+    /// <para>Our delta is in total seconds, FPSFactor is in seconds * 70 (for whatever reason).</para>
+    public const float DELTA_TO_FPS_FACTOR_FACTOR = 70f;
+
     public readonly record struct TypeInfo(VertexElementFormat Format, string Name);
 
     private static TypeInfo TypeToFormat(Type type) {

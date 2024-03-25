@@ -80,7 +80,7 @@ public class MainScene : Scene3D {
         ui.Root.Children[0].Children.Add(uiElem2);
         AddEntity(ui);
 
-        _hud = new(ui);
+        _hud = new(_player, ui);
         AddEntity(_hud);
 
         // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
@@ -144,9 +144,8 @@ public class MainScene : Scene3D {
         if (KeyDown(Key.A)) dir += Vector2.UnitX;
         if (KeyDown(Key.D)) dir -= Vector2.UnitX;
 
-        if (dir != Vector2.Zero) {
-            _player.HandleMove(Vector2.Normalize(dir), delta);
-        }
+        _player.MoveDir = dir == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(dir);
+        _player.IsSprinting = KeyDown(Key.ShiftLeft);
 
         foreach (var sh in _gfxRes.ShaderCache.ActiveShaders) {
             sh.Constants?.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(_proj);
