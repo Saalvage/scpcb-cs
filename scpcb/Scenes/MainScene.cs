@@ -84,10 +84,12 @@ public class MainScene : Scene3D {
         _hud = new(_player, ui);
         AddEntity(_hud);
 
-        // TODO: How do we deal with this? A newly created shader also needs to have the global shader constant providers applied.
-        _proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f);
-        _uiProj = Matrix4x4.CreateOrthographic(_gfxRes.Window.Width, _gfxRes.Window.Height, -100, 100);
+        _gfxRes.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
+            Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f));
 
+        _gfxRes.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
+            Matrix4x4.CreateOrthographic(_gfxRes.Window.Width, _gfxRes.Window.Height, -100, 100));
+        
         Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
 
         var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
@@ -147,11 +149,6 @@ public class MainScene : Scene3D {
 
         _player.MoveDir = dir == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(dir);
         _player.IsSprinting = KeyDown(Key.ShiftLeft);
-
-        foreach (var sh in _gfxRes.ShaderCache.ActiveShaders) {
-            sh.Constants?.SetValue<IProjectionMatrixConstantMember, Matrix4x4>(_proj);
-            sh.Constants?.SetValue<IUIProjectionMatrixConstantMember, Matrix4x4>(_uiProj);
-        }
 
         base.Update(delta);
     }

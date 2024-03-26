@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using BepuPhysics;
+﻿using BepuPhysics;
 using scpcb.Utility;
 
 namespace scpcb.Physics.Primitives;

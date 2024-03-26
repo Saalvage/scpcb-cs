@@ -1,4 +1,6 @@
-﻿using scpcb.Graphics;
+﻿using System.Numerics;
+using scpcb.Graphics;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Textures;
 using scpcb.Physics;
 
@@ -19,7 +21,8 @@ public class Scene3D : BaseScene {
     }
 
     public override void Render(IRenderTarget target, float interp) {
-        Camera.ApplyTo(_gfxRes.ShaderCache.ActiveShaders.Select(x => x.Constants), interp);
+        _gfxRes.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(Camera.ViewMatrix);
+        _gfxRes.ShaderCache.SetGlobal<IViewPositionConstantMember, Vector3>(Camera.Position);
 
         base.Render(target, interp);
     }

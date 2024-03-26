@@ -1,16 +1,11 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
 
 namespace scpcb.Graphics;
 
-public interface ICamera : IConstantProvider<IViewMatrixConstantMember, Matrix4x4>, IConstantProvider<IViewPositionConstantMember, Vector3> {
+public interface ICamera {
     Vector3 Position { get; set; }
     Quaternion Rotation { get; set; }
     Matrix4x4 ViewMatrix { get; }
-
-    Matrix4x4 IConstantProvider<IViewMatrixConstantMember, Matrix4x4>.GetValue(float interp) => ViewMatrix;
-    Vector3 IConstantProvider<IViewPositionConstantMember, Vector3>.GetValue(float interp) => Position;
 }
 
 public class PerspectiveCamera : ICamera {
@@ -42,11 +37,5 @@ public class PerspectiveCamera : ICamera {
         _viewMat = Matrix4x4.CreateLookAt(Position, Position + forward, up);
         _outdated = false;
         return ref _viewMat;
-    }
-
-    // TODO: Instead of this, consider using multiple constant providers that get created in-place.
-    public void ApplyTo(IEnumerable<IConstantHolder?> holders, float interp) {
-        ((IConstantProvider<IViewMatrixConstantMember, Matrix4x4>)this).ApplyToInternal(holders, interp);
-        ((IConstantProvider<IViewPositionConstantMember, Vector3>)this).ApplyToInternal(holders, interp);
     }
 }

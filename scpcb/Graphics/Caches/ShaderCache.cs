@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using scpcb.Graphics.Primitives;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Utility;
 using ShaderGen;
 
@@ -53,7 +54,11 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
             );
         var ctor = parameterizedType.GetConstructor(GENERATED_SHADER_CTOR_ARG_TYPES);
         Debug.Assert(ctor != null, "Could not find required ctor on GeneratedShader!?");
-        return (ICBShader)ctor.Invoke([_gfxRes, shaderParameterOverrides]);
+        var sh = (ICBShader)ctor.Invoke([_gfxRes, shaderParameterOverrides]);
+        foreach (var (_, applyFunc) in _globals) {
+            applyFunc(sh);
+        }
+        return sh;
     }
 
     private Type GetVertexTypeFromVS<TShader>()
@@ -62,5 +67,14 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
             .GetParameters()
             .Single().ParameterType;
 
-    public IEnumerable<ICBShader> ActiveShaders => _dic.Select(x => x.Value);
+    // TODO: It might be more appropriate to be using IConstantProviders instead of Actions here, however
+    // that would probably necessitate unregistering logic as well which would likely complicate things?
+    private readonly Dictionary<Type, Action<ICBShader>> _globals = [];
+
+    public void SetGlobal<T, TVal>(TVal value) where T : IConstantMember<T, TVal> where TVal : unmanaged {
+        foreach (var (_, sh) in _dic) {
+            sh.Constants?.SetValue<T, TVal>(value);
+        }
+        _globals[typeof(T)] = sh => sh.Constants?.SetValue<T, TVal>(value);
+    }
 }
