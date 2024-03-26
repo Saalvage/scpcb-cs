@@ -23,38 +23,40 @@ public interface ICBTexture : IDisposable {
 }
 
 public class CBTexture : Disposable, IMipmappable {
+    // TODO: Find alternative design that allows for immutability?
     private readonly Texture _texture;
     public TextureView View { get; }
     public uint Width { get; }
     public uint Height { get; }
 
-    public CBTexture(GraphicsResources gfxRes, Color color) {
-        Log.Information("Creating texture with {color}", color);
+    public static CBTexture Load(GraphicsResources gfxRes, string path) {
+        Log.Information("Loading texture {file}", path);
 
-        Width = 1;
-        Height = 1;
-        var gfx = gfxRes.GraphicsDevice;
-        _texture = gfx.ResourceFactory.CreateTexture(new(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled, TextureType.Texture2D));
-        Span<byte> bytes = [color.R, color.G, color.B, color.A];
-        gfx.UpdateTexture(_texture, bytes, 0, 0, 0, 1, 1, 1, 0, 0);
-        View = gfx.ResourceFactory.CreateTextureView(_texture);
+        using var stream = File.OpenRead(path);
+        var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+        return new(gfxRes, (uint)image.Width, (uint)image.Height, image.Data, PixelFormat.R8_G8_B8_A8_UNorm, true);
     }
 
-    public CBTexture(GraphicsResources gfxRes, string file) {
-        Log.Information("Loading texture {file}", file);
+    public static CBTexture FromColor(GraphicsResources gfxRes, Color color) {
+        Log.Information("Creating texture with {color}", color);
 
-        using var stream = File.OpenRead(file);
-        var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-        Width = (uint)image.Width;
-        Height = (uint)image.Height;
-        // TODO: OPT Use unmanaged byte array?
+        return new(gfxRes, 1, 1, [color.R, color.G, color.B, color.A], PixelFormat.R8_G8_B8_A8_UNorm, false);
+    }
+
+    public CBTexture(GraphicsResources gfxRes, uint width, uint height, Span<byte> data, PixelFormat format, bool useMips = true) {
+        Log.Information("Loading {width}x{height} texture from {bytes} bytes", width, height, data.Length);
+
+        Width = width;
+        Height = height;
         var gfx = gfxRes.GraphicsDevice;
-        _texture = gfx.ResourceFactory.CreateTexture(new(Width, Height, 1, 4, 1, PixelFormat.R8_G8_B8_A8_UNorm,
+        _texture = gfx.ResourceFactory.CreateTexture(new(Width, Height, 1, useMips ? 4u : 1u, 1, format,
             TextureUsage.Sampled | TextureUsage.GenerateMipmaps, TextureType.Texture2D));
-        gfx.UpdateTexture(_texture, image.Data, 0, 0, 0, Width, Height, 1, 0, 0);
+        gfx.UpdateTexture(_texture, data, 0, 0, 0, Width, Height, 1, 0, 0);
         View = gfx.ResourceFactory.CreateTextureView(_texture);
 
-        gfxRes.RegisterForMipmapGeneration(this);
+        if (useMips) {
+            gfxRes.RegisterForMipmapGeneration(this);
+        }
     }
 
     public void GenerateMipmaps(CommandList commands) {

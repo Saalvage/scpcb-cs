@@ -1,6 +1,8 @@
-﻿using scpcb.Graphics.Caches;
+﻿using FreeTypeSharp;
+using scpcb.Graphics.Caches;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Textures;
+using scpcb.Graphics.UserInterface;
 using scpcb.Map;
 using scpcb.Map.RoomProviders;
 using scpcb.Physics;
@@ -57,6 +59,8 @@ public class GraphicsResources : Disposable {
     private readonly RoomProviderCollector _roomProviderCollector = new();
 
     private readonly List<IMipmappable> _generateMipTextures = [];
+
+    private readonly FreeTypeLibrary _freeType = new();
 
     public GraphicsResources(int width, int height, bool debug =
 #if DEBUG
@@ -139,6 +143,10 @@ public class GraphicsResources : Disposable {
     public IRoomData LoadRoom(IScene scene, PhysicsResources physics, string name)
         => _roomProviderCollector.LoadRoom(scene, this, physics, name);
 
+    public Font LoadFont(string path) {
+        return new(this, _freeType, path);
+    }
+
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.
     // Can we support other GLSL versions?
@@ -168,6 +176,7 @@ public class GraphicsResources : Disposable {
     }
 
     protected override void DisposeImpl() {
+        _freeType.Dispose();
         ShaderCache.Dispose();
         TextureCache.Dispose();
         MaterialCache.Dispose();

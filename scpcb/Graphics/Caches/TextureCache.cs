@@ -22,7 +22,7 @@ public class TextureCache : Disposable {
 
         ICBTexture newTexture;
         try {
-            newTexture = new CBTexture(_gfxRes, filename);
+            newTexture = CBTexture.Load(_gfxRes, filename);
         } catch (Exception e) {
             newTexture = _gfxRes.MissingTexture;
             Log.Warning(e, "Could not load texture {filename}", filename);
@@ -36,7 +36,7 @@ public class TextureCache : Disposable {
             return texture;
         }
 
-        var newTexture = new CBTexture(_gfxRes, color);
+        var newTexture = CBTexture.FromColor(_gfxRes, color);
         _colorTextures.Add(color, newTexture);
         return newTexture;
     }

@@ -33,8 +33,6 @@ public class MainScene : Scene3D {
     private readonly Dictionary<MouseButton, bool> _mouseButtonsDown = [];
     private bool MouseButtonDown(MouseButton x) => _mouseButtonsDown.TryGetValue(x, out var y) && y;
 
-    private readonly Matrix4x4 _proj;
-    private readonly Matrix4x4 _uiProj;
     private readonly ICBShape<ConvexHull> _hull;
     private readonly ICBMaterial<VPositionTexture> _renderMat;
     private readonly ICBMaterial<VPositionTexture> _otherMat;
@@ -50,6 +48,9 @@ public class MainScene : Scene3D {
 
     private readonly HUD _hud;
 
+    private readonly Font _font;
+    private readonly ICBTexture _questionMark;
+
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
         _gfxRes = game.GraphicsResources;
@@ -61,6 +62,9 @@ public class MainScene : Scene3D {
         AddEntity(_player);
 
         _renderTexture = new(_gfxRes, 100, 100, true);
+
+        _font = _gfxRes.LoadFont("Assets/Fonts/Courier New.ttf");
+        _questionMark = _font.LoadGlyph('?');
 
         var gfx = _gfxRes.GraphicsDevice;
         var window = _gfxRes.Window;
@@ -76,9 +80,9 @@ public class MainScene : Scene3D {
         uiElem.PixelSize = new(500, 50);
         ui.Root.Children.Add(uiElem);
 
-        var uiElem2 = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.GreenYellow));
+        var uiElem2 = new TextureElement(_gfxRes, _questionMark);
         uiElem2.Alignment = Alignment.BottomRight;
-        uiElem2.PixelSize = new(10, 10);
+        uiElem2.PixelSize *= 0.05f;
         ui.Root.Children[0].Children.Add(uiElem2);
         AddEntity(ui);
 
