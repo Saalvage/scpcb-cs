@@ -35,11 +35,7 @@ public class CBTexture : Disposable, IMipmappable {
         Height = 1;
         var gfx = gfxRes.GraphicsDevice;
         _texture = gfx.ResourceFactory.CreateTexture(new(1, 1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled, TextureType.Texture2D));
-        Span<byte> bytes = stackalloc byte[4];
-        bytes[0] = color.R;
-        bytes[1] = color.G;
-        bytes[2] = color.B;
-        bytes[3] = color.A;
+        Span<byte> bytes = [color.R, color.G, color.B, color.A];
         gfx.UpdateTexture(_texture, bytes, 0, 0, 0, 1, 1, 1, 0, 0);
         View = gfx.ResourceFactory.CreateTextureView(_texture);
     }
@@ -66,8 +62,6 @@ public class CBTexture : Disposable, IMipmappable {
     }
 
     protected override void DisposeImpl() {
-        // TODO: We only need to use null-coalescing operators here
-        // because we have to deal with partially constructed objects..
         View?.Dispose();
         _texture?.Dispose();
     }
