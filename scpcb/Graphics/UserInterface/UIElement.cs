@@ -27,6 +27,10 @@ public class UIElement : IUIElement {
     protected virtual void DrawInternal(IRenderTarget target, Vector2 position) { }
 
     public void Draw(IRenderTarget target, IUIElement parent, Vector2 drawPos) {
+        if (!IsVisible) {
+            return;
+        }
+
         var direction = new Vector2(
             x: Alignment.Horizontality switch {
                 Alignment.Horizontal.Left => 1,
@@ -46,9 +50,7 @@ public class UIElement : IUIElement {
         drawPos.X += Position.X;
         drawPos.Y -= Position.Y; // Positive Y = down.
 
-        if (IsVisible) {
-            DrawInternal(target, drawPos);
-        }
+        DrawInternal(target, drawPos);
         foreach (var child in Children) {
             child.Draw(target, this, drawPos);
         }

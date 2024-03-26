@@ -17,6 +17,7 @@ using scpcb.PlayerController;
 using scpcb.Serialization;
 using scpcb.Utility;
 using Veldrid;
+using Veldrid.Sdl2;
 
 namespace scpcb.Scenes;
 
@@ -90,7 +91,7 @@ public class MainScene : Scene3D {
         _gfxRes.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
             Matrix4x4.CreateOrthographic(_gfxRes.Window.Width, _gfxRes.Window.Height, -100, 100));
         
-        Veldrid.Sdl2.Sdl2Native.SDL_SetRelativeMouseMode(true);
+        Sdl2Native.SDL_SetRelativeMouseMode(true);
 
         var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
 

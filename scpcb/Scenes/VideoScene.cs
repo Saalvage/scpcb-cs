@@ -25,12 +25,12 @@ public class VideoScene : BaseScene {
                 video.Texture.AsEnumerableElement(),
                 gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement()),
             new CBMesh<UIShader.Vertex>(gfxRes.GraphicsDevice,
-                new UIShader.Vertex[] {
+                [
                     new(new(-1, -1), new(0, 1)),
                     new(new(-1, 1), new(0, 0)),
                     new(new(1, -1), new(1, 1)),
                     new(new(1, 1), new(1, 0)),
-                }, new uint[] { 2, 1, 0, 3, 1, 2 }));
+                ], [2, 1, 0, 3, 1, 2]));
 
         // TODO: Consider if it's worth it to instead create an individual game loop for this scene
         // that only renders when a new frame should be displayed (probably doesn't matter).

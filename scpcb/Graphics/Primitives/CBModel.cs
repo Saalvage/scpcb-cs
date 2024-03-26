@@ -2,6 +2,7 @@
 
 namespace scpcb.Graphics.Primitives;
 
+// TODO: Consider making this mutable?
 public interface ICBModel {
     IConstantHolder? Constants { get; }
 
