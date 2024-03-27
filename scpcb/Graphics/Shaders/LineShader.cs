@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
+using scpcb.Graphics.Shaders.Fragments;
 using scpcb.Graphics.Shaders.Utility;
 using scpcb.Graphics.Shaders.Vertices;
 using ShaderGen;
@@ -11,10 +12,6 @@ namespace scpcb.Graphics.Shaders;
 
 public partial class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
         LineShader.InstanceVertexConstants, LineShader.InstanceFragmentConstants> {
-
-    public struct FragmentInput {
-        [SystemPositionSemantic] public Vector4 Position;
-    }
 
     public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember {
         public Matrix4x4 ProjectionMatrix { get; set; }
@@ -30,8 +27,8 @@ public partial class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
     }
 
     [VertexShader]
-    public FragmentInput VS(VPosition input) {
-        FragmentInput output;
+    public FPosition VS(VPosition input) {
+        FPosition output;
         output.Position = Mul(InstanceVertexBlock.WorldMatrix, new(input.Position, 1));
         output.Position = Mul(VertexBlock.ViewMatrix, output.Position);
         output.Position = Mul(VertexBlock.ProjectionMatrix, output.Position);
@@ -39,7 +36,7 @@ public partial class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
     }
 
     [FragmentShader]
-    public Vector4 FS(FragmentInput frag) {
+    public Vector4 FS(FPosition frag) {
         return new(InstanceFragmentBlock.Color, 1);
     }
 

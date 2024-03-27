@@ -5,6 +5,7 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
 using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Shaders.Vertices;
+using scpcb.Graphics.Shaders.Fragments;
 
 #pragma warning disable CS8618
 
@@ -12,11 +13,6 @@ namespace scpcb.Graphics.Shaders;
 
 public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empty,
         BillboardShader.InstanceVertexConstants, BillboardShader.InstanceFragmentConstants> {
-
-    public struct FragmentInput {
-        [SystemPositionSemantic] public Vector4 Position;
-        [TextureCoordinateSemantic] public Vector2 TextureCoord;
-    }
 
     public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember, IViewPositionConstantMember {
         public Matrix4x4 ProjectionMatrix { get; set; }
@@ -66,7 +62,7 @@ public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstan
     }
 
     [VertexShader]
-    public FragmentInput VS(VPositionTexture input) {
+    public FPositionTexture VS(VPositionTexture input) {
         // TODO: Multiple things to be considered here:
         // - It seems like the matrices get transposed on their way to the GPU (at least the way we access them seems inverted)
         // - Support for stuff like Matrix4x4.CreateLookAt would be neat.
@@ -90,14 +86,14 @@ public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstan
         Vector4 worldPosition = Mul(mat, preWorldPosition) + new Vector4(entityWorldPos, 0);
         Vector4 viewPosition = Mul(VertexBlock.ViewMatrix, worldPosition);
 
-        FragmentInput output;
+        FPositionTexture output;
         output.Position = Mul(VertexBlock.ProjectionMatrix, viewPosition);
         output.TextureCoord = input.TextureCoord;
         return output;
     }
 
     [FragmentShader]
-    public Vector4 FS(FragmentInput input) {
+    public Vector4 FS(FPositionTexture input) {
         return new(Sample(SurfaceTexture, Sampler, input.TextureCoord).XYZ() * InstanceFragmentBlock.Color, 1f);
     }
 }

@@ -5,6 +5,7 @@ using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
 using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Shaders.Vertices;
+using scpcb.Graphics.Shaders.Fragments;
 
 #pragma warning disable CS8618
 
@@ -12,11 +13,6 @@ namespace scpcb.Graphics.Shaders;
 
 public partial class SpriteShader : IAutoShader<SpriteShader.VertexConstants, Empty,
         SpriteShader.InstanceVertexConstants, SpriteShader.InstanceFragmentConstants> {
-
-    public struct FragmentInput {
-        [SystemPositionSemantic] public Vector4 Position;
-        [TextureCoordinateSemantic] public Vector2 TextureCoord;
-    }
 
     public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember {
         public Matrix4x4 ProjectionMatrix { get; set; }
@@ -35,8 +31,8 @@ public partial class SpriteShader : IAutoShader<SpriteShader.VertexConstants, Em
     [ResourceSet(MATERIAL_OFFSET)] public SamplerResource Sampler;
 
     [VertexShader]
-    public FragmentInput VS(VPositionTexture input) {
-        FragmentInput output;
+    public FPositionTexture VS(VPositionTexture input) {
+        FPositionTexture output;
         output.Position = Mul(VertexBlock.ProjectionMatrix,
             Mul(VertexBlock.ViewMatrix,
                 Mul(InstanceVertexBlock.WorldMatrix, new(input.Position, 1))));
@@ -45,7 +41,7 @@ public partial class SpriteShader : IAutoShader<SpriteShader.VertexConstants, Em
     }
 
     [FragmentShader]
-    public Vector4 FS(FragmentInput input) {
+    public Vector4 FS(FPositionTexture input) {
         return new(Sample(SurfaceTexture, Sampler, input.TextureCoord).XYZ() * InstanceFragmentBlock.Color, 1f);
     }
 }

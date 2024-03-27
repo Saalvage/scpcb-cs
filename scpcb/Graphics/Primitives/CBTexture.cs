@@ -23,7 +23,8 @@ public interface ICBTexture : IDisposable {
 }
 
 public class CBTexture : Disposable, IMipmappable {
-    // TODO: Find alternative design that allows for immutability?
+    private readonly GraphicsDevice _gfx;
+
     private readonly Texture _texture;
     public TextureView View { get; }
     public uint Width { get; }
@@ -43,16 +44,27 @@ public class CBTexture : Disposable, IMipmappable {
         return new(gfxRes, 1, 1, [color.R, color.G, color.B, color.A], PixelFormat.R8_G8_B8_A8_UNorm, false);
     }
 
-    public CBTexture(GraphicsResources gfxRes, uint width, uint height, Span<byte> data, PixelFormat format, bool useMips = true) {
-        Log.Information("Loading {width}x{height} texture from {bytes} bytes", width, height, data.Length);
+    private CBTexture(GraphicsResources gfxRes, uint width, uint height, PixelFormat format, TextureUsage usage) {
+        _gfx = gfxRes.GraphicsDevice;
 
         Width = width;
         Height = height;
-        var gfx = gfxRes.GraphicsDevice;
-        _texture = gfx.ResourceFactory.CreateTexture(new(Width, Height, 1, useMips ? 4u : 1u, 1, format,
-            TextureUsage.Sampled | TextureUsage.GenerateMipmaps, TextureType.Texture2D));
-        gfx.UpdateTexture(_texture, data, 0, 0, 0, Width, Height, 1, 0, 0);
-        View = gfx.ResourceFactory.CreateTextureView(_texture);
+
+        _texture = _gfx.ResourceFactory.CreateTexture(new(Width, Height, 1, 1, 1, format,
+            usage, TextureType.Texture2D));
+        View = _gfx.ResourceFactory.CreateTextureView(_texture);
+    }
+
+    public CBTexture(GraphicsResources gfxRes, uint width, uint height, PixelFormat format)
+            : this(gfxRes, width, height, format, TextureUsage.Sampled) {
+        Log.Information("Creating {width}x{height} blank texture", width, height);
+    }
+
+    public CBTexture(GraphicsResources gfxRes, uint width, uint height, Span<byte> data, PixelFormat format, bool useMips = true)
+            : this(gfxRes, width, height, format, TextureUsage.Sampled | (useMips ? TextureUsage.GenerateMipmaps : 0)) {
+        Log.Information("Loading {width}x{height} texture", width, height);
+
+        _gfx.UpdateTexture(_texture, data, 0, 0, 0, Width, Height, 1, 0, 0);
 
         if (useMips) {
             gfxRes.RegisterForMipmapGeneration(this);
@@ -61,6 +73,14 @@ public class CBTexture : Disposable, IMipmappable {
 
     public void GenerateMipmaps(CommandList commands) {
         commands.GenerateMipmaps(_texture);
+    }
+
+    // TODO: I'm not sure if this is a good design, we're effectively bundling a texture with its corresponding view
+    // and adding a bunch of utility methods while removing some complexity.
+    // Especially if we're going to have multiple implementations of ICBTexture (like the video texture),
+    // maybe an abstract base impl with a few abstractions would be preferable to the current design.
+    public void Update(Span<byte> bytes, uint x, uint y, uint width, uint height) {
+        _gfx.UpdateTexture(_texture, bytes, x, y, 0, width, height, 1, 0, 0);
     }
 
     protected override void DisposeImpl() {

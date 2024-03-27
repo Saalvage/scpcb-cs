@@ -143,8 +143,8 @@ public class GraphicsResources : Disposable {
     public IRoomData LoadRoom(IScene scene, PhysicsResources physics, string name)
         => _roomProviderCollector.LoadRoom(scene, this, physics, name);
 
-    public Font LoadFont(string path) {
-        return new(this, _freeType, path);
+    public Font LoadFont(string path, int size) {
+        return new(this, _freeType, path, size);
     }
 
     private readonly string[] _preferredShaderFileExtension;

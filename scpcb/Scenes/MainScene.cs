@@ -63,8 +63,12 @@ public class MainScene : Scene3D {
 
         _renderTexture = new(_gfxRes, 100, 100, true);
 
-        _font = _gfxRes.LoadFont("Assets/Fonts/Courier New.ttf");
-        _questionMark = _font.LoadGlyph('?');
+        _font = _gfxRes.LoadFont("Assets/Fonts/Courier New.ttf", 64);
+        _questionMark = _font.GetGlyphInfo('?').Atlas;
+
+        foreach (var c in Enumerable.Range(0, 1000)) {
+            _font.GetGlyphInfo((char)c);
+        }
 
         var gfx = _gfxRes.GraphicsDevice;
         var window = _gfxRes.Window;
@@ -74,6 +78,8 @@ public class MainScene : Scene3D {
         AddEntity(video);
 
         var ui = new UIManager(_gfxRes);
+        AddEntity(ui);
+
         var uiElem = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.Aqua));
         uiElem.Alignment = Alignment.TopRight;
         uiElem.Position = new(-10, 0);
@@ -82,9 +88,12 @@ public class MainScene : Scene3D {
 
         var uiElem2 = new TextureElement(_gfxRes, _questionMark);
         uiElem2.Alignment = Alignment.BottomRight;
-        uiElem2.PixelSize *= 0.05f;
-        ui.Root.Children[0].Children.Add(uiElem2);
-        AddEntity(ui);
+        uiElem2.PixelSize *= 0.1f;
+        ui.Root.Children.Add(uiElem2);
+
+        var uiElem3 = new Letter(_gfxRes, _font, '#');
+        uiElem3.Alignment = Alignment.BottomRight;
+        ui.Root.Children[0].Children.Add(uiElem3);
 
         _hud = new(_player, ui);
         AddEntity(_hud);
