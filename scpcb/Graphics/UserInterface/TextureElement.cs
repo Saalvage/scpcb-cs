@@ -20,7 +20,7 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
     protected override void DrawInternal(IRenderTarget target, Vector2 position) {
         _model.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z));
         _model.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
-        target.Render(_model, 0f);
+        _model.Render(target, 0f);
     }
 
     public static ICBMesh<UIShader.Vertex> CreateSharedMesh(GraphicsResources gfxRes)

@@ -43,7 +43,7 @@ public class VideoScene : BaseScene {
     }
 
     public override void Render(IRenderTarget target, float interp) {
-        target.Render(_model, interp);
+        _model.Render(target, interp);
     }
 
     public override void OnLeave() {

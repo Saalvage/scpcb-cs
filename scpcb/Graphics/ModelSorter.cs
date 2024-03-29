@@ -115,11 +115,11 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
 
     public void Render(IRenderTarget target, float interp) {
         foreach (var o in _opaque) {
-            target.Render(o.Model, interp);
+            o.Model.Render(target, interp);
         }
 
         foreach (var model in _transparent) {
-            target.Render(model.Model, interp);
+            model.Model.Render(target, interp);
         }
     }
 

@@ -15,7 +15,7 @@ public class Font : Disposable {
     private readonly FreeTypeFaceFacade _face;
     private readonly nint _faceNative;
 
-    public readonly record struct GlyphInfo(ICBTexture Atlas, Vector2 Offset, Vector2 Dimensions);
+    public readonly record struct GlyphInfo(uint Index, ICBTexture Atlas, Vector2 UvPosition, Vector2 Dimensions, Vector2 Offset, Vector2 Advance);
 
     private readonly Dictionary<char, GlyphInfo> _glyphs = [];
     private GlyphInfo? _undefinedGlyph;
@@ -66,7 +66,9 @@ public class Font : Disposable {
 
         _currAtlas.Update(new(bmp.buffer.ToPointer(), (int)(bmp.width * bmp.rows)), _currX, _currY, bmp.width, bmp.rows);
 
-        var info = new GlyphInfo(_currAtlas, new(_currX, _currY), new(bmp.width, bmp.rows));
+        var info = new GlyphInfo(glyphIndex, _currAtlas, new(_currX, _currY), new(bmp.width, bmp.rows),
+            new(_face.GlyphBitmapLeft, _face.GlyphBitmapTop),
+            new(_face.GlyphMetricHorizontalAdvance, _face.GlyphMetricVerticalAdvance));
 
         _currX += bmp.width + GLYPH_PADDING;
 

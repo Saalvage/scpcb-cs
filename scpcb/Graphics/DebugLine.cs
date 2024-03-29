@@ -39,7 +39,7 @@ public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<
     public DebugLine(GraphicsResources gfxRes, params Vector3[] points) : this(null, gfxRes, null, points) { }
 
     public void Render(IRenderTarget target, float interp) {
-        target.Render(_model, interp);
+        _model.Render(target, interp);
     }
 
     protected override void DisposeImpl() {

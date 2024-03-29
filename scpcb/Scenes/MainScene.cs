@@ -49,7 +49,8 @@ public class MainScene : Scene3D {
     private readonly HUD _hud;
 
     private readonly Font _font;
-    private readonly ICBTexture _questionMark;
+
+    private readonly TextElement _str;
 
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
@@ -64,7 +65,6 @@ public class MainScene : Scene3D {
         _renderTexture = new(_gfxRes, 100, 100, true);
 
         _font = _gfxRes.LoadFont("Assets/Fonts/Courier New.ttf", 64);
-        _questionMark = _font.GetGlyphInfo('?').Atlas;
 
         foreach (var c in Enumerable.Range(0, 1000)) {
             _font.GetGlyphInfo((char)c);
@@ -86,14 +86,15 @@ public class MainScene : Scene3D {
         uiElem.PixelSize = new(500, 50);
         ui.Root.Children.Add(uiElem);
 
-        var uiElem2 = new TextureElement(_gfxRes, _questionMark);
+        var uiElem2 = new TextureElement(_gfxRes, _renderTexture);
         uiElem2.Alignment = Alignment.BottomRight;
-        uiElem2.PixelSize *= 0.1f;
+        //uiElem2.PixelSize *= 0.1f;
         ui.Root.Children.Add(uiElem2);
 
-        var uiElem3 = new Letter(_gfxRes, _font, '#');
-        uiElem3.Alignment = Alignment.BottomRight;
-        ui.Root.Children[0].Children.Add(uiElem3);
+        _str = new(_gfxRes, _font);
+        _str.Text = "^Hx^";
+        _str.Alignment = Alignment.TopLeft;
+        ui.Root.Children[0].Children.Add(_str);
 
         _hud = new(_player, ui);
         AddEntity(_hud);
@@ -237,6 +238,9 @@ public class MainScene : Scene3D {
                 }
                 break;
             }
+            case Key.Comma:
+                _str.Text += (char)Random.Shared.Next(256);
+                break;
         }
     }
 

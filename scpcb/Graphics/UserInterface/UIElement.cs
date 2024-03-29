@@ -19,7 +19,8 @@ public class UIElement : IUIElement {
     public Vector2 Position { get; set; }
     public float Z { get; set; }
 
-    public Vector2 PixelSize { get; set; }
+    // TODO: Only this being virtual is weird.
+    public virtual Vector2 PixelSize { get; set; }
 
     public Alignment Alignment { get; set; }
     public bool IsVisible { get; set; } = true;
