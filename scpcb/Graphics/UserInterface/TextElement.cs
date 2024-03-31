@@ -33,14 +33,17 @@ public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShade
         var ret = new(Font.GlyphInfo Info, float Offset)[Text.Length];
         var offset = 0f;
         var maxY = 0f;
+        var minY = 0f;
         for (var i = 0; i < Text.Length; i++) {
             var glyphInfo = _font.GetGlyphInfo(Text[i]);
             ret[i] = new(glyphInfo, offset);
             offset += glyphInfo.Advance.X;
-            maxY = MathF.Max(maxY, glyphInfo.Dimensions.Y);
+            maxY = MathF.Max(maxY, glyphInfo.Offset.Y);
+            minY = MathF.Min(minY, glyphInfo.Offset.Y - glyphInfo.Dimensions.Y);
         }
 
-        _dimensionsInternal = new(offset, maxY);
+        _dimensionsInternal = new(offset, maxY - minY);
+        _top = maxY;
 
         _glyphsInternal = ret.GroupBy(x => x.Info.Atlas)
             .Select(x => (x.Key, x 
@@ -52,11 +55,14 @@ public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShade
         _generatedGlyphList = true;
     }
 
+    // Don't feature _topInternal or something along those lines, this will only be accessed along with the dimensions.
+    private float _top;
+
     private Vector2 _dimensionsInternal;
     private Vector2 _dimensions {
         get {
             GenerateGlyphList();
-            return _dimensionsInternal * Scale;
+            return _dimensionsInternal;
         }
     }
 
@@ -69,7 +75,6 @@ public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShade
         }
     }
 
-    // TODO: Scales are not currently working correctly on the y-axis.
     public Vector2 Scale { get; set; } = Vector2.One;
 
     public override Vector2 PixelSize {
@@ -89,6 +94,7 @@ public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShade
         var constants = _shader.Constants!;
 
         var halfDimension = _dimensions * 0.5f;
+        halfDimension.Y *= -1;
 
         foreach (var (tex, glyphs) in _glyphs) {
             var mat = _gfxRes.MaterialCache.GetMaterial<TextShader, TextShader.Vertex>([tex], [_gfxRes.ClampAnisoSampler]);
@@ -99,7 +105,7 @@ public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShade
 
                 foreach (var instOffset in instances) {
                     constants.SetValue<IPositionConstantMember, Vector3>(new(
-                        position + Scale * (glyph.Offset - halfDimension + new Vector2(instOffset, 0f)), Z));
+                        position + Scale * (new Vector2(0f, -_top) + glyph.Offset - halfDimension + new Vector2(instOffset, 0f)), Z));
                     target.Render<TextShader.Vertex>(new(_mesh, mat));
                 }
             }

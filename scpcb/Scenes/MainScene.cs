@@ -52,6 +52,9 @@ public class MainScene : Scene3D {
 
     private readonly TextElement _str;
 
+    private bool _uiDebug = false;
+    private float _uiDebugHue = 0f;
+
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
         _gfxRes = game.GraphicsResources;
@@ -92,8 +95,9 @@ public class MainScene : Scene3D {
         ui.Root.Children.Add(uiElem2);
 
         _str = new(_gfxRes, _font);
-        _str.Text = "^Hx^";
+        _str.Text = "^Hxy^";
         _str.Alignment = Alignment.TopLeft;
+        _str.Scale *= 0.8f;
         ui.Root.Children[0].Children.Add(_str);
 
         _hud = new(_player, ui);
@@ -164,6 +168,11 @@ public class MainScene : Scene3D {
 
         _player.MoveDir = dir == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(dir);
         _player.IsSprinting = KeyDown(Key.ShiftLeft);
+
+        if (_uiDebug) {
+            _uiDebugHue = (_uiDebugHue + delta * 50) % 360;
+            AttachDebugBorders();
+        }
 
         base.Update(delta);
     }
@@ -241,6 +250,32 @@ public class MainScene : Scene3D {
             case Key.Comma:
                 _str.Text += (char)Random.Shared.Next(256);
                 break;
+            case Key.P:
+                _uiDebug = !_uiDebug;
+                AttachDebugBorders();
+                break;
+        }
+    }
+
+    private void AttachDebugBorders() {
+        AttachDebugBordersRecursive(GetEntitiesOfType<UIManager>().Single().Root, _uiDebug);
+
+        void AttachDebugBordersRecursive(IUIElement elem, bool add) {
+            var count = elem.Children.Count;
+            for (var i = 0; i < count; i++) {
+                if (elem.Children[i] is DebugBorder) {
+                    elem.Children.RemoveAt(i);
+                    count--;
+                    i--;
+                    continue;
+                }
+                AttachDebugBordersRecursive(elem.Children[i], add);
+                if (add) {
+                    elem.Children[i].Children.Add(new DebugBorder(_gfxRes, elem.Children[i].PixelSize, 1f, Color.White) {
+                        Color = Helpers.ColorFromHSV(_uiDebugHue, 1f, 1f),
+                    });
+                }
+            }
         }
     }
 

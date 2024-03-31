@@ -36,8 +36,7 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
         return newShader;
     }
 
-    private static readonly Type[] GENERATED_SHADER_CTOR_ARG_TYPES = [typeof(GraphicsResources), typeof(ShaderParameters?),
-    ];
+    private static readonly Type[] GENERATED_SHADER_CTOR_ARG_TYPES = [typeof(GraphicsResources), typeof(ShaderParameters?)];
 
     private ICBShader CreateGeneratedShader<TShader>(Type vertexType, ShaderParameters? shaderParameterOverrides)
             where TShader : IAutoShader {

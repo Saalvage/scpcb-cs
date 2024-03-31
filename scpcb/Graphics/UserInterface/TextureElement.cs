@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders;
@@ -7,8 +8,10 @@ using scpcb.Graphics.Caches;
 
 namespace scpcb.Graphics.UserInterface;
 
-public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIShader.Vertex> {
+public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIShader.Vertex>, IColorizableElement {
     private readonly ICBModel _model;
+
+    public Color Color { get; set; } = Color.White;
 
     public TextureElement(GraphicsResources gfxRes, ICBTexture texture) {
         _model = new CBModel<UIShader.Vertex>(null,
@@ -20,6 +23,7 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
     protected override void DrawInternal(IRenderTarget target, Vector2 position) {
         _model.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z));
         _model.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
+        _model.Material.Shader.Constants!.SetValue<IColorConstantMember, Vector3>(new Vector3(Color.R, Color.G, Color.B) / 255f);
         _model.Render(target, 0f);
     }
 

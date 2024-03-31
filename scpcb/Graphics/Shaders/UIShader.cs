@@ -10,9 +10,11 @@ using scpcb.Graphics.Shaders.Fragments;
 
 namespace scpcb.Graphics.Shaders;
 
-public partial class UIShader : IAutoShader<UIShader.VertexConstants, Empty, Empty, Empty> {
+public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.FragmentConstants, Empty, Empty> {
     public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector3 Position, float Pad, Vector2 Scale)
         : IPositionConstantMember, IUIProjectionMatrixConstantMember, IUIScaleConstantMember;
+
+    public record struct FragmentConstants(Vector3 Color) : IColorConstantMember;
 
     public record struct Vertex([PositionSemantic] Vector2 Position, [TextureCoordinateSemantic] Vector2 TextureCoord);
 
@@ -30,6 +32,7 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, Empty, Emp
 
     [FragmentShader]
     public Vector4 FS(FPositionTexture input) {
-        return Sample(SurfaceTexture, Sampler, input.TextureCoord);
+        var sampled = Sample(SurfaceTexture, Sampler, input.TextureCoord);
+        return new(FragmentBlock.Color * sampled.XYZ(), sampled.W);
     }
 }

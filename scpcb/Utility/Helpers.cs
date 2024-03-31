@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using ShaderGen;
@@ -167,4 +168,24 @@ public static class Helpers {
     public static IEnumerable<Type> GetAllLoadedTypes()
         => AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(x => x.ExportedTypes);
+
+    public static Color ColorFromHSV(double hue, double saturation, double value) {
+        var hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+        var f = hue / 60 - Math.Floor(hue / 60);
+
+        value *= 255;
+        var v = Convert.ToInt32(value);
+        var p = Convert.ToInt32(value * (1 - saturation));
+        var q = Convert.ToInt32(value * (1 - f * saturation));
+        var t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+        return hi switch {
+            0 => Color.FromArgb(255, v, t, p),
+            1 => Color.FromArgb(255, q, v, p),
+            2 => Color.FromArgb(255, p, v, t),
+            3 => Color.FromArgb(255, p, q, v),
+            4 => Color.FromArgb(255, t, p, v),
+            _ => Color.FromArgb(255, v, p, q),
+        };
+    }
 }
