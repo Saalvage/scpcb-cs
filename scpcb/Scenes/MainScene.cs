@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using BepuPhysics.Collidables;
+using scpcb.Entities.Items;
 using scpcb.Graphics;
 using scpcb.Graphics.Caches;
 using scpcb.Graphics.ModelCollections;
@@ -102,6 +103,10 @@ public class MainScene : Scene3D {
 
         _hud = new(_player, ui);
         AddEntity(_hud);
+
+        var manager = new ItemManager(_gfxRes);
+        var test = manager.CreateItem("GasMask");
+        _player.PickItem(test);
 
         _gfxRes.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
             Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f));

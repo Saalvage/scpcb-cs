@@ -31,8 +31,4 @@ public partial class Player : IUpdatable {
         UpdatePickables();
         UpdateMovement(delta);
     }
-
-    public void TryPick() {
-        _closestPickable?.OnPicked(this);
-    }
 }

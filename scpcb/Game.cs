@@ -14,7 +14,7 @@ public class Game : Disposable {
     public IScene Scene {
         get => _scene;
         set {
-             Debug.Assert(_nextScene == null);
+            Debug.Assert(_nextScene == null);
             _nextScene = value;
         }
     }

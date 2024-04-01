@@ -1,9 +1,13 @@
-﻿namespace scpcb.Entities.Items;
+﻿using scpcb.Graphics;
+using scpcb.Graphics.Primitives;
 
-public interface IItem {
-    public string DisplayName => GetType().AssemblyQualifiedName ?? GetType().FullName ?? GetType().Name;
+namespace scpcb.Entities.Items;
+
+public interface IItem : IEntity {
+    string DisplayName => GetType().AssemblyQualifiedName!;
+    ICBTexture InventoryIcon { get; }
 }
 
-public class Item : IItem {
-    public string DisplayName { get; }
+public interface IItem<out T> : IItem where T : IItem<T> {
+    static abstract T Create(GraphicsResources gfxRes);
 }

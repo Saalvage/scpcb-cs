@@ -27,4 +27,8 @@ public partial class Player {
 
         _closestPickable = newClosestPickable;
     }
+
+    public void TryPick() {
+        _closestPickable?.OnPicked(this);
+    }
 }

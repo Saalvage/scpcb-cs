@@ -4,6 +4,7 @@ using scpcb.Graphics.Textures;
 namespace scpcb.Graphics.UserInterface;
 
 public interface IUIElement {
+    // TODO: Consider turned this into an IReadOnlyList.
     IList<IUIElement> Children { get; }
     Vector2 Position { get; }
     Vector2 PixelSize { get; }
