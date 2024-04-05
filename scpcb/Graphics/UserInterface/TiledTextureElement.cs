@@ -15,7 +15,9 @@ public class TiledTextureElement : TextureElement {
         get => _pixelSize;
         set {
             _pixelSize = value;
-            UvSize = _pixelSize / new Vector2(_texture.Width, _texture.Height);
+            if (_texture != null) {
+                UvSize = _pixelSize / new Vector2(_texture.Width, _texture.Height);
+            }
         }
     }
 }

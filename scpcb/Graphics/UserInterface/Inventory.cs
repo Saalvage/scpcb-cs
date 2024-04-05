@@ -59,7 +59,7 @@ public class Inventory : UIElement {
                            - PixelSize / 2f
                            + new Vector2(i % columnCount * (SIZE + SPACING), i / columnCount * SIZE * 2);
             var xOffset = (_gfxRes.Window.Width / 2f + pos.X - SIZE / 2f) % 64;
-            var border = new TexturedBorder(_gfxRes, _ui, xOffset, xOffset, (_gfxRes.Window.Height / 2f + pos.Y) % 256) {
+            var border = new MenuFrame(_gfxRes, _ui, xOffset, xOffset, (_gfxRes.Window.Height / 2f + pos.Y) % 256) {
                 PixelSize = new(SIZE),
                 Position = pos,
                 Alignment = Alignment.Center,

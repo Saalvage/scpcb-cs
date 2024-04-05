@@ -2,14 +2,14 @@
 
 namespace scpcb.Graphics.UserInterface;
 
-internal class TexturedBorder : UIElement {
+internal class MenuFrame : UIElement {
     private readonly UIManager _ui;
 
     private readonly TiledTextureElement _outer;
     private readonly TiledTextureElement _inner;
 
     // The offset system is really weird, taken straight from the og!
-    public TexturedBorder(GraphicsResources gfxRes, UIManager ui, float outerXOff, float innerXOff, float yOff) {
+    public MenuFrame(GraphicsResources gfxRes, UIManager ui, float outerXOff, float innerXOff, float yOff) {
         _ui = ui;
         var outerTex = gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/menuwhite.jpg");
         var innerTex = gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/menublack.jpg");
