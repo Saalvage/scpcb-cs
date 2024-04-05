@@ -16,7 +16,6 @@ public sealed class PhysicsModelCollection : InterpolatedModelCollection, IEntit
     public PhysicsModelCollection(PhysicsResources physics, CBBody body, IReadOnlyList<ICBModel> models) : base(models) {
         _physics = physics;
         Body = body;
-        physics.AfterUpdate += UpdateTransform;
         Teleport(WorldTransform);
     }
 
@@ -34,8 +33,13 @@ public sealed class PhysicsModelCollection : InterpolatedModelCollection, IEntit
         }
     }
 
+    void IEntity.OnAdd(IScene scene) {
+        Body.Attach();
+        _physics.AfterUpdate += UpdateTransform;
+    }
+
     void IEntity.OnRemove(IScene scene) {
-        Body.Dispose();
         _physics.AfterUpdate -= UpdateTransform;
+        Body.Detach();
     }
 }

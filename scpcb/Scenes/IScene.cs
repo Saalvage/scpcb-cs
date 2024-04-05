@@ -34,7 +34,7 @@ public interface IScene : IDisposable {
     /// <summary>
     /// Removes without disposing, moving it to the other scene if provided.
     /// </summary>
-    void MoveEntity(IEntity entity, IScene? other);
+    void MoveEntity(IEntity entity, IScene? other = null);
 
     /// <see cref="MoveEntity"/>
     /// <remarks><paramref name="entities"/> is enumerated twice.</remarks>

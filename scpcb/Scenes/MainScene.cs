@@ -88,24 +88,25 @@ public class MainScene : Scene3D {
         uiElem.Alignment = Alignment.TopRight;
         uiElem.Position = new(-10, 0);
         uiElem.PixelSize = new(500, 50);
-        ui.Root.Children.Add(uiElem);
+        ui.Root.AddChild(uiElem);
 
         var uiElem2 = new TextureElement(_gfxRes, _renderTexture);
         uiElem2.Alignment = Alignment.BottomRight;
         //uiElem2.PixelSize *= 0.1f;
-        ui.Root.Children.Add(uiElem2);
+        ui.Root.AddChild(uiElem2);
 
         _str = new(_gfxRes, _font);
         _str.Text = "^Hxy^";
         _str.Alignment = Alignment.TopLeft;
         _str.Scale *= 0.8f;
-        ui.Root.Children[0].Children.Add(_str);
+        ui.Root.Children[0].AddChild(_str);
 
         _hud = new(_player, ui);
         AddEntity(_hud);
 
-        var manager = new ItemManager(_gfxRes);
-        var test = manager.CreateItem("GasMask");
+        var manager = new ItemManager(_gfxRes, Physics, this);
+        var test = manager.CreateItem("GasMask", new(_player.Camera.Position, Quaternion.Identity));
+        AddEntity(test);
         _player.PickItem(test);
 
         _gfxRes.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
@@ -269,14 +270,14 @@ public class MainScene : Scene3D {
             var count = elem.Children.Count;
             for (var i = 0; i < count; i++) {
                 if (elem.Children[i] is DebugBorder) {
-                    elem.Children.RemoveAt(i);
+                    elem.RemoveChild(elem.Children[i]);
                     count--;
                     i--;
                     continue;
                 }
                 AttachDebugBordersRecursive(elem.Children[i], add);
                 if (add) {
-                    elem.Children[i].Children.Add(new DebugBorder(_gfxRes, elem.Children[i].PixelSize, 1f, Color.White) {
+                    elem.Children[i].AddChild(new DebugBorder(_gfxRes, elem.Children[i].PixelSize, 1f, Color.White) {
                         Color = Helpers.ColorFromHSV(_uiDebugHue, 1f, 1f),
                     });
                 }

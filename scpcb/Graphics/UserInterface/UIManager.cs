@@ -4,6 +4,9 @@ using scpcb.Graphics.Textures;
 
 namespace scpcb.Graphics.UserInterface;
 
+// TODO: Some thoughts on the UI in general:
+// - Composite elements might not always support all inherited properties that they expose (e.g. inability to rescale via setting PixelSize).
+// - Z should likely accumulate while descending the hierarchy.
 public class UIManager : IRenderable {
     public IUIElement Root { get; }
 

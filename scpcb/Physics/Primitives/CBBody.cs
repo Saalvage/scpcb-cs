@@ -5,25 +5,54 @@ namespace scpcb.Physics.Primitives;
 
 public class CBBody : Disposable {
     private readonly ICBShape _shape;
-
-    private BodyReference Reference { get; }
+    private readonly Bodies _bodies;
+    
+    private BodyDescription _desc;
+    private BodyReference _reference;
+    public bool Attached { get; private set; }
 
     public RigidPose Pose {
-        get => Reference.Pose;
-        set => Reference.Pose = value;
+        get => _reference.Pose;
+        set => _reference.Pose = value;
     }
 
     public BodyVelocity Velocity {
-        get => Reference.Velocity;
-        set => Reference.Velocity = value;
+        get => _reference.Velocity;
+        set => _reference.Velocity = value;
     }
 
     public CBBody(Simulation sim, ICBShape shape, in BodyDescription desc) {
         _shape = shape;
-        Reference = new(sim.Bodies.Add(desc), sim.Bodies);
+        _bodies = sim.Bodies;
+        _desc = desc;
+        Attach();
+    }
+
+    public void Attach() {
+        if (Attached) {
+            return;
+        }
+
+        _reference = new(_bodies.Add(_desc), _bodies);
+        Attached = true;
+    }
+
+    public void Detach() {
+        if (!Attached) {
+            return;
+        }
+
+        _desc = _desc with {
+            LocalInertia = _reference.LocalInertia,
+            Pose = _reference.Pose,
+            Velocity = _reference.Velocity,
+        };
+        _bodies.Remove(_reference.Handle);
+        _reference = default;
+        Attached = false;
     }
 
     protected override void DisposeImpl() {
-        Reference.Bodies.Remove(Reference.Handle);
+        Detach();
     }
 }

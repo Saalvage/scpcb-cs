@@ -24,11 +24,10 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
         }
     }
 
-    public const string PROP_PATH = "Assets/Props/";
-
     private readonly ICBShape<ConvexHull> _hull;
-    // TODO: Keepalive, can perhaps be kept alive another way?
-    private readonly CBStatic? _static;
+    
+    public CBStatic? Static { get; }
+    public CBBody? Body { get; }
 
     private readonly string _file;
     
@@ -40,20 +39,20 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     public Prop(PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
         _file = file;
 
-        _cacheEntry = physics.ModelCache.GetModel(PROP_PATH + file);
+        _cacheEntry = physics.ModelCache.GetModel(file);
         var meshes = _cacheEntry.Models.Instantiate().ToArray();
         var hull = _cacheEntry.Collision;
         transform.Position += Vector3.Transform(_cacheEntry.MiddleOffset * transform.Scale, transform.Rotation);
 
         _hull = hull.CreateScaledCopy(transform.Scale);
         if (isStatic) {
-            _static = _hull.CreateStatic(new(transform.Position, transform.Rotation));
+            Static = _hull.CreateStatic(new(transform.Position, transform.Rotation));
             Models = new(meshes) {
                 WorldTransform = transform,
             };
         } else {
-            var body = _hull.CreateDynamic(new(transform.Position, transform.Rotation), 1f);
-            var pmc = new PhysicsModelCollection(physics, body, meshes);
+            Body = _hull.CreateDynamic(new(transform.Position, transform.Rotation), 1f);
+            var pmc = new PhysicsModelCollection(physics, Body, meshes);
             pmc.Teleport(transform);
             Models = pmc;
         }
@@ -66,6 +65,8 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     }
 
     protected override void DisposeImpl() {
+        Static?.Dispose();
+        Body?.Dispose();
         _hull.Dispose();
     }
 

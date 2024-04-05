@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using scpcb.Entities.Items;
 
 namespace scpcb.Graphics.UserInterface;
@@ -20,9 +19,13 @@ public class Inventory : UIElement {
         } else {
             foreach (var (i, newItem, prevItem) in Enumerable.Range(0, items.Count).Zip(items, _currItems)) {
                 if (newItem != prevItem) {
-                    Children[i].Children.Clear();
+                    Children[i].ClearChildren();
                     if (newItem != null) {
-                        Children[i].Children.Add(new TextureElement(_gfxRes, newItem.InventoryIcon));
+                        Children[i].AddChild(new TextureElement(_gfxRes, newItem.InventoryIcon) {
+                            PixelSize = new(64),
+                            Z = 10,
+                            Alignment = Alignment.Center,
+                        });
                     }
                 }
             }
@@ -33,7 +36,7 @@ public class Inventory : UIElement {
     }
 
     private void RecomputeChildren(IReadOnlyList<IItem?> items) {
-        Children.Clear();
+        ClearChildren();
 
         const int SIZE = 70;
         const int SPACING = 50;
@@ -49,7 +52,7 @@ public class Inventory : UIElement {
 
         for (var i = 0; i < items.Count; i++) {
             var item = items[i];
-            var border = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.Black)) {
+            var border = new TexturedBorder(_gfxRes) {
                 PixelSize = new(SIZE),
                 Position = new Vector2(SIZE / 2f)
                          - PixelSize / 2f
@@ -57,9 +60,9 @@ public class Inventory : UIElement {
                 Alignment = Alignment.Center,
             };
             if (item != null) {
-                border.Children.Add(new TextureElement(_gfxRes, item.InventoryIcon));
+                border.AddChild(new TextureElement(_gfxRes, item.InventoryIcon));
             }
-            Children.Add(border);
+            AddChild(border);
         }
     }
 

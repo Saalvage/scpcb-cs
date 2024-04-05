@@ -14,14 +14,13 @@ public partial class Player {
 
         if (newClosestPickable != _closestPickable) {
             var ui = _scene.GetEntitiesOfType<UIManager>().Single();
-            var children = ui.Root.Children;
             if (_closestPickable != null) {
-                children.Remove(_currHand);
+                ui.Root.RemoveChild(_currHand);
             }
 
             if (newClosestPickable != null) {
                 _currHand = new TextureElement(ui.GraphicsResources, newClosestPickable.GetHandTexture()) { Alignment = Alignment.Center };
-                ui.Root.Children.Add(_currHand);
+                ui.Root.AddChild(_currHand);
             }
         }
 

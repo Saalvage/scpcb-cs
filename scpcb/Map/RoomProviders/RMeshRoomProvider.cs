@@ -17,6 +17,8 @@ public partial class RMeshRoomProvider : IRoomProvider {
     public const float ROOM_SCALE_OLD = 8f / 2048f;
     public const float ROOM_SCALE = 1f / 100f;
 
+    public const string PROP_PATH = "Assets/Props/";
+
     public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
 
     public IRoomData LoadRoom(IScene scene, GraphicsResources gfxRes, PhysicsResources physics, string filename) {
@@ -266,7 +268,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
 
                         if (file != "") {
                             data = new MapEntityData<Prop>(globals);
-                            data.AddData("file", file);
+                            data.AddData("file", PROP_PATH + file);
                             data.AddData("position", position);
                             data.AddData("rotation", Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll));
                             data.AddData("scale", scale);

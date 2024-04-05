@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using scpcb.Graphics.Primitives;
-using scpcb.Utility;
 
 namespace scpcb.Graphics.UserInterface;
 
@@ -21,8 +20,6 @@ public enum ProgressHandling {
 }
 
 public class LoadingBar : Border {
-    private readonly TextureElement[] _bars;
-
     public int MaxBarCount { get; }
 
     private int _barCount;
@@ -30,8 +27,8 @@ public class LoadingBar : Border {
         get => _barCount;
         set {
             Debug.Assert(_barCount <= MaxBarCount);
-            for (var i = 0; i < _bars.Length; i++) {
-                _bars[i].IsVisible = i < value;
+            for (var i = 0; i < _internalChildren.Count; i++) {
+                _internalChildren[i].IsVisible = i < value;
             }
             _barCount = value;
         }
@@ -51,10 +48,10 @@ public class LoadingBar : Border {
     public LoadingBar(GraphicsResources gfxRes, int maxBarCount, ICBTexture texture)
         : base(gfxRes, new(10 * maxBarCount + 4, 20), 1, Color.White) {
         _barCount = MaxBarCount = maxBarCount;
-        _bars = Enumerable.Range(0, maxBarCount)
+        _internalChildren.Clear();
+        _internalChildren.AddRange(Enumerable.Range(0, maxBarCount)
             .Select(i => new TextureElement(gfxRes, texture) {
                 Position = new(3 + 10 * i, 3),
-            }).ToArray();
-        Children.AddRange(_bars);
+            }));
     }
 }

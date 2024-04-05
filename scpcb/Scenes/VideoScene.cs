@@ -24,12 +24,11 @@ public class VideoScene : BaseScene {
         _model = new CBModel<UIShader.Vertex>(null, gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>(
                 video.Texture.AsEnumerableElement(),
                 gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement()),
-            new CBMesh<UIShader.Vertex>(gfxRes.GraphicsDevice,
-                [
-                    new(new(-1, -1), new(0, 1)),
-                    new(new(-1, 1), new(0, 0)),
-                    new(new(1, -1), new(1, 1)),
-                    new(new(1, 1), new(1, 0)),
+            new CBMesh<UIShader.Vertex>(gfxRes.GraphicsDevice, [
+                    new(new(-1, -1)),
+                    new(new(-1, 1)),
+                    new(new(1, -1)),
+                    new(new(1, 1)),
                 ], [2, 1, 0, 3, 1, 2]));
 
         // TODO: Consider if it's worth it to instead create an individual game loop for this scene

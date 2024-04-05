@@ -125,6 +125,9 @@ public class BaseScene : Disposable, IScene {
 
     // TODO: Consider: Events instead of virtual?
     public virtual void Update(float delta) {
+        // TODO: We do this here because the input handling comes exactly before, not sure if that's right.
+        DealWithEntityBuffers();
+
         // TODO: There appears to be a race condition here??
         foreach (var u in GetEntitiesOfType<IUpdatable>()) {
             u.Update(delta);

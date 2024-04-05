@@ -32,8 +32,8 @@ public class HUD : IUpdatable {
         _blinkBar = new(gfxRes, 20, gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/BlinkMeter.jpg")) {
             Position = new(1 + 50, 1),
         };
-        blinkIcon.Children.Add(_blinkBar);
-        _ui.Root.Children.Add(blinkIcon);
+        blinkIcon.AddChild(_blinkBar);
+        _ui.Root.AddChild(blinkIcon);
 
         var staminaIcon = new BorderedImage(gfxRes, new(32), 1, Color.White,
                 gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/sprinticon.png")) {
@@ -43,10 +43,10 @@ public class HUD : IUpdatable {
         _staminaBar = new(gfxRes, 20, gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/StaminaMeter.jpg")) {
             Position = new(1 + 50, 1),
         };
-        staminaIcon.Children.Add(_staminaBar);
-        _ui.Root.Children.Add(staminaIcon);
+        staminaIcon.AddChild(_staminaBar);
+        _ui.Root.AddChild(staminaIcon);
 
-        _ui.Root.Children.Add(_inventory = new(gfxRes, player.Items) {
+        _ui.Root.AddChild(_inventory = new(gfxRes, player.Items) {
             Alignment = Alignment.Center,
         });
     }
@@ -55,12 +55,12 @@ public class HUD : IUpdatable {
         ClearItem();
         _singleHeadsUpItem = new(_ui.GraphicsResources, texture) { Alignment = Alignment.Center, Z = 1 };
         _singleHeadsUpItem.PixelSize *= _ui.MenuScale;
-        _ui.Root.Children.Add(_singleHeadsUpItem);
+        _ui.Root.AddChild(_singleHeadsUpItem);
     }
 
     public void ClearItem() {
         if (_singleHeadsUpItem != null) {
-            _ui.Root.Children.Remove(_singleHeadsUpItem);
+            _ui.Root.RemoveChild(_singleHeadsUpItem);
             _singleHeadsUpItem = null;
         }
     }

@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using scpcb.Utility;
 
 namespace scpcb.Graphics.UserInterface;
 
@@ -16,7 +15,7 @@ public class Border : UIElement, IColorizableElement {
             new(gfxRes, texture) { Alignment = Alignment.TopCenter, PixelSize = new(dimensions.X - 2 * thickness, thickness) },
             new(gfxRes, texture) { Alignment = Alignment.BottomCenter, PixelSize = new(dimensions.X - 2 * thickness, thickness) },
         ];
-        Children.AddRange(_internalChildren);
+        AddChildren(_internalChildren);
     }
 
     public Color Color {
