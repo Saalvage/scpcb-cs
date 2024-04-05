@@ -3,7 +3,7 @@
 namespace scpcb.PlayerController;
 
 public partial class Player {
-    private IItem?[] _items = new IItem?[14];
+    private IItem?[] _items = new IItem?[10];
     public IReadOnlyList<IItem?> Items => _items;
 
     public bool PickItem(IItem item) {

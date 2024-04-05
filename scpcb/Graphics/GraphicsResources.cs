@@ -55,6 +55,7 @@ public class GraphicsResources : Disposable {
     public bool Debug { get; }
 
     public Sampler ClampAnisoSampler { get; }
+    public Sampler WrapAnisoSampler { get; }
 
     private readonly RoomProviderCollector _roomProviderCollector = new();
 
@@ -107,15 +108,24 @@ public class GraphicsResources : Disposable {
 
         _mainTarget = new(this, GraphicsDevice.SwapchainFramebuffer);
 
-        ClampAnisoSampler = GraphicsDevice.ResourceFactory.CreateSampler(new() {
-            AddressModeU = SamplerAddressMode.Clamp,
-            AddressModeV = SamplerAddressMode.Clamp,
-            AddressModeW = SamplerAddressMode.Clamp,
+        var baseSamplerDesc = new SamplerDescription() {
             Filter = SamplerFilter.Anisotropic,
             LodBias = 0,
             MinimumLod = 0,
             MaximumLod = uint.MaxValue,
             MaximumAnisotropy = 4,
+        };
+
+        ClampAnisoSampler = GraphicsDevice.ResourceFactory.CreateSampler(baseSamplerDesc with {
+            AddressModeU = SamplerAddressMode.Clamp,
+            AddressModeV = SamplerAddressMode.Clamp,
+            AddressModeW = SamplerAddressMode.Clamp,
+        });
+
+        WrapAnisoSampler = GraphicsDevice.ResourceFactory.CreateSampler(baseSamplerDesc with {
+            AddressModeU = SamplerAddressMode.Wrap,
+            AddressModeV = SamplerAddressMode.Wrap,
+            AddressModeW = SamplerAddressMode.Wrap,
         });
 
         GraphicsDevice.GetOpenGLInfo(out var info);

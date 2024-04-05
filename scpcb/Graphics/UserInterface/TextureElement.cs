@@ -15,9 +15,9 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
     public Vector2 UvOffset { get; set; } = Vector2.Zero;
     public Vector2 UvSize { get; set; } = Vector2.One;
 
-    public TextureElement(GraphicsResources gfxRes, ICBTexture texture) {
+    public TextureElement(GraphicsResources gfxRes, ICBTexture texture, bool tile = false) {
         _model = new CBModel<UIShader.Vertex>(null,
-            gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>([texture], [gfxRes.ClampAnisoSampler]),
+            gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>([texture], [tile ? gfxRes.WrapAnisoSampler : gfxRes.ClampAnisoSampler]),
             gfxRes.MeshCache.GetMesh<TextureElement, UIShader.Vertex>());
         PixelSize = new(texture.Width, texture.Height);
     }

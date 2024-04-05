@@ -46,7 +46,7 @@ public class HUD : IUpdatable {
         staminaIcon.AddChild(_staminaBar);
         _ui.Root.AddChild(staminaIcon);
 
-        _ui.Root.AddChild(_inventory = new(gfxRes, player.Items) {
+        _ui.Root.AddChild(_inventory = new(gfxRes, ui, player.Items) {
             Alignment = Alignment.Center,
         });
     }
