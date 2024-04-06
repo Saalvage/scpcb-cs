@@ -15,7 +15,7 @@ public class HUD : IUpdatable {
     private readonly LoadingBar _blinkBar;
     private readonly LoadingBar _staminaBar;
 
-    private readonly Inventory _inventory;
+    public Inventory Inventory { get; }
 
     public HUD(Player player, UIManager ui) {
         _player = player;
@@ -46,8 +46,9 @@ public class HUD : IUpdatable {
         staminaIcon.AddChild(_staminaBar);
         _ui.Root.AddChild(staminaIcon);
 
-        _ui.Root.AddChild(_inventory = new(gfxRes, ui, player.Items) {
+        _ui.Root.AddChild(Inventory = new(gfxRes, ui, player.Items) {
             Alignment = Alignment.Center,
+            IsVisible = false,
         });
     }
 
@@ -68,6 +69,8 @@ public class HUD : IUpdatable {
     public void Update(float delta) {
         _blinkBar.BarCount = 10;
         _staminaBar.SetProgress(_player.Stamina / _player.MaxStamina, ProgressHandling.Ceiling);
-        _inventory.Update(_player.Items);
+        if (Inventory.IsVisible) {
+            Inventory.Update(_player.Items);
+        }
     }
 }

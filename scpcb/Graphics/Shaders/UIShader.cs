@@ -31,7 +31,6 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.F
         return output;
     }
 
-    // TODO: At this point most of this is duped in TextShader.
     private static int Mod(int a, int b) {
         return a - (b * (a / b));
     }

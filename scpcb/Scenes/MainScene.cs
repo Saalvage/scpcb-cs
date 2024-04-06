@@ -56,6 +56,9 @@ public class MainScene : Scene3D {
     private bool _uiDebug = false;
     private float _uiDebugHue = 0f;
 
+    private bool _paused = false;
+    private IUIElement? _openMenu = null;
+
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
         _gfxRes = game.GraphicsResources;
@@ -162,7 +165,7 @@ public class MainScene : Scene3D {
     }
 
     public override void Update(float delta) {
-        if (_gfxRes.Window.MouseDelta != Vector2.Zero) {
+        if (!_paused && _gfxRes.Window.MouseDelta != Vector2.Zero) {
             _player.HandleMouse(_gfxRes.Window.MouseDelta * 0.01f);
         }
 
@@ -232,7 +235,11 @@ public class MainScene : Scene3D {
                 break;
             }
             case Key.Escape:
-                _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
+                if (_openMenu != null) {
+                    SetOpenMenu(null);
+                } else {
+                    _game.Scene = new VideoScene(_game, "Assets/Splash_UTG.mp4");
+                }
                 break;
             case Key.AltLeft: {
                 var from = _player.Camera.Position;
@@ -262,7 +269,32 @@ public class MainScene : Scene3D {
                 _uiDebug = !_uiDebug;
                 AttachDebugBorders();
                 break;
+            case Key.Tab:
+                if (_openMenu == _hud.Inventory) {
+                    SetOpenMenu(null);
+                } else {
+                    SetOpenMenu(_hud.Inventory);
+                }
+                break;
         }
+    }
+
+    private void SetOpenMenu(IUIElement? newOpenMenu) {
+        if (_openMenu != null) {
+            _openMenu.IsVisible = false;
+        }
+        _openMenu = newOpenMenu;
+        if (_openMenu != null) {
+            _openMenu.IsVisible = true;
+        }
+
+        _paused = _openMenu != null;
+
+        Sdl2Native.SDL_SetRelativeMouseMode(!_paused);
+        if (_paused) {
+            Sdl2Native.SDL_WarpMouseInWindow(_gfxRes.Window.SdlWindowHandle, _gfxRes.Window.Width / 2, _gfxRes.Window.Height / 2);
+        }
+        Sdl2Native.SDL_ShowCursor(_paused ? 1 : 0);
     }
 
     private void AttachDebugBorders() {

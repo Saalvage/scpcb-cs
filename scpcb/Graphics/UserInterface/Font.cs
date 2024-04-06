@@ -4,11 +4,10 @@ using scpcb.Graphics.Primitives;
 using scpcb.Utility;
 using Serilog;
 using Veldrid;
-
-namespace scpcb.Graphics.UserInterface;
-
 using FreeTypeSharp.Native;
 using static FreeTypeSharp.Native.FT;
+
+namespace scpcb.Graphics.UserInterface;
 
 public class Font : Disposable {
     private readonly GraphicsResources _gfxRes;

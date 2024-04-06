@@ -9,14 +9,14 @@ using scpcb.Graphics.Caches;
 namespace scpcb.Graphics.UserInterface;
 
 public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIShader.Vertex>, IColorizableElement {
-    private readonly ICBModel _model;
+    private readonly CBModel<UIShader.Vertex> _model;
 
     public Color Color { get; set; } = Color.White;
     public Vector2 UvOffset { get; set; } = Vector2.Zero;
     public Vector2 UvSize { get; set; } = Vector2.One;
 
     public TextureElement(GraphicsResources gfxRes, ICBTexture texture, bool tile = false) {
-        _model = new CBModel<UIShader.Vertex>(null,
+        _model = new(null,
             gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>([texture], [tile ? gfxRes.WrapAnisoSampler : gfxRes.ClampAnisoSampler]),
             gfxRes.MeshCache.GetMesh<TextureElement, UIShader.Vertex>());
         PixelSize = new(texture.Width, texture.Height);
