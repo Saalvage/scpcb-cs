@@ -123,14 +123,11 @@ public class MainScene : Scene3D {
         var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
 
         var coolTexture = _gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
-        _logoMat = _gfxRes.MaterialCache.GetMaterial(modelShader, video.Texture.AsEnumerableElement(),
-            gfx.PointSampler.AsEnumerableElement());
+        _logoMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [video.Texture], [gfx.PointSampler]);
 
-        _otherMat = _gfxRes.MaterialCache.GetMaterial(modelShader, coolTexture.AsEnumerableElement(),
-            gfx.PointSampler.AsEnumerableElement());
+        _otherMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [coolTexture], [gfx.PointSampler]);
 
-        _renderMat = _gfxRes.MaterialCache.GetMaterial(modelShader, _renderTexture.AsEnumerableElement(),
-            gfx.PointSampler.AsEnumerableElement());
+        _renderMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [_renderTexture], [gfx.PointSampler]);
 
         var billboard = Billboard.Create(_gfxRes, _renderTexture);
         billboard.Transform = billboard.Transform with {

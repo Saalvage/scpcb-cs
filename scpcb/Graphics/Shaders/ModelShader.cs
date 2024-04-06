@@ -7,7 +7,6 @@ using static ShaderGen.ShaderBuiltins;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.Utility;
 using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Utility;
 using scpcb.Graphics.Shaders.Fragments;
 
 #pragma warning disable CS8618
@@ -46,6 +45,6 @@ public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, 
 
     public static ICBMaterial<VPositionTexture> ConvertMaterial(Material mat, string fileDir, GraphicsResources gfxRes)
         => gfxRes.MaterialCache.GetMaterial<ModelShader, VPositionTexture>(
-            gfxRes.TextureCache.GetTexture(fileDir + '/' + Path.GetFileName(mat.TextureDiffuse.FilePath)).AsEnumerableElement(),
-            gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
+            [gfxRes.TextureCache.GetTexture(fileDir + '/' + Path.GetFileName(mat.TextureDiffuse.FilePath))],
+            [gfxRes.GraphicsDevice.Aniso4xSampler]);
 }

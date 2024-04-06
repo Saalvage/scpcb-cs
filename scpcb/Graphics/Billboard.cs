@@ -44,8 +44,7 @@ public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember,
 
         var shader = shouldLookAt ? gfxRes.ShaderCache.GetShader<BillboardShader, VPositionTexture>(modifier)
             : gfxRes.ShaderCache.GetShader<SpriteShader, VPositionTexture>(modifier);
-        var mat = gfxRes.MaterialCache.GetMaterial(shader, texture.AsEnumerableElement(),
-            gfxRes.ClampAnisoSampler.AsEnumerableElement());
+        var mat = gfxRes.MaterialCache.GetMaterial(shader, [texture], [gfxRes.ClampAnisoSampler]);
         return new(gfxRes.MeshCache.GetMesh<Billboard, VPositionTexture>(), mat);
     }
 

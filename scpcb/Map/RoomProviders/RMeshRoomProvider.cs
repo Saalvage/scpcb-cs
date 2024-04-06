@@ -85,7 +85,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 textures[0] ??= gfxRes.TextureCache.GetTexture(Color.White);
                 textures[1] ??= gfxRes.MissingTexture;
 
-                var mat = gfxRes.MaterialCache.GetMaterial(shader, textures!, gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement());
+                var mat = gfxRes.MaterialCache.GetMaterial(shader, textures!, [gfxRes.GraphicsDevice.Aniso4xSampler]);
 
                 var vertexCount = reader.ReadInt32();
                 var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);
