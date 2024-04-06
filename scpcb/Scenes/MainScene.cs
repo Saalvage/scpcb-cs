@@ -96,7 +96,7 @@ public class MainScene : Scene3D {
         ui.Root.AddChild(uiElem2);
 
         _str = new(_gfxRes, _font);
-        _str.Text = "^Hxy^";
+        _str.Text = "T\nBla bla y_\n^";
         _str.Alignment = Alignment.TopLeft;
         _str.Scale *= 0.8f;
         ui.Root.Children[0].AddChild(_str);

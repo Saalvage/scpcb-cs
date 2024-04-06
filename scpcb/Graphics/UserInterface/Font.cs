@@ -26,7 +26,7 @@ public class Font : Disposable {
     private uint _currY;
 
     private const uint GLYPH_PADDING = 2;
-    public const uint ATLAS_SIZE = 2048;
+    public const uint ATLAS_SIZE = 256;
 
     public Font(GraphicsResources gfxRes, FreeTypeLibrary lib, string path, int size) {
         Log.Information("Loading font {path}", path);
@@ -36,6 +36,9 @@ public class Font : Disposable {
         _face = new(lib, _faceNative);
         _face.SelectCharSize(size, 0, 0);
         MakeNewAtlas();
+
+        // None of the built-in metrics really fit here.
+        Height = GetGlyphInfo('T').Dimensions.Y;
     }
 
     private void MakeNewAtlas() {
@@ -87,6 +90,9 @@ public class Font : Disposable {
 
         return newInfo;
     }
+
+    public float VerticalAdvance => _face.GlyphMetricVerticalAdvance;
+    public float Height { get; }
 
     protected override void DisposeImpl() {
         FT_Done_Face(_faceNative);

@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Caches;
 using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
@@ -7,61 +6,96 @@ using scpcb.Graphics.Textures;
 
 namespace scpcb.Graphics.UserInterface;
 
-using AtlasGlyphBundle = (ICBTexture, (Font.GlyphInfo, float[])[]);
+using AtlasMesh = (ICBTexture, ICBMesh<TextShader.Vertex>);
 
-public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShader.Vertex> {
+public class TextElement : UIElement {
     private readonly ICBShader _shader;
     private readonly Font _font;
-    private readonly ICBMesh<TextShader.Vertex> _mesh;
     private readonly GraphicsResources _gfxRes;
 
-    private bool _generatedGlyphList = false;
+    private AtlasMesh[] _meshes;
+    private bool _generatedMeshes = false;
 
-    private AtlasGlyphBundle[] _glyphsInternal;
-    private AtlasGlyphBundle[] _glyphs {
-        get {
-            GenerateGlyphList();
-            return _glyphsInternal;
-        }
+    private record Chunk(int Begin, int Count) {
+        public int CurrentIndex = Begin;
+        public int End => Begin + Count;
     }
 
-    private void GenerateGlyphList() {
-        if (_generatedGlyphList) {
+    private void GenerateMeshes() {
+        if (_generatedMeshes) {
             return;
         }
 
+        Span<TextShader.Vertex> vertices = stackalloc TextShader.Vertex[Text.Length * 4];
+        Span<uint> indices = stackalloc uint[Text.Length * 6];
+
+        var runningTotal = 0;
+        var dataChunks = Text
+            .GroupBy(x => _font.GetGlyphInfo(x).Atlas)
+            .ToDictionary(x => x.Key, x => {
+                var ret = new Chunk(runningTotal, x.Count());
+                runningTotal += ret.Count;
+                return ret;
+            });
+
         var ret = new(Font.GlyphInfo Info, float Offset)[Text.Length];
-        var offset = 0f;
-        var maxY = 0f;
-        var minY = 0f;
+        var offset = new Vector2();
+        var width = 0f;
+        char? prevLineEnding = null;
         for (var i = 0; i < Text.Length; i++) {
             var glyphInfo = _font.GetGlyphInfo(Text[i]);
-            ret[i] = new(glyphInfo, offset);
-            offset += glyphInfo.Advance.X;
-            maxY = MathF.Max(maxY, glyphInfo.Offset.Y);
-            minY = MathF.Min(minY, glyphInfo.Offset.Y - glyphInfo.Dimensions.Y);
+            ret[i] = new(glyphInfo, 0f);
+
+            if (Text[i] is '\n' or '\r') {
+                if (prevLineEnding == null || prevLineEnding == Text[i]) {
+                    prevLineEnding = Text[i];
+                    width = MathF.Max(width, offset.X);
+                    offset.X = 0;
+                    offset.Y -= _font.VerticalAdvance;
+                }
+                continue;
+            } else {
+                prevLineEnding = null;
+            }
+
+            var baseOffset = glyphInfo.Offset + offset - new Vector2(0f, glyphInfo.Dimensions.Y);
+            baseOffset *= Scale;
+            var scaledGlyphDimensions = Scale * glyphInfo.Dimensions;
+            var chunk = dataChunks[glyphInfo.Atlas];
+            var spanIndex = chunk.CurrentIndex++;
+            vertices[spanIndex * 4] = new(baseOffset, (glyphInfo.UvPosition + new Vector2(0, glyphInfo.Dimensions.Y)) / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 1] = new(baseOffset + new Vector2(scaledGlyphDimensions.X, 0), (glyphInfo.UvPosition + glyphInfo.Dimensions) / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 2] = new(baseOffset + new Vector2(0, scaledGlyphDimensions.Y), glyphInfo.UvPosition / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 3] = new(baseOffset + scaledGlyphDimensions, (glyphInfo.UvPosition + new Vector2(glyphInfo.Dimensions.X, 0)) / Font.ATLAS_SIZE);
+
+            var localIndex = spanIndex - chunk.Begin;
+            indices[spanIndex * 6 + 0] = (uint)localIndex * 4 + 0;
+            indices[spanIndex * 6 + 1] = (uint)localIndex * 4 + 1;
+            indices[spanIndex * 6 + 2] = (uint)localIndex * 4 + 2;
+            indices[spanIndex * 6 + 3] = (uint)localIndex * 4 + 3;
+            indices[spanIndex * 6 + 4] = (uint)localIndex * 4 + 2;
+            indices[spanIndex * 6 + 5] = (uint)localIndex * 4 + 1;
+            offset.X += glyphInfo.Advance.X;
+        }
+        width = MathF.Max(width, offset.X);
+
+        // TODO: Reusing meshes or buffers (maybe from a pool) might make sense here.
+        _meshes = new AtlasMesh[dataChunks.Count];
+        foreach (var ((key, x), i) in dataChunks.Zip(Enumerable.Range(0, _meshes.Length))) {
+            _meshes[i] = (key, new CBMesh<TextShader.Vertex>(_gfxRes.GraphicsDevice,
+                vertices[(4 * x.Begin)..(4 * x.End)],
+                indices[(6 * x.Begin)..(6 * x.End)]));
         }
 
-        _dimensionsInternal = new(offset, maxY - minY);
-        _top = maxY;
+        _dimensionsInternal = new(width, -offset.Y + _font.Height);
 
-        _glyphsInternal = ret.GroupBy(x => x.Info.Atlas)
-            .Select(x => (x.Key, x 
-                .GroupBy(x => x.Info.Index)
-                .Select(x => (x.First().Info, x.Select(x => x.Offset).ToArray()))
-                .ToArray()))
-            .ToArray();
-
-        _generatedGlyphList = true;
+        _generatedMeshes = true;
     }
-
-    // Don't feature _topInternal or something along those lines, this will only be accessed along with the dimensions.
-    private float _top;
 
     private Vector2 _dimensionsInternal;
     private Vector2 _dimensions {
         get {
-            GenerateGlyphList();
+            GenerateMeshes();
             return _dimensionsInternal;
         }
     }
@@ -71,7 +105,7 @@ public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShade
         get => _text;
         set {
             _text = value;
-            _generatedGlyphList = false;
+            _generatedMeshes = false;
         }
     }
 
@@ -86,37 +120,20 @@ public class TextElement : UIElement, ISharedMeshProvider<TextElement, TextShade
         _gfxRes = gfxRes;
         _font = font;
         _shader = gfxRes.ShaderCache.GetShader<TextShader>();
-        _mesh = gfxRes.MeshCache.GetMesh<TextElement, TextShader.Vertex>();
     }
 
     protected override void DrawInternal(IRenderTarget target, Vector2 position) {
-        // The math for this is fucked, trial and error away!
+        GenerateMeshes();
+
         var constants = _shader.Constants!;
 
         var halfDimension = _dimensions * 0.5f;
         halfDimension.Y *= -1;
 
-        foreach (var (tex, glyphs) in _glyphs) {
+        constants.SetValue<IPositionConstantMember, Vector3>(new(position + Scale * (new Vector2(0f, -_font.Height) - halfDimension), Z));
+        foreach (var (tex, mesh) in _meshes) {
             var mat = _gfxRes.MaterialCache.GetMaterial<TextShader, TextShader.Vertex>([tex], [_gfxRes.ClampAnisoSampler]);
-            foreach (var (glyph, instances) in glyphs) {
-                constants.SetValue<ITexCoordsConstantMember, Vector4>(new Vector4(glyph.UvPosition.X, glyph.UvPosition.X + glyph.Dimensions.X,
-                    glyph.UvPosition.Y, glyph.UvPosition.Y + glyph.Dimensions.Y) / Font.ATLAS_SIZE);
-                constants.SetValue<IUIScaleConstantMember, Vector2>(Scale * glyph.Dimensions);
-
-                foreach (var instOffset in instances) {
-                    constants.SetValue<IPositionConstantMember, Vector3>(new(
-                        position + Scale * (new Vector2(0f, -_top) + glyph.Offset - halfDimension + new Vector2(instOffset, 0f)), Z));
-                    target.Render<TextShader.Vertex>(new(_mesh, mat));
-                }
-            }
+            target.Render<TextShader.Vertex>(new(mesh, mat));
         }
     }
-
-    public static ICBMesh<TextShader.Vertex> CreateSharedMesh(GraphicsResources gfxRes)
-        => new CBMesh<TextShader.Vertex>(gfxRes.GraphicsDevice, [
-            new(new(0f, 0f)),
-            new(new(1f, 0f)),
-            new(new(0f, -1f)),
-            new(new(1f, -1f)),
-        ], [2, 1, 0, 1, 2, 3]);
 }
