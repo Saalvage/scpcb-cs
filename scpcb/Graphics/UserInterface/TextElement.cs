@@ -14,7 +14,7 @@ public class TextElement : UIElement {
     private readonly GraphicsResources _gfxRes;
 
     private AtlasMesh[] _meshes;
-    private bool _generatedMeshes = false;
+    private bool _dirtyMesh = true;
 
     private record Chunk(int Begin, int Count) {
         public int CurrentIndex = Begin;
@@ -22,7 +22,7 @@ public class TextElement : UIElement {
     }
 
     private void GenerateMeshes() {
-        if (_generatedMeshes) {
+        if (!_dirtyMesh) {
             return;
         }
 
@@ -63,7 +63,7 @@ public class TextElement : UIElement {
             var scaledGlyphDimensions = Scale * glyphInfo.Dimensions;
             var chunk = dataChunks[glyphInfo.Atlas];
             var spanIndex = chunk.CurrentIndex++;
-            vertices[spanIndex * 4] = new(baseOffset, (glyphInfo.UvPosition + new Vector2(0, glyphInfo.Dimensions.Y)) / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 0] = new(baseOffset, (glyphInfo.UvPosition + new Vector2(0, glyphInfo.Dimensions.Y)) / Font.ATLAS_SIZE);
             vertices[spanIndex * 4 + 1] = new(baseOffset + new Vector2(scaledGlyphDimensions.X, 0), (glyphInfo.UvPosition + glyphInfo.Dimensions) / Font.ATLAS_SIZE);
             vertices[spanIndex * 4 + 2] = new(baseOffset + new Vector2(0, scaledGlyphDimensions.Y), glyphInfo.UvPosition / Font.ATLAS_SIZE);
             vertices[spanIndex * 4 + 3] = new(baseOffset + scaledGlyphDimensions, (glyphInfo.UvPosition + new Vector2(glyphInfo.Dimensions.X, 0)) / Font.ATLAS_SIZE);
@@ -89,7 +89,7 @@ public class TextElement : UIElement {
 
         _dimensionsInternal = new(width, -offset.Y + _font.Height);
 
-        _generatedMeshes = true;
+        _dirtyMesh = false;
     }
 
     private Vector2 _dimensionsInternal;
@@ -104,8 +104,8 @@ public class TextElement : UIElement {
     public string Text {
         get => _text;
         set {
+            _dirtyMesh = _dirtyMesh || _text != value;
             _text = value;
-            _generatedMeshes = false;
         }
     }
 

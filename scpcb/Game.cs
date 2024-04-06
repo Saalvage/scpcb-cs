@@ -19,6 +19,8 @@ public class Game : Disposable {
         }
     }
 
+    public int Fps { get; private set; }
+
     public Game(int width, int height) {
         var config = new LoggerConfiguration()
             .MinimumLevel.Debug();
@@ -77,7 +79,7 @@ public class Game : Disposable {
                 fps++;
                 if (now > countingTo) {
                     countingTo = countingTo.AddSeconds(1);
-                    Log.Information("{Fps} FPS; {TicksToBeDone} TTBD", fps, tickAccu / TICK_GOAL);
+                    Fps = fps;
                     fps = 0;
                 }
             }

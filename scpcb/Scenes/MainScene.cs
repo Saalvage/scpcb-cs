@@ -180,6 +180,8 @@ public class MainScene : Scene3D {
             AttachDebugBorders();
         }
 
+        _str.Text = _game.Fps.ToString();
+
         base.Update(delta);
     }
 
