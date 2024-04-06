@@ -337,6 +337,7 @@ public class MainScene : Scene3D {
 
     protected override void DisposeImpl() {
         _room008.Dispose();
+        _room895.Dispose();
         _room4Tunnels.Dispose();
         _renderMat.Dispose();
         _renderTexture.Dispose();
