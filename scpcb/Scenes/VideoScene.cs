@@ -1,7 +1,8 @@
-﻿using scpcb.Graphics.Primitives;
+﻿using System.Numerics;
+using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders;
+using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Textures;
-using scpcb.Utility;
 using Veldrid;
 
 namespace scpcb.Scenes;
@@ -22,14 +23,20 @@ public class VideoScene : BaseScene {
 
         AddEntity(video);
         _model = new CBModel<UIShader.Vertex>(null, gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>(
-                video.Texture.AsEnumerableElement(),
-                gfxRes.GraphicsDevice.Aniso4xSampler.AsEnumerableElement()),
+                [video.Texture], [gfxRes.GraphicsDevice.Aniso4xSampler]),
             new CBMesh<UIShader.Vertex>(gfxRes.GraphicsDevice, [
-                    new(new(-1, -1)),
-                    new(new(-1, 1)),
                     new(new(1, -1)),
+                    new(new(-1, -1)),
                     new(new(1, 1)),
+                    new(new(-1, 1)),
                 ], [2, 1, 0, 3, 1, 2]));
+
+        gfxRes.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
+            Matrix4x4.CreateOrthographic(2, 2, -100f, 100f));
+        var constants = gfxRes.ShaderCache.GetShader<UIShader>().Constants!;
+        constants.SetValue<IPositionConstantMember, Vector3>(Vector3.Zero);
+        constants.SetValue<ITexCoordsConstantMember, Vector4>(new(1, 0, 1, 0));
+        constants.SetValue<IUIScaleConstantMember, Vector2>(Vector2.One);
 
         // TODO: Consider if it's worth it to instead create an individual game loop for this scene
         // that only renders when a new frame should be displayed (probably doesn't matter).

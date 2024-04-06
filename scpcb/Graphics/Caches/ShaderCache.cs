@@ -70,6 +70,8 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
     // that would probably necessitate unregistering logic as well which would likely complicate things?
     private readonly Dictionary<Type, Action<ICBShader>> _globals = [];
 
+    // TODO: Consider differentiating between regular constant members and global constant members,
+    // preventing inconsistencies where individual constants have their value set to a different one.
     public void SetGlobal<T, TVal>(TVal value) where T : IConstantMember<T, TVal> where TVal : unmanaged {
         foreach (var (_, sh) in _dic) {
             sh.Constants?.SetValue<T, TVal>(value);

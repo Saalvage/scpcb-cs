@@ -48,16 +48,19 @@ public class Game : Disposable {
         var now = DateTimeOffset.UtcNow;
         var tickAccu = 0;
         while (GraphicsResources.Window.Exists) {
-            if (_nextScene != null) {
-                _scene.OnLeave();
-                _scene.Dispose();
-                _scene = _nextScene;
-                _scene.OnEnter();
-                _nextScene = null;
-            }
-
             while (tickAccu < TICK_GOAL) {
                 GraphicsResources.Window.PumpEvents();
+
+                // TODO: This used to be in the outer loop before pumping the events, that caused issues with
+                // constants not being applied correctly in scene ctors.
+                // This is just a bandaid fix, but we all know it will probably stick around until the end of time.
+                if (_nextScene != null) {
+                    _scene.OnLeave();
+                    _scene.Dispose();
+                    _scene = _nextScene;
+                    _scene.OnEnter();
+                    _nextScene = null;
+                }
 
                 var newNow = DateTimeOffset.UtcNow;
                 var diff = newNow - now;
