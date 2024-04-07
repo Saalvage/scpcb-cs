@@ -25,7 +25,7 @@ public class Font : Disposable {
     private uint _currY;
 
     private const uint GLYPH_PADDING = 2;
-    public const uint ATLAS_SIZE = 256;
+    public const uint ATLAS_SIZE = 2048;
 
     public Font(GraphicsResources gfxRes, FreeTypeLibrary lib, string path, int size) {
         Log.Information("Loading font {path}", path);

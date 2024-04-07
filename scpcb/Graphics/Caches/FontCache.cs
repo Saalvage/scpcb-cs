@@ -1,0 +1,18 @@
+﻿using FreeTypeSharp;
+using scpcb.Graphics.UserInterface;
+
+namespace scpcb.Graphics.Caches;
+
+public class FontCache : BaseCache<(string, int), Font> {
+    private readonly GraphicsResources _gfxRes;
+    private readonly FreeTypeLibrary _freeType;
+
+    public FontCache(GraphicsResources gfxRes, FreeTypeLibrary lib) {
+        _gfxRes = gfxRes;
+        _freeType = lib;
+    }
+
+    public Font GetFont(string filename, int size) => _dic.TryGetValue((filename, size), out var font)
+        ? font
+        : _dic[(filename, size)] = new(_gfxRes, _freeType, filename, size);
+}

@@ -44,6 +44,7 @@ public class GraphicsResources : Disposable {
     public TextureCache TextureCache { get; }
     public MaterialCache MaterialCache { get; }
     public MeshCache MeshCache { get; }
+    public FontCache FontCache { get; }
 
     public ICBTexture MissingTexture { get; }
 
@@ -105,6 +106,7 @@ public class GraphicsResources : Disposable {
         TextureCache = new(this);
         MaterialCache = new(GraphicsDevice, ShaderCache);
         MeshCache = new(this);
+        FontCache = new(this, _freeType);
 
         _mainTarget = new(this, GraphicsDevice.SwapchainFramebuffer);
 
@@ -152,10 +154,6 @@ public class GraphicsResources : Disposable {
 
     public IRoomData LoadRoom(IScene scene, PhysicsResources physics, string name)
         => _roomProviderCollector.LoadRoom(scene, this, physics, name);
-
-    public Font LoadFont(string path, int size) {
-        return new(this, _freeType, path, size);
-    }
 
     private readonly string[] _preferredShaderFileExtension;
     // TODO: We can probably support HLSL here as well.

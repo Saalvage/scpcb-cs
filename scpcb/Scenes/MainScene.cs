@@ -71,7 +71,7 @@ public class MainScene : Scene3D {
 
         _renderTexture = new(_gfxRes, 100, 100, true);
 
-        _font = _gfxRes.LoadFont("Assets/Fonts/Courier New.ttf", 64);
+        _font = _gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 64);
 
         foreach (var c in Enumerable.Range(0, 1000)) {
             _font.GetGlyphInfo((char)c);
