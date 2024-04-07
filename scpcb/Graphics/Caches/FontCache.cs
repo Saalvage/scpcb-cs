@@ -12,7 +12,10 @@ public class FontCache : BaseCache<(string, int), Font> {
         _freeType = lib;
     }
 
-    public Font GetFont(string filename, int size) => _dic.TryGetValue((filename, size), out var font)
-        ? font
-        : _dic[(filename, size)] = new(_gfxRes, _freeType, filename, size);
+    public Font GetFont(string filename, int size, bool useRawSize = false) {
+        size = useRawSize ? size : (size * Math.Min(_gfxRes.Window.Height, _gfxRes.Window.Width) / 1024);
+        return _dic.TryGetValue((filename, size), out var font)
+            ? font
+            : _dic[(filename, size)] = new(_gfxRes, _freeType, filename, size);
+    }
 }

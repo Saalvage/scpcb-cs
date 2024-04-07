@@ -30,7 +30,7 @@ public class GasMask : IItem<GasMask>, IEntityHolder {
         return new(gfxRes, physics, scene, transform);
     }
 
-    public string DisplayName => "Gas Mask";
+    //public string DisplayName => "Gas Mask";
 
     public ICBTexture InventoryIcon { get; }
 

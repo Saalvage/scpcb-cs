@@ -8,6 +8,7 @@ public class InventorySlot : MenuFrame, IInteractableUIElement {
 
     private IItem? _item;
     private IUIElement? _itemElement;
+    private TextElement _itemText;
 
     public IItem? Item {
         get => _item;
@@ -29,6 +30,8 @@ public class InventorySlot : MenuFrame, IInteractableUIElement {
                     Alignment = Alignment.Center,
                 });
             }
+
+            _itemText.Text = _item?.DisplayName ?? "";
         }
     }
 
@@ -39,14 +42,21 @@ public class InventorySlot : MenuFrame, IInteractableUIElement {
             Alignment = Alignment.Center,
             IsVisible = false,
         });
+        _internalChildren.Add(_itemText = new(gfxRes, gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 19)) {
+            Alignment = Alignment.BottomCenter,
+            Position = new(0, 30),
+            IsVisible = false,
+        });
     }
 
     public void OnBeginHover() {
         _hoverBorder.IsVisible = true;
+        _itemText.IsVisible = true;
     }
 
     public void OnEndHover() {
         _hoverBorder.IsVisible = false;
+        _itemText.IsVisible = false;
     }
 
     public bool Hovering { get; set; }
