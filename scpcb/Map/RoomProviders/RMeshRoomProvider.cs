@@ -9,7 +9,6 @@ using scpcb.Map.Entities;
 using scpcb.Physics;
 using scpcb.Scenes;
 using scpcb.Utility;
-using Serilog;
 
 namespace scpcb.Map.RoomProviders;
 

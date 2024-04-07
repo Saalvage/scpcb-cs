@@ -3,7 +3,6 @@ using BepuPhysics.Collidables;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
 using scpcb.Utility;
-using Serilog;
 
 namespace scpcb.Graphics.Caches;
 

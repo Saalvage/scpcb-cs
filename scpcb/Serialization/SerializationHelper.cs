@@ -2,7 +2,6 @@
 using scpcb.Entities;
 using scpcb.Graphics;
 using scpcb.Scenes;
-using Serilog;
 
 namespace scpcb.Serialization; 
 

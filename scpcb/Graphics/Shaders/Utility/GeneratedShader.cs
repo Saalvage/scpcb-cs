@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using scpcb.Graphics.Primitives;
 using scpcb.Utility;
-using Serilog;
 using ShaderGen;
 
 namespace scpcb.Graphics.Shaders.Utility;

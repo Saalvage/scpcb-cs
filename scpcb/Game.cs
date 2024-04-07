@@ -2,7 +2,6 @@
 using scpcb.Graphics;
 using scpcb.Scenes;
 using scpcb.Utility;
-using Serilog;
 
 namespace scpcb;
 

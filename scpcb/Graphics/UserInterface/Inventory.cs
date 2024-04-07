@@ -7,8 +7,6 @@ public class Inventory : UIElement {
     private readonly GraphicsResources _gfxRes;
     private readonly UIManager _ui;
 
-    private IReadOnlyList<IItem?> _currItems = [];
-
     public Inventory(GraphicsResources gfxRes, UIManager ui, IReadOnlyList<IItem?> items) {
         _gfxRes = gfxRes;
         _ui = ui;
@@ -17,29 +15,17 @@ public class Inventory : UIElement {
     }
 
     public void Update(IReadOnlyList<IItem?> items) {
-        if (items.Count != _currItems.Count) {
+        if (items.Count != _internalChildren.Count) {
             RecomputeChildren(items);
         } else {
-            foreach (var (i, newItem, prevItem) in Enumerable.Range(0, items.Count).Zip(items, _currItems)) {
-                if (newItem != prevItem) {
-                    Children[i].ClearChildren();
-                    if (newItem != null) {
-                        Children[i].AddChild(new TextureElement(_gfxRes, newItem.InventoryIcon) {
-                            PixelSize = new(64),
-                            Z = 10,
-                            Alignment = Alignment.Center,
-                        });
-                    }
-                }
+            foreach (var (i, item) in Enumerable.Range(0, items.Count).Zip(items)) {
+                ((InventorySlot)_internalChildren[i]).Item = item;
             }
         }
-
-        // "Defensive" copy (the array is modified within the player).
-        _currItems = [..items];
     }
 
     private void RecomputeChildren(IReadOnlyList<IItem?> items) {
-        ClearChildren();
+        _internalChildren.Clear();
 
         const int SIZE = 70;
         const int SPACING = 35;
@@ -59,15 +45,11 @@ public class Inventory : UIElement {
                            - PixelSize / 2f
                            + new Vector2(i % columnCount * (SIZE + SPACING), i / columnCount * SIZE * 2);
             var xOffset = (_gfxRes.Window.Width / 2f + pos.X - SIZE / 2f) % 64;
-            var border = new MenuFrame(_gfxRes, _ui, xOffset, xOffset, (_gfxRes.Window.Height / 2f + pos.Y) % 256) {
-                PixelSize = new(SIZE),
+            _internalChildren.Add(new InventorySlot(_gfxRes, _ui, SIZE, xOffset, xOffset, (_gfxRes.Window.Height / 2f + pos.Y) % 256) {
                 Position = pos,
                 Alignment = Alignment.Center,
-            };
-            if (item != null) {
-                border.AddChild(new TextureElement(_gfxRes, item.InventoryIcon));
-            }
-            AddChild(border);
+                Item = item,
+            });
         }
     }
 

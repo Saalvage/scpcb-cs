@@ -9,6 +9,7 @@ namespace scpcb.Entities.Items;
 public interface IItem : IPickableEntity {
     string DisplayName => GetType().AssemblyQualifiedName!;
     ICBTexture InventoryIcon { get; }
+    void OnUsed() { }
 }
 
 public interface IItem<out T> : IItem where T : IItem<T> {

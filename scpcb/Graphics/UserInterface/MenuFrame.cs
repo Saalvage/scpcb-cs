@@ -2,8 +2,8 @@
 
 namespace scpcb.Graphics.UserInterface;
 
-internal class MenuFrame : UIElement {
-    private readonly UIManager _ui;
+public class MenuFrame : UIElement {
+    protected readonly UIManager _ui;
 
     private readonly TiledTextureElement _outer;
     private readonly TiledTextureElement _inner;

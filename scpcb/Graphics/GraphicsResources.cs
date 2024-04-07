@@ -2,13 +2,11 @@
 using scpcb.Graphics.Caches;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Textures;
-using scpcb.Graphics.UserInterface;
 using scpcb.Map;
 using scpcb.Map.RoomProviders;
 using scpcb.Physics;
 using scpcb.Scenes;
 using scpcb.Utility;
-using Serilog;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;

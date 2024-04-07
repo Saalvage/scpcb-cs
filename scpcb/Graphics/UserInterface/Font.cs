@@ -2,7 +2,6 @@
 using FreeTypeSharp;
 using scpcb.Graphics.Primitives;
 using scpcb.Utility;
-using Serilog;
 using Veldrid;
 using FreeTypeSharp.Native;
 using static FreeTypeSharp.Native.FT;

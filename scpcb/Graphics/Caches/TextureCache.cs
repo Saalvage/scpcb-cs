@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using scpcb.Graphics.Primitives;
 using scpcb.Utility;
-using Serilog;
 
 namespace scpcb.Graphics.Caches;
 

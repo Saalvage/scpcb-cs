@@ -104,6 +104,10 @@ public class MainScene : Scene3D {
         _str.Scale *= 0.8f;
         ui.Root.Children[0].AddChild(_str);
 
+        ui.Root.AddChild(new Button(_gfxRes, ui, "Hello", 0, 0, 0) {
+            Alignment = Alignment.BottomRight,
+        });
+
         _hud = new(_player, ui);
         AddEntity(_hud);
 
@@ -159,6 +163,7 @@ public class MainScene : Scene3D {
         window.KeyUp += HandleKeyUp;
         window.MouseDown += HandleMouseEvent;
         window.MouseUp += HandleMouseEvent;
+        window.MouseMove += HandleMouseMove;
     }
 
     public override void Update(float delta) {
@@ -333,6 +338,13 @@ public class MainScene : Scene3D {
                     break;
             }
         }
+    }
+
+    // TODO: Bad bad bad!!!!
+    public static Vector2 MousePos { get; private set; }
+
+    private static void HandleMouseMove(MouseMoveEventArgs e) {
+        MousePos = e.MousePosition;
     }
 
     protected override void DisposeImpl() {

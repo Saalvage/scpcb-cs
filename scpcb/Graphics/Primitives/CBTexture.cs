@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using scpcb.Graphics.Textures;
 using scpcb.Utility;
-using Serilog;
 using StbImageSharp;
 using Veldrid;
 

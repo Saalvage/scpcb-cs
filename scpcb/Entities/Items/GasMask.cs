@@ -52,4 +52,8 @@ public class GasMask : IItem<GasMask>, IEntityHolder {
             yield return _prop;
         }
     }
+
+    public void OnUsed() {
+        Log.Warning("Equipped gas mask!");
+    }
 }
