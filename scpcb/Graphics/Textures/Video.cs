@@ -11,6 +11,7 @@ namespace scpcb.Graphics.Textures;
 public class Video : Disposable, IUpdatable {
     private readonly MediaFile _media;
     private readonly VideoTexture _texture;
+    private readonly byte[] _buffer;
 
     private float _acc;
     private readonly float _timePerFrame;
@@ -50,8 +51,8 @@ public class Video : Disposable, IUpdatable {
             View = gfxRes.GraphicsDevice.ResourceFactory.CreateTextureView(_texture);
         }
 
-        public void UpdateData(ImageData data) {
-            _gfx.UpdateTexture(_texture, data.Data, 0, 0, 0, Width, Height, 1, 0, 0);
+        public void UpdateData(Span<byte> data) {
+            _gfx.UpdateTexture(_texture, data, 0, 0, 0, Width, Height, 1, 0, 0);
         }
 
         protected override void DisposeImpl() {
@@ -64,14 +65,17 @@ public class Video : Disposable, IUpdatable {
         _media = MediaFile.Open(file, new() { VideoPixelFormat = ImagePixelFormat.Rgba32 });
         Debug.Assert(_media.HasVideo);
         Debug.Assert(!_media.Video.Info.IsVariableFrameRate);
-        _texture = new(gfxRes, (uint)_media.Video.Info.FrameSize.Width, (uint)_media.Video.Info.FrameSize.Height);
+        var width = _media.Video.Info.FrameSize.Width;
+        var height = _media.Video.Info.FrameSize.Height;
+        _buffer = new byte[width * height * 4];
+        _texture = new(gfxRes, (uint)width, (uint)height);
         _timePerFrame = 1f / (float)_media.Video.Info.AvgFrameRate;
         AdvanceFrame();
     }
 
     public void AdvanceFrame() {
-        if (_media.Video.TryGetNextFrame(out var data)) {
-            _texture.UpdateData(data);
+        if (_media.Video.TryGetNextFrame(_buffer)) {
+            _texture.UpdateData(_buffer);
         } else if (Loop) {
             ResetTo(TimeSpan.Zero);
         } else {
@@ -97,7 +101,7 @@ public class Video : Disposable, IUpdatable {
 
     private void ResetTo(TimeSpan time) {
         var data = _media.Video.GetFrame(time);
-        _texture.UpdateData(data);
+        _texture.UpdateData(data.Data);
     }
 
     protected override void DisposeImpl() {
