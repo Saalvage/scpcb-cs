@@ -1,9 +1,12 @@
 ﻿using System.Drawing;
+using System.Numerics;
 using scpcb.Entities.Items;
 
 namespace scpcb.Graphics.UserInterface;
 
-public class InventorySlot : MenuFrame, IInteractableUIElement {
+public class InventorySlot : InteractableUIElement {
+    private readonly UIManager _ui;
+    
     private readonly IUIElement _hoverBorder;
 
     private IItem? _item;
@@ -36,7 +39,8 @@ public class InventorySlot : MenuFrame, IInteractableUIElement {
     }
 
     public InventorySlot(GraphicsResources gfxRes, UIManager ui, float size, float outerXOff, float innerXOff, float yOff)
-        : base(gfxRes, ui, outerXOff, innerXOff, yOff) {
+        : base(new MenuFrame(gfxRes, ui, outerXOff, innerXOff, yOff)) {
+        _ui = ui;
         PixelSize = new(size);
         _internalChildren.Add(_hoverBorder = new Border(gfxRes, new(size + 2), 1, Color.Red) {
             Alignment = Alignment.Center,
@@ -49,23 +53,19 @@ public class InventorySlot : MenuFrame, IInteractableUIElement {
         });
     }
 
-    public void OnBeginHover() {
+    protected override void OnBeginHover() {
         _hoverBorder.IsVisible = true;
         _itemText.IsVisible = true;
     }
 
-    public void OnEndHover() {
+    protected override void OnEndHover() {
         _hoverBorder.IsVisible = false;
         _itemText.IsVisible = false;
     }
 
-    public bool Hovering { get; set; }
-    
-    public void OnMouseDown() {
+    public override void MouseDown(Vector2 pos, Vector2 mousePos) {
         _item?.OnUsed();
     }
 
-    public void OnMouseUp() {
-
-    }
+    public override void MouseUp(Vector2 pos, Vector2 mousePos) { }
 }

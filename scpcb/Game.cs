@@ -7,6 +7,7 @@ namespace scpcb;
 
 public class Game : Disposable {
     public GraphicsResources GraphicsResources { get; }
+    public InputManager InputManager { get; }
 
     private IScene _scene;
     private IScene? _nextScene;
@@ -31,6 +32,7 @@ public class Game : Disposable {
         Log.Logger = config.CreateLogger();
 
         GraphicsResources = new(width, height);
+        InputManager = new(GraphicsResources.Window);
 
         _scene = false ? new VideoScene(this, "Assets/Splash_UTG.mp4") : new MainScene(this);
         _scene.OnEnter();
@@ -48,7 +50,7 @@ public class Game : Disposable {
         var tickAccu = 0;
         while (GraphicsResources.Window.Exists) {
             while (tickAccu < TICK_GOAL) {
-                GraphicsResources.Window.PumpEvents();
+                InputManager.PumpEvents();
 
                 // TODO: This used to be in the outer loop before pumping the events, that caused issues with
                 // constants not being applied correctly in scene ctors.

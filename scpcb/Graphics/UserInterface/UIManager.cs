@@ -10,7 +10,11 @@ namespace scpcb.Graphics.UserInterface;
 // - Z should likely accumulate while descending the hierarchy.
 // - The goal should be to optimize the entire system by batching sprites together.
 public class UIManager : IRenderable, IUpdatable {
-    public IUIElement Root { get; }
+    public class RootElement : UIElement {
+        public void Visit(Func<IUIElement, Vector2, bool> visitor) => Visit(this, Vector2.Zero, visitor);
+    }
+
+    public RootElement Root { get; }
 
     public float MenuScale { get; }
 
@@ -19,9 +23,12 @@ public class UIManager : IRenderable, IUpdatable {
     // TODO: Do we need to expose this? Moving it to IScene seems like a possibility.
     public GraphicsResources GraphicsResources { get; }
 
-    public UIManager(GraphicsResources gfxRes) {
+    public InputManager InputManager { get; }
+
+    public UIManager(GraphicsResources gfxRes, InputManager input) {
         GraphicsResources = gfxRes;
-        Root = new UIElement { PixelSize = new(gfxRes.Window.Width, gfxRes.Window.Height) };
+        InputManager = input;
+        Root = new() { PixelSize = new(gfxRes.Window.Width, gfxRes.Window.Height) };
         MenuScale = Math.Min(gfxRes.Window.Height, gfxRes.Window.Width) / 1024f;
     }
 
@@ -31,30 +38,23 @@ public class UIManager : IRenderable, IUpdatable {
     }
 
     public void Update(float delta) {
-        var mousePos = MainScene.MousePos;
-
-        Root.Visit(Root, Vector2.Zero, (elem, pos) => {
+        Root.Visit((elem, pos) => {
             if (!elem.IsVisible) {
                 return false;
             }
 
-            pos += 0.5f * new Vector2(GraphicsResources.Window.Width, -GraphicsResources.Window.Height);
-            pos -= elem.PixelSize / 2 * new Vector2(1, -1);
-            pos.Y = -pos.Y;
-
             if (elem is IInteractableUIElement interactive) {
-                var hovering = pos.X <= mousePos.X && pos.X + elem.PixelSize.X >= mousePos.X
-                                                   && pos.Y <= mousePos.Y && pos.Y + elem.PixelSize.Y >= mousePos.Y;
-                if (interactive.Hovering && !hovering) {
-                    interactive.OnEndHover();
-                } else if (!interactive.Hovering && hovering) {
-                    interactive.OnBeginHover();
-                }
-
-                interactive.Hovering = hovering;
+                interactive.MouseMove(UnfuckCoordinates(elem, pos), InputManager.MousePosition);
             }
 
             return true;
         });
+    }
+
+    private Vector2 UnfuckCoordinates(IUIElement elem, Vector2 pos) {
+        pos += 0.5f * new Vector2(GraphicsResources.Window.Width, -GraphicsResources.Window.Height);
+        pos.Y = -pos.Y;
+        pos -= elem.PixelSize / 2;
+        return pos;
     }
 }

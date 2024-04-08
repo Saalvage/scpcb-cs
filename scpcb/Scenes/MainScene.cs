@@ -25,6 +25,7 @@ namespace scpcb.Scenes;
 public class MainScene : Scene3D {
     private readonly Game _game;
     private readonly GraphicsResources _gfxRes;
+    private readonly InputManager _input;
     
     private readonly Player _player;
 
@@ -62,6 +63,7 @@ public class MainScene : Scene3D {
     public MainScene(Game game) : base(game.GraphicsResources) {
         _game = game;
         _gfxRes = game.GraphicsResources;
+        _input = game.InputManager;
 
         AddEntity(Physics);
 
@@ -84,7 +86,7 @@ public class MainScene : Scene3D {
         video.Loop = true;
         AddEntity(video);
 
-        var ui = new UIManager(_gfxRes);
+        var ui = new UIManager(_gfxRes, _input);
         AddEntity(ui);
 
         var uiElem = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.Aqua));
@@ -163,7 +165,6 @@ public class MainScene : Scene3D {
         window.KeyUp += HandleKeyUp;
         window.MouseDown += HandleMouseEvent;
         window.MouseUp += HandleMouseEvent;
-        window.MouseMove += HandleMouseMove;
     }
 
     public override void Update(float delta) {
@@ -292,11 +293,7 @@ public class MainScene : Scene3D {
 
         _paused = _openMenu != null;
 
-        Sdl2Native.SDL_SetRelativeMouseMode(!_paused);
-        if (_paused) {
-            Sdl2Native.SDL_WarpMouseInWindow(_gfxRes.Window.SdlWindowHandle, _gfxRes.Window.Width / 2, _gfxRes.Window.Height / 2);
-        }
-        Sdl2Native.SDL_ShowCursor(_paused ? 1 : 0);
+        _input.SetMouseCaptured(!_paused);
     }
 
     private void AttachDebugBorders() {
@@ -338,13 +335,6 @@ public class MainScene : Scene3D {
                     break;
             }
         }
-    }
-
-    // TODO: Bad bad bad!!!!
-    public static Vector2 MousePos { get; private set; }
-
-    private static void HandleMouseMove(MouseMoveEventArgs e) {
-        MousePos = e.MousePosition;
     }
 
     protected override void DisposeImpl() {
