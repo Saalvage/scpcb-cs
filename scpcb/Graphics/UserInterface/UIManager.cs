@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using scpcb.Entities;
 using scpcb.Graphics.Textures;
-using scpcb.Scenes;
 
 namespace scpcb.Graphics.UserInterface;
 
@@ -11,7 +10,8 @@ namespace scpcb.Graphics.UserInterface;
 // - The goal should be to optimize the entire system by batching sprites together.
 public class UIManager : IRenderable, IUpdatable {
     public class RootElement : UIElement {
-        public void Visit(Func<IUIElement, Vector2, bool> visitor) => Visit(this, Vector2.Zero, visitor);
+        public void Visit(Func<IUIElement, Vector2, bool> visitor, bool visitInvisible = false)
+            => Visit(this, Vector2.Zero, visitor, visitInvisible);
     }
 
     public RootElement Root { get; }
@@ -39,12 +39,8 @@ public class UIManager : IRenderable, IUpdatable {
 
     public void Update(float delta) {
         Root.Visit((elem, pos) => {
-            if (!elem.IsVisible) {
-                return false;
-            }
-
             if (elem is IInteractableUIElement interactive) {
-                interactive.MouseMove(UnfuckCoordinates(elem, pos), InputManager.MousePosition);
+                interactive.Update(UnfuckCoordinates(elem, pos), InputManager.Snapshot);
             }
 
             return true;

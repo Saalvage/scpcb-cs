@@ -11,12 +11,12 @@ using Veldrid;
 
 namespace scpcb.Graphics;
 
-public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, IConstantProvider<IColorConstantMember, Vector3>,
+public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, IConstantProvider<IColorAlphaConstantMember, Vector4>,
         ISharedMeshProvider<Billboard, VPositionTexture> {
     Vector3 I3DEntity.Position => Transform.Position;
     public Transform Transform { get; set; } = new();
 
-    public Vector3 Color { get; set; } = Vector3.One;
+    public Vector4 Color { get; set; } = Vector4.One;
 
     public ICBModel Model { get; }
 
@@ -51,11 +51,11 @@ public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember,
     public Matrix4x4 GetValue(float interp)
         => Transform.GetMatrix();
 
-    Vector3 IConstantProvider<IColorConstantMember, Vector3>.GetValue(float interp) => Color;
+    Vector4 IConstantProvider<IColorAlphaConstantMember, Vector4>.GetValue(float interp) => Color;
 
     public void ApplyTo(IEnumerable<IConstantHolder?> holders, float interp) {
         ((IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>)this).ApplyToInternal(holders, interp);
-        ((IConstantProvider<IColorConstantMember, Vector3>)this).ApplyToInternal(holders, interp);
+        ((IConstantProvider<IColorAlphaConstantMember, Vector4>)this).ApplyToInternal(holders, interp);
     }
 
     public static ICBMesh<VPositionTexture> CreateSharedMesh(GraphicsResources gfxRes)

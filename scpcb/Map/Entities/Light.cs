@@ -26,7 +26,7 @@ public class Light : IMapEntity, IEntityHolder, IPrerenderable {
             Scale = new(0.6f * RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD),
             Rotation = Quaternion.CreateFromYawPitchRoll(0f, 0f, Random.Shared.NextSingle() * MathF.PI * 2f),
         };
-        _lensflare.Color = color;
+        _lensflare.Color = new(color, 1f);
     }
 
     public IEnumerable<IEntity> Entities {

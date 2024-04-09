@@ -14,7 +14,7 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.F
     public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector4 TexCoords, Vector3 Position, float Pad, Vector2 Scale)
         : IPositionConstantMember, IUIProjectionMatrixConstantMember, IUIScaleConstantMember, ITexCoordsConstantMember;
 
-    public record struct FragmentConstants(Vector3 Color) : IColorConstantMember;
+    public record struct FragmentConstants(Vector4 Color) : IColorAlphaConstantMember;
 
     public record struct Vertex([PositionSemantic] Vector2 Position);
 
@@ -37,7 +37,6 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.F
 
     [FragmentShader]
     public Vector4 FS(FPositionTexture input) {
-        var sampled = Sample(SurfaceTexture, Sampler, input.TextureCoord);
-        return new(FragmentBlock.Color * sampled.XYZ(), sampled.W);
+        return Sample(SurfaceTexture, Sampler, input.TextureCoord) * FragmentBlock.Color;
     }
 }

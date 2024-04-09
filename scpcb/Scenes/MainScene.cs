@@ -11,6 +11,7 @@ using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
 using scpcb.Graphics.UserInterface;
+using scpcb.Graphics.UserInterface.Utility;
 using scpcb.Map;
 using scpcb.Physics;
 using scpcb.Physics.Primitives;
@@ -28,12 +29,6 @@ public class MainScene : Scene3D {
     private readonly InputManager _input;
     
     private readonly Player _player;
-
-    private readonly Dictionary<Key, bool> _keysDown = [];
-    private bool KeyDown(Key x) => _keysDown.TryGetValue(x, out var y) && y;
-
-    private readonly Dictionary<MouseButton, bool> _mouseButtonsDown = [];
-    private bool MouseButtonDown(MouseButton x) => _mouseButtonsDown.TryGetValue(x, out var y) && y;
 
     private readonly ICBShape<ConvexHull> _hull;
     private readonly ICBMaterial<VPositionTexture> _renderMat;
@@ -110,6 +105,8 @@ public class MainScene : Scene3D {
             Alignment = Alignment.BottomRight,
         });
 
+        ui.Root.AddChild(new TextInput(_gfxRes, _input, _font));
+
         _hud = new(_player, ui);
         AddEntity(_hud);
 
@@ -162,7 +159,6 @@ public class MainScene : Scene3D {
         _hull = _cacheEntry.Collision;
 
         window.KeyDown += HandleKeyDown;
-        window.KeyUp += HandleKeyUp;
         window.MouseDown += HandleMouseEvent;
         window.MouseUp += HandleMouseEvent;
     }
@@ -173,13 +169,13 @@ public class MainScene : Scene3D {
         }
 
         var dir = Vector2.Zero;
-        if (KeyDown(Key.W)) dir += Vector2.UnitY;
-        if (KeyDown(Key.S)) dir -= Vector2.UnitY;
-        if (KeyDown(Key.A)) dir += Vector2.UnitX;
-        if (KeyDown(Key.D)) dir -= Vector2.UnitX;
+        if (_input.IsKeyDown(Key.W)) dir += Vector2.UnitY;
+        if (_input.IsKeyDown(Key.S)) dir -= Vector2.UnitY;
+        if (_input.IsKeyDown(Key.A)) dir += Vector2.UnitX;
+        if (_input.IsKeyDown(Key.D)) dir -= Vector2.UnitX;
 
         _player.MoveDir = dir == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(dir);
-        _player.IsSprinting = KeyDown(Key.ShiftLeft);
+        _player.IsSprinting = _input.IsKeyDown(Key.ShiftLeft);
 
         if (_uiDebug) {
             _uiDebugHue = (_uiDebugHue + delta * 50) % 360;
@@ -215,7 +211,6 @@ public class MainScene : Scene3D {
     public override void OnLeave() {
         // TODO: This sucks! Might as well eliminate the entire method.
         _gfxRes.Window.KeyDown -= HandleKeyDown;
-        _gfxRes.Window.KeyUp -= HandleKeyUp;
         _gfxRes.Window.MouseDown -= HandleMouseEvent;
         _gfxRes.Window.MouseUp -= HandleMouseEvent;
     }
@@ -223,8 +218,6 @@ public class MainScene : Scene3D {
     private static string? _serialized;
 
     private void HandleKeyDown(KeyEvent e) {
-        _keysDown[e.Key] = true;
-
         switch (e.Key) {
             case Key.Space: {
                 var body = _hull.CreateDynamic(new(_player.Camera.Position, _player.Camera.Rotation), 1);
@@ -318,13 +311,7 @@ public class MainScene : Scene3D {
         }
     }
 
-    private void HandleKeyUp(KeyEvent e) {
-        _keysDown[e.Key] = false;
-    }
-
     private void HandleMouseEvent(MouseEvent e) {
-        _mouseButtonsDown[e.MouseButton] = e.Down;
-
         if (e.Down) {
             switch (e.MouseButton) {
                 case MouseButton.Left:

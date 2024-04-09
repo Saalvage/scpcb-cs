@@ -23,8 +23,8 @@ public partial class SpriteShader : IAutoShader<SpriteShader.VertexConstants, Em
         public Matrix4x4 WorldMatrix { get; set; }
     }
 
-    public struct InstanceFragmentConstants : IColorConstantMember {
-        public Vector3 Color { get; set; }
+    public struct InstanceFragmentConstants : IColorAlphaConstantMember {
+        public Vector4 Color { get; set; }
     }
 
     [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource SurfaceTexture;
@@ -42,6 +42,6 @@ public partial class SpriteShader : IAutoShader<SpriteShader.VertexConstants, Em
 
     [FragmentShader]
     public Vector4 FS(FPositionTexture input) {
-        return new(Sample(SurfaceTexture, Sampler, input.TextureCoord).XYZ() * InstanceFragmentBlock.Color, 1f);
+        return Sample(SurfaceTexture, Sampler, input.TextureCoord) * InstanceFragmentBlock.Color;
     }
 }

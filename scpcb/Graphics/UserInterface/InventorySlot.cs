@@ -1,10 +1,11 @@
 ﻿using System.Drawing;
-using System.Numerics;
 using scpcb.Entities.Items;
+using scpcb.Graphics.UserInterface.Utility;
+using Veldrid;
 
 namespace scpcb.Graphics.UserInterface;
 
-public class InventorySlot : InteractableUIElement {
+public class InventorySlot : InteractableUIElement<MenuFrame> {
     private readonly UIManager _ui;
     
     private readonly IUIElement _hoverBorder;
@@ -39,7 +40,7 @@ public class InventorySlot : InteractableUIElement {
     }
 
     public InventorySlot(GraphicsResources gfxRes, UIManager ui, float size, float outerXOff, float innerXOff, float yOff)
-        : base(new MenuFrame(gfxRes, ui, outerXOff, innerXOff, yOff)) {
+        : base(new(gfxRes, ui, outerXOff, innerXOff, yOff)) {
         _ui = ui;
         PixelSize = new(size);
         _internalChildren.Add(_hoverBorder = new Border(gfxRes, new(size + 2), 1, Color.Red) {
@@ -63,9 +64,7 @@ public class InventorySlot : InteractableUIElement {
         _itemText.IsVisible = false;
     }
 
-    public override void MouseDown(Vector2 pos, Vector2 mousePos) {
+    protected override void OnMouseDown(MouseButton button) {
         _item?.OnUsed();
     }
-
-    public override void MouseUp(Vector2 pos, Vector2 mousePos) { }
 }

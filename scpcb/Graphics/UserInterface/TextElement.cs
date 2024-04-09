@@ -3,6 +3,7 @@ using scpcb.Graphics.Shaders;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Textures;
+using scpcb.Graphics.UserInterface.Utility;
 
 namespace scpcb.Graphics.UserInterface;
 
@@ -19,6 +20,14 @@ public class TextElement : UIElement {
     private record Chunk(int Begin, int Count) {
         public int CurrentIndex = Begin;
         public int End => Begin + Count;
+    }
+
+    private Vector2[] _offsets;
+    public IReadOnlyList<Vector2> Offsets {
+        get {
+            GenerateMeshes();
+            return _offsets;
+        }
     }
 
     private void GenerateMeshes() {
@@ -40,9 +49,12 @@ public class TextElement : UIElement {
 
         var ret = new(Font.GlyphInfo Info, float Offset)[Text.Length];
         var offset = new Vector2();
+        _offsets = new Vector2[Text.Length + 1];
         var width = 0f;
         char? prevLineEnding = null;
         for (var i = 0; i < Text.Length; i++) {
+            _offsets[i] = offset;
+
             var glyphInfo = _font.GetGlyphInfo(Text[i]);
             ret[i] = new(glyphInfo, 0f);
 
@@ -78,6 +90,7 @@ public class TextElement : UIElement {
             offset.X += glyphInfo.Advance.X;
         }
         width = MathF.Max(width, offset.X);
+        _offsets[Text.Length] = offset;
 
         // TODO: Reusing meshes or buffers (maybe from a pool) might make sense here.
         _meshes = new AtlasMesh[dataChunks.Count];

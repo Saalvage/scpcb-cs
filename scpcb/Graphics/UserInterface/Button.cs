@@ -1,13 +1,14 @@
 ﻿using System.Drawing;
 using System.Numerics;
+using scpcb.Graphics.UserInterface.Utility;
 
 namespace scpcb.Graphics.UserInterface;
 
-public class Button : InteractableUIElement {
+public class Button : InteractableUIElement<MenuFrame> {
     private readonly IUIElement _hover;
 
     public Button(GraphicsResources gfxRes, UIManager ui, string text, float outerXOff, float innerXOff, float yOff)
-            : base(new MenuFrame(gfxRes, ui, outerXOff, innerXOff, yOff)) {
+            : base(new(gfxRes, ui, outerXOff, innerXOff, yOff)) {
         PixelSize = new(512, 64);
         _internalChildren.Add(_hover = new TextureElement(ui.GraphicsResources,
             ui.GraphicsResources.TextureCache.GetTexture(Color.FromArgb(30, 30, 30))) {

@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using scpcb.Graphics.Textures;
+using scpcb.Graphics.UserInterface.Utility;
 using scpcb.Utility;
 
 namespace scpcb.Graphics.UserInterface;
@@ -19,7 +20,7 @@ public interface IUIElement {
     Alignment Alignment { get; }
     bool IsVisible { get; set; }
     void Draw(IRenderTarget target, IUIElement parent, Vector2 drawPos);
-    void Visit(IUIElement parent, Vector2 drawPos, Func<IUIElement, Vector2, bool> visitor);
+    void Visit(IUIElement parent, Vector2 drawPos, Func<IUIElement, Vector2, bool> visitor, bool visitInvisible = false);
 }
 
 public class UIElement : IUIElement {
@@ -85,12 +86,16 @@ public class UIElement : IUIElement {
         return parentPos;
     }
     
-    public void Visit(IUIElement parent, Vector2 drawPos, Func<IUIElement, Vector2, bool> visitor) {
+    public void Visit(IUIElement parent, Vector2 drawPos, Func<IUIElement, Vector2, bool> visitor, bool visitInvisible = false) {
+        if (!visitInvisible && !IsVisible) {
+            return;
+        }
+
         var absPos = CalculateAbsolutePosition(parent, drawPos);
 
         if (visitor(this, absPos)) {
             foreach (var child in Children) {
-                child.Visit(this, absPos, visitor);
+                child.Visit(this, absPos, visitor, visitInvisible);
             }
         }
     }

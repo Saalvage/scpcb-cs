@@ -25,7 +25,7 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
     protected override void DrawInternal(IRenderTarget target, Vector2 position) {
         _model.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z));
         _model.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
-        _model.Material.Shader.Constants!.SetValue<IColorConstantMember, Vector3>(new Vector3(Color.R, Color.G, Color.B) / 255f);
+        _model.Material.Shader.Constants!.SetValue<IColorAlphaConstantMember, Vector4>(new Vector4(Color.R, Color.G, Color.B, Color.A) / 255f);
         var uvPositionEnd = UvOffset + UvSize;
         _model.Material.Shader.Constants!.SetValue<ITexCoordsConstantMember, Vector4>(new(UvOffset.X, uvPositionEnd.X,
             UvOffset.Y, uvPositionEnd.Y));

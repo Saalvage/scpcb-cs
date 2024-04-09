@@ -1,4 +1,4 @@
-﻿namespace scpcb.Graphics.UserInterface;
+﻿namespace scpcb.Graphics.UserInterface.Utility;
 
 public record struct Alignment(Alignment.Vertical Verticality, Alignment.Horizontal Horizontality) {
     public enum Vertical : byte { Top, Center, Bottom }
