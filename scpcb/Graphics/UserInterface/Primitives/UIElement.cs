@@ -3,7 +3,7 @@ using scpcb.Graphics.Textures;
 using scpcb.Graphics.UserInterface.Utility;
 using scpcb.Utility;
 
-namespace scpcb.Graphics.UserInterface;
+namespace scpcb.Graphics.UserInterface.Primitives;
 
 public interface IUIElement {
     /// <summary>

@@ -2,6 +2,9 @@
 using scpcb.Entities;
 using scpcb.Graphics.Primitives;
 using scpcb.Graphics.UserInterface;
+using scpcb.Graphics.UserInterface.Composites;
+using scpcb.Graphics.UserInterface.Menus;
+using scpcb.Graphics.UserInterface.Primitives;
 using scpcb.Graphics.UserInterface.Utility;
 using scpcb.PlayerController;
 
@@ -16,7 +19,7 @@ public class HUD : IUpdatable {
     private readonly LoadingBar _blinkBar;
     private readonly LoadingBar _staminaBar;
 
-    public Inventory Inventory { get; }
+    public InventoryMenu Inventory { get; }
 
     public HUD(Player player, UIManager ui) {
         _player = player;

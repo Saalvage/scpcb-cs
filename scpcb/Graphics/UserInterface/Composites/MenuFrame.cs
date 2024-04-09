@@ -1,7 +1,8 @@
 ﻿using System.Numerics;
+using scpcb.Graphics.UserInterface.Primitives;
 using scpcb.Graphics.UserInterface.Utility;
 
-namespace scpcb.Graphics.UserInterface;
+namespace scpcb.Graphics.UserInterface.Composites;
 
 public class MenuFrame : UIElement {
     protected readonly UIManager _ui;

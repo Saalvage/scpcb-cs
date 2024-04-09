@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using scpcb.Entities;
 using scpcb.Graphics.Textures;
+using scpcb.Graphics.UserInterface.Primitives;
 
 namespace scpcb.Graphics.UserInterface;
 

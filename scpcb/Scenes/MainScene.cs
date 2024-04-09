@@ -11,6 +11,8 @@ using scpcb.Graphics.Shaders.ConstantMembers;
 using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
 using scpcb.Graphics.UserInterface;
+using scpcb.Graphics.UserInterface.Composites;
+using scpcb.Graphics.UserInterface.Primitives;
 using scpcb.Graphics.UserInterface.Utility;
 using scpcb.Map;
 using scpcb.Physics;

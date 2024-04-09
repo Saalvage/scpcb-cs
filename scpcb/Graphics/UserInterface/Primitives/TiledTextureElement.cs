@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using scpcb.Graphics.Primitives;
 
-namespace scpcb.Graphics.UserInterface;
+namespace scpcb.Graphics.UserInterface.Primitives;
 
 public class TiledTextureElement : TextureElement {
     private readonly ICBTexture _texture;

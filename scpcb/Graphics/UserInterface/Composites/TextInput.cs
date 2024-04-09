@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
+using scpcb.Graphics.UserInterface.Primitives;
 using scpcb.Graphics.UserInterface.Utility;
 using Veldrid;
 using Veldrid.Sdl2;
 
-namespace scpcb.Graphics.UserInterface;
+namespace scpcb.Graphics.UserInterface.Composites;
 
 // TODO:
 // - Interaction with ctrl.

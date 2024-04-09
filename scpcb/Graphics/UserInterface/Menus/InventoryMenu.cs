@@ -1,14 +1,16 @@
 ﻿using System.Numerics;
 using scpcb.Entities.Items;
+using scpcb.Graphics.UserInterface.Composites;
+using scpcb.Graphics.UserInterface.Primitives;
 using scpcb.Graphics.UserInterface.Utility;
 
-namespace scpcb.Graphics.UserInterface;
+namespace scpcb.Graphics.UserInterface.Menus;
 
-public class Inventory : UIElement {
+public class InventoryMenu : UIElement {
     private readonly GraphicsResources _gfxRes;
     private readonly UIManager _ui;
 
-    public Inventory(GraphicsResources gfxRes, UIManager ui, IReadOnlyList<IItem?> items) {
+    public InventoryMenu(GraphicsResources gfxRes, UIManager ui, IReadOnlyList<IItem?> items) {
         _gfxRes = gfxRes;
         _ui = ui;
         Position = new(0, 35);
