@@ -16,13 +16,15 @@ public class InteractableUIElement<TInner> : UIElement, IInteractableUIElement w
 
     protected bool _hovering { get; private set; } = false;
 
+    protected bool _receiveMouseDownOutside = false;
+
     public InteractableUIElement(TInner inner) {
         Inner = inner;
         _internalChildren.Add(inner);
     }
 
     public void Update(Vector2 pos, InputSnapshot snapshot) {
-        var mouseInElem = IsInRect(pos, snapshot.MousePosition);
+        var mouseInElem = IsInElement(snapshot.MousePosition - pos);
         if (_hovering != mouseInElem) {
             if (mouseInElem) {
                 OnBeginHover();
@@ -38,12 +40,12 @@ public class InteractableUIElement<TInner> : UIElement, IInteractableUIElement w
                 // Note the semantics here: mouse down is only reported if the mouse is on the element
                 // while mouse up is always reported if the mouse was previously downed on the element.
                 if (newDown) {
-                    if (mouseInElem) {
-                        OnMouseDown(mb);
+                    if (mouseInElem || _receiveMouseDownOutside) {
+                        OnMouseDown(mb, snapshot.MousePosition - pos);
                         _downButtons[mb] = true;
                     }
                 } else {
-                    OnMouseUp(mb);
+                    OnMouseUp(mb, snapshot.MousePosition - pos);
                     _downButtons[mb] = false;
                 }
                 
@@ -61,15 +63,15 @@ public class InteractableUIElement<TInner> : UIElement, IInteractableUIElement w
         }
     }
 
-    private bool IsInRect(Vector2 myPos, Vector2 otherPos)
-        => myPos.X <= otherPos.X && myPos.X + PixelSize.X >= otherPos.X
-        && myPos.Y <= otherPos.Y && myPos.Y + PixelSize.Y >= otherPos.Y;
+    protected bool IsInElement(Vector2 pos)
+        => pos.X >= 0 && pos.X <= PixelSize.X
+        && pos.Y >= 0 && pos.Y <= PixelSize.Y;
 
     protected virtual void OnBeginHover() { }
     protected virtual void OnEndHover() { }
 
-    protected virtual void OnMouseDown(MouseButton button) { }
-    protected virtual void OnMouseUp(MouseButton button) { }
+    protected virtual void OnMouseDown(MouseButton button, Vector2 pos) { }
+    protected virtual void OnMouseUp(MouseButton button, Vector2 pos) { }
 
     protected virtual void OnTextInput(char ch) { }
     protected virtual void OnKeyPressed(Key key, ModifierKeys modifiers) { }

@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Numerics;
 using scpcb.Entities.Items;
 using scpcb.Graphics.UserInterface.Utility;
 using Veldrid;
@@ -64,7 +65,7 @@ public class InventorySlot : InteractableUIElement<MenuFrame> {
         _itemText.IsVisible = false;
     }
 
-    protected override void OnMouseDown(MouseButton button) {
+    protected override void OnMouseDown(MouseButton button, Vector2 pos) {
         _item?.OnUsed();
     }
 }

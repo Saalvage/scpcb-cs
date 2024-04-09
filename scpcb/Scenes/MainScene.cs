@@ -68,7 +68,7 @@ public class MainScene : Scene3D {
 
         _renderTexture = new(_gfxRes, 100, 100, true);
 
-        _font = _gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 64);
+        _font = _gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32);
 
         foreach (var c in Enumerable.Range(0, 1000)) {
             _font.GetGlyphInfo((char)c);
@@ -105,7 +105,7 @@ public class MainScene : Scene3D {
             Alignment = Alignment.BottomRight,
         });
 
-        ui.Root.AddChild(new TextInput(_gfxRes, _input, _font));
+        ui.Root.AddChild(new InputBox(_gfxRes, ui, _input, _font));
 
         _hud = new(_player, ui);
         AddEntity(_hud);

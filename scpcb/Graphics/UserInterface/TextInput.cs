@@ -7,6 +7,9 @@ using Veldrid.Sdl2;
 
 namespace scpcb.Graphics.UserInterface;
 
+// TODO:
+// - Interaction with ctrl.
+// - Selecting by clicking/dragging.
 public class TextInput : InteractableUIElement<TextElement> {
     private readonly InputManager _input;
 
@@ -22,12 +25,28 @@ public class TextInput : InteractableUIElement<TextElement> {
 
     private readonly TextureElement _caretElem;
 
+    private bool _selected;
+    public bool Selected {
+        get => _selected;
+        set {
+            _selected = value;
+            if (_caret != _caretWanderer) {
+                _caretElem.Color = _caretSelectionColor;
+            } else {
+                _caretElem.IsVisible = _selected;
+            }
+        }
+    }
+
+    private Color _caretSelectionColor => Color.FromArgb(128, _selected ? Color.White : Color.Gray);
+
     public TextInput(GraphicsResources gfxRes, InputManager input, Font font) : base(new(gfxRes, font)) {
         _input = input;
         _internalChildren.Add(_caretElem = new(gfxRes, gfxRes.TextureCache.GetTexture(Color.White)) {
             PixelSize = new(CARET_WIDTH, font.VerticalAdvance),
             Alignment = Alignment.CenterLeft,
         });
+        Selected = false;
         RepositionCarets();
     }
 
@@ -40,17 +59,25 @@ public class TextInput : InteractableUIElement<TextElement> {
             _caretElem.Color = Color.White;
         } else {
             _caretElem.PixelSize = _caretElem.PixelSize with { X = Inner.Offsets[CaretRight()].X - Inner.Offsets[CaretLeft()].X };
-            _caretElem.Color = Color.FromArgb(128, Color.White);
+            _caretElem.Color = _caretSelectionColor;
         }
         _caretElem.Position = Inner.Offsets[CaretLeft()] - new Vector2(CARET_WIDTH / 2f, 0f);
     }
 
     protected override void OnTextInput(char ch) {
+        if (!_selected) {
+            return;
+        }
+
         InsertInSelection(ch.ToString());
         RepositionCarets();
     }
 
     protected override void OnKeyPressed(Key key, ModifierKeys modifiers) {
+        if (!_selected) {
+            return;
+        }
+
         switch (key) {
             case Key.Back:
                 if (_caret != _caretWanderer) {
