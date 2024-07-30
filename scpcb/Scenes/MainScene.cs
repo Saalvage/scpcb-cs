@@ -12,6 +12,7 @@ using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
 using scpcb.Graphics.UserInterface;
 using scpcb.Graphics.UserInterface.Composites;
+using scpcb.Graphics.UserInterface.Menus;
 using scpcb.Graphics.UserInterface.Primitives;
 using scpcb.Graphics.UserInterface.Utility;
 using scpcb.Map;
@@ -46,6 +47,8 @@ public class MainScene : Scene3D {
     private readonly ModelCache.CacheEntry _cacheEntry;
 
     private readonly HUD _hud;
+
+    private readonly ModelImageGeneratorMenu _mig;
 
     private readonly Font _font;
 
@@ -127,6 +130,10 @@ public class MainScene : Scene3D {
 
         var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
 
+        _mig = new(_gfxRes, ui, _input, Physics);
+        _mig.IsVisible = false;
+        ui.Root.AddChild(_mig);
+
         var coolTexture = _gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
         _logoMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [video.Texture], [gfx.PointSampler]);
 
@@ -166,18 +173,20 @@ public class MainScene : Scene3D {
     }
 
     public override void Update(float delta) {
-        if (!_paused && _gfxRes.Window.MouseDelta != Vector2.Zero) {
-            _player.HandleMouse(_gfxRes.Window.MouseDelta * 0.01f);
+        if (!_paused) {
+            if (_gfxRes.Window.MouseDelta != Vector2.Zero) {
+                _player.HandleMouse(_gfxRes.Window.MouseDelta * 0.01f);
+            }
+
+            var dir = Vector2.Zero;
+            if (_input.IsKeyDown(Key.W)) dir += Vector2.UnitY;
+            if (_input.IsKeyDown(Key.S)) dir -= Vector2.UnitY;
+            if (_input.IsKeyDown(Key.A)) dir += Vector2.UnitX;
+            if (_input.IsKeyDown(Key.D)) dir -= Vector2.UnitX;
+
+            _player.MoveDir = dir == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(dir);
+            _player.IsSprinting = _input.IsKeyDown(Key.ShiftLeft);
         }
-
-        var dir = Vector2.Zero;
-        if (_input.IsKeyDown(Key.W)) dir += Vector2.UnitY;
-        if (_input.IsKeyDown(Key.S)) dir -= Vector2.UnitY;
-        if (_input.IsKeyDown(Key.A)) dir += Vector2.UnitX;
-        if (_input.IsKeyDown(Key.D)) dir -= Vector2.UnitX;
-
-        _player.MoveDir = dir == Vector2.Zero ? Vector2.Zero : Vector2.Normalize(dir);
-        _player.IsSprinting = _input.IsKeyDown(Key.ShiftLeft);
 
         if (_uiDebug) {
             _uiDebugHue = (_uiDebugHue + delta * 50) % 360;
@@ -245,6 +254,14 @@ public class MainScene : Scene3D {
                 var line = new DebugLine(_gfxRes, from, to);
                 line.Color = Physics.RayCastVisible(from, to) ? new(1, 0, 0) : new(0, 1, 0);
                 AddEntity(line);
+                break;
+            }
+            case Key.F2: {
+                if (_openMenu == _mig) {
+                    SetOpenMenu(null);
+                } else {
+                    SetOpenMenu(_mig);
+                }
                 break;
             }
             case Key.F5: {

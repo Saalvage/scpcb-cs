@@ -41,6 +41,8 @@ public class TextInput : InteractableUIElement<TextElement> {
 
     private Color _caretSelectionColor => Color.FromArgb(128, _selected ? Color.White : Color.Gray);
 
+    public event Action<string> OnTextChanged;
+
     public TextInput(GraphicsResources gfxRes, InputManager input, Font font) : base(new(gfxRes, font)) {
         _input = input;
         _internalChildren.Add(_caretElem = new(gfxRes, gfxRes.TextureCache.GetTexture(Color.White)) {
@@ -86,8 +88,10 @@ public class TextInput : InteractableUIElement<TextElement> {
                 } else if (_caret != 0) {
                     _mementoManager.Submit(NextLeft(),
                         new(Inner.Text[_caret - 1].ToString(), _caret - 1, false, _caret, _caretWanderer, false));
+                    var prev = Inner.Text;
                     Inner.Text = Inner.Text[..(_caret - 1)] + Inner.Text[_caret..];
                     _caret = _caretWanderer = NextLeft();
+                    OnTextChanged?.Invoke(prev);
                 }
                 break;
             case Key.Left:
@@ -165,8 +169,10 @@ public class TextInput : InteractableUIElement<TextElement> {
         void DeleteSelectedText() {
             _mementoManager.Submit(CaretLeft(),
                 new(Inner.Text[CaretLeft()..CaretRight()], CaretLeft(), false, _caret, _caretWanderer, false));
+            var prev = Inner.Text;
             Inner.Text = Inner.Text[..CaretLeft()] + Inner.Text[CaretRight()..];
             _caret = _caretWanderer = CaretLeft();
+            OnTextChanged?.Invoke(prev);
         }
     }
 
@@ -179,7 +185,9 @@ public class TextInput : InteractableUIElement<TextElement> {
         }
         _mementoManager.Submit(newCaret, new(str, CaretLeft(), true,
             _caret, _caretWanderer, linked));
+        var prev = Inner.Text;
         Inner.Text = Inner.Text[..CaretLeft()] + str + Inner.Text[CaretRight()..];
         _caret = _caretWanderer = newCaret;
+        OnTextChanged?.Invoke(prev);
     }
 }

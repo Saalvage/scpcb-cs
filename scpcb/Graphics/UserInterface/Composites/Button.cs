@@ -2,11 +2,14 @@
 using System.Numerics;
 using scpcb.Graphics.UserInterface.Primitives;
 using scpcb.Graphics.UserInterface.Utility;
+using Veldrid;
 
 namespace scpcb.Graphics.UserInterface.Composites;
 
 public class Button : InteractableUIElement<MenuFrame> {
     private readonly IUIElement _hover;
+
+    public event Action OnClicked;
 
     public Button(GraphicsResources gfxRes, UIManager ui, string text, float outerXOff, float innerXOff, float yOff)
             : base(new(gfxRes, ui, outerXOff, innerXOff, yOff)) {
@@ -29,5 +32,9 @@ public class Button : InteractableUIElement<MenuFrame> {
 
     protected override void OnEndHover() {
         _hover.IsVisible = false;
+    }
+
+    protected override void OnMouseDown(MouseButton button, Vector2 pos) {
+        OnClicked?.Invoke();
     }
 }
