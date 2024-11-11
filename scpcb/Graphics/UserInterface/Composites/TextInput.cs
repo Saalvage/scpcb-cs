@@ -161,8 +161,51 @@ public class TextInput : InteractableUIElement<TextElement> {
 
         RepositionCarets();
 
-        int NextLeft() => Math.Max(0, _caretWanderer - 1);
-        int NextRight() => Math.Min(Inner.Text.Length, _caretWanderer + 1);
+        // The "chunks" which Ctrl operations deal with are a set of digits and letters followed by a set of non-digits and non-letters.
+        // This behavior is based on the behavior of the caret in the address bar of Chrome and I'm not sure if it's ideal.
+        // I suppose it depends on what text you expect to be input, but seeing as this is more than most text editors in games offer it's
+        // probably good enough.
+        int NextLeft() {
+            if (!modifiers.HasFlag(ModifierKeys.Control)) {
+                return Math.Max(0, _caretWanderer - 1);
+            }
+
+            var i = _caretWanderer;
+            var reachedSymbols = true;
+            while (i > 0) {
+                var isText = char.IsAsciiLetterOrDigit(Inner.Text[i - 1]);
+                if (isText ^ reachedSymbols) {
+                    i--;
+                } else if (isText) {
+                    reachedSymbols = false;
+                } else {
+                    break;
+                }
+            }
+
+            return i;
+        }
+
+        int NextRight() {
+            if (!modifiers.HasFlag(ModifierKeys.Control)) {
+                return Math.Min(Inner.Text.Length, _caretWanderer + 1);
+            }
+
+            var i = _caretWanderer;
+            var reachedSymbols = false;
+            while (i < Inner.Text.Length) {
+                var isText = char.IsAsciiLetterOrDigit(Inner.Text[i]);
+                if (isText ^ reachedSymbols) {
+                    i++;
+                } else if (!isText) {
+                    reachedSymbols = true;
+                } else {
+                    break;
+                }
+            }
+
+            return i;
+        }
 
         void CopySelectedTextToClipboard() => Sdl2Native.SDL_SetClipboardText(Inner.Text[CaretLeft()..CaretRight()]);
 
