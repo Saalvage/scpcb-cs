@@ -111,4 +111,13 @@ public class UIElement : IUIElement {
             child.Draw(target, this, absPos);
         }
     }
+
+    // TODO: Store parent and add utilities for other directions.
+    public float Left(IUIElement parent) {
+        return Alignment.Horizontality switch {
+            Alignment.Horizontal.Center => parent.PixelSize.X / 2 - PixelSize.X / 2 + Position.X,
+            Alignment.Horizontal.Left => Position.X,
+            Alignment.Horizontal.Right => parent.PixelSize.X - PixelSize.X + Position.X,
+        };
+    }
 }

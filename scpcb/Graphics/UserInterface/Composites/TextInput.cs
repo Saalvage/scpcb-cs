@@ -21,6 +21,22 @@ public class TextInput : InteractableUIElement<TextElement> {
     private int _caret = 0;
     private int _caretWanderer = 0;
 
+    public int Caret {
+        get => _caret;
+        set {
+            _caret = value;
+            RepositionCarets();
+        }
+    }
+
+    public int CaretWanderer {
+        get => _caretWanderer;
+        set {
+            _caretWanderer = value;
+            RepositionCarets();
+        }
+    }
+
     private int CaretLeft() => Math.Min(_caret, _caretWanderer);
     private int CaretRight() => Math.Max(_caret, _caretWanderer);
 

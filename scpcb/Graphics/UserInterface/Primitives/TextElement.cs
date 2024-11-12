@@ -117,7 +117,7 @@ public class TextElement : UIElement {
     public string Text {
         get => _text;
         set {
-            _dirtyMesh = _dirtyMesh || _text != value;
+            _dirtyMesh |= _text != value;
             _text = value;
         }
     }

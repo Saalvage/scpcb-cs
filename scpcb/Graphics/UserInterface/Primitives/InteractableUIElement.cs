@@ -61,11 +61,15 @@ public class InteractableUIElement<TInner> : UIElement, IInteractableUIElement w
                 OnKeyPressed(ev.Key, ev.Modifiers);
             }
         }
+
+        OnUpdate(snapshot.MousePosition - pos, snapshot);
     }
 
     protected bool IsInElement(Vector2 pos)
         => pos.X >= 0 && pos.X <= PixelSize.X
         && pos.Y >= 0 && pos.Y <= PixelSize.Y;
+
+    public virtual void OnUpdate(Vector2 pos, InputSnapshot snapshot) { }
 
     protected virtual void OnBeginHover() { }
     protected virtual void OnEndHover() { }
