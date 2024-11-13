@@ -31,8 +31,9 @@ internal class InputBox : InteractableUIElement<MenuFrame> {
     }
 
     protected override void OnMouseDown(MouseButton button, Vector2 pos) {
-        Input.Selected = _selecting = IsInElement(pos);
-        Input.Caret = GetCaretIndex(pos);
+        if (Input.Selected = _selecting = IsInElement(pos)) {
+            Input.Caret = GetCaretIndex(pos);
+        }
     }
 
     public override void OnUpdate(Vector2 pos, InputSnapshot snapshot) {

@@ -34,12 +34,13 @@ public class InteractableUIElement<TInner> : UIElement, IInteractableUIElement w
             _hovering = mouseInElem;
         }
 
-        foreach (var mb in Enum.GetValues<MouseButton>()) {
-            var newDown = snapshot.IsMouseDown(mb);
-            if (_downButtons[mb] != newDown) {
+        foreach (var ev in snapshot.MouseEvents) {
+            var mb = ev.MouseButton;
+
+            if (_downButtons[mb] != ev.Down) {
                 // Note the semantics here: mouse down is only reported if the mouse is on the element
                 // while mouse up is always reported if the mouse was previously downed on the element.
-                if (newDown) {
+                if (ev.Down) {
                     if (mouseInElem || _receiveMouseDownOutside) {
                         OnMouseDown(mb, snapshot.MousePosition - pos);
                         _downButtons[mb] = true;

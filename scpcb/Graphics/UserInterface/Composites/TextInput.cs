@@ -47,11 +47,7 @@ public class TextInput : InteractableUIElement<TextElement> {
         get => _selected;
         set {
             _selected = value;
-            if (_caret != _caretWanderer) {
-                _caretElem.Color = _caretSelectionColor;
-            } else {
-                _caretElem.IsVisible = _selected;
-            }
+            RepositionCarets();
         }
     }
 
@@ -76,9 +72,11 @@ public class TextInput : InteractableUIElement<TextElement> {
         if (_caret == _caretWanderer) {
             _caretElem.PixelSize = _caretElem.PixelSize with { X = CARET_WIDTH };
             _caretElem.Color = Color.White;
+            _caretElem.IsVisible = _selected;
         } else {
             _caretElem.PixelSize = _caretElem.PixelSize with { X = Inner.Offsets[CaretRight()].X - Inner.Offsets[CaretLeft()].X };
             _caretElem.Color = _caretSelectionColor;
+            _caretElem.IsVisible = true;
         }
         _caretElem.Position = Inner.Offsets[CaretLeft()] - new Vector2(CARET_WIDTH / 2f, 0f);
     }
