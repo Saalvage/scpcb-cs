@@ -2,6 +2,7 @@
 using scpcb.Entities;
 using scpcb.Graphics.Textures;
 using scpcb.Graphics.UserInterface.Primitives;
+using Veldrid.Sdl2;
 
 namespace scpcb.Graphics.UserInterface;
 
@@ -53,5 +54,23 @@ public class UIManager : IRenderable, IUpdatable {
         pos.Y = -pos.Y;
         pos -= elem.PixelSize / 2;
         return pos;
+    }
+
+    public enum CursorStyle {
+        Default,
+        Text,
+        Click,
+    }
+
+    private static readonly SDL_Cursor CURSOR_ARROW = Sdl2Native.SDL_CreateSystemCursor(SDL_SystemCursor.Arrow);
+    private static readonly SDL_Cursor CURSOR_IBEAM = Sdl2Native.SDL_CreateSystemCursor(SDL_SystemCursor.IBeam);
+    private static readonly SDL_Cursor CURSOR_HAND = Sdl2Native.SDL_CreateSystemCursor(SDL_SystemCursor.Hand);
+
+    public void SetCursorStyle(CursorStyle style) {
+        Sdl2Native.SDL_SetCursor(style switch {
+            CursorStyle.Default => CURSOR_ARROW,
+            CursorStyle.Text => CURSOR_IBEAM,
+            CursorStyle.Click => CURSOR_HAND,
+        });
     }
 }

@@ -6,11 +6,14 @@ using Veldrid;
 namespace scpcb.Graphics.UserInterface.Composites;
 
 internal class InputBox : InteractableUIElement<MenuFrame> {
+    private readonly UIManager _ui;
+
     private bool _selecting = false;
 
     public TextInput Input { get; }
 
     public InputBox(GraphicsResources gfxRes, UIManager ui, InputManager input, Font font) : base(new(gfxRes, ui, 0f, 0f, 0f)) {
+        _ui = ui;
         _internalChildren.Add(Input = new(gfxRes, input, font) {
             Alignment = Alignment.Center,
         });
@@ -44,5 +47,13 @@ internal class InputBox : InteractableUIElement<MenuFrame> {
 
     protected override void OnMouseUp(MouseButton button, Vector2 pos) {
         _selecting = false;
+    }
+
+    protected override void OnBeginHover() {
+        _ui.SetCursorStyle(UIManager.CursorStyle.Text);
+    }
+
+    protected override void OnEndHover() {
+        _ui.SetCursorStyle(UIManager.CursorStyle.Default);
     }
 }
