@@ -167,7 +167,7 @@ public static class Helpers {
 
     public static IEnumerable<Type> GetAllLoadedTypes()
         => AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.ExportedTypes);
+            .SelectMany(x => x.DefinedTypes);
 
     public static Color ColorFromHSV(double hue, double saturation, double value) {
         var hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;

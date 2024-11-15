@@ -267,7 +267,7 @@ public class MainScene : Scene3D {
             case Key.F5: {
                 _serialized = SerializationHelper.SerializeTest(GetEntitiesOfType<ISerializableEntity>());
                 foreach (var i in GetEntitiesOfType<ISerializableEntity>()) {
-                    RemoveEntity(i);
+                    //RemoveEntity(i);
                 }
                 break;
             }

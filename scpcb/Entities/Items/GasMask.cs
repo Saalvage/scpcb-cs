@@ -13,6 +13,7 @@ namespace scpcb.Entities.Items;
 public class GasMask : IItem<GasMask>, IEntityHolder {
     private readonly GraphicsResources _gfxRes;
     private readonly IScene _scene;
+    // TODO: Make this work with serialization.
     private readonly Prop _prop;
 
     private bool _picked = false;
