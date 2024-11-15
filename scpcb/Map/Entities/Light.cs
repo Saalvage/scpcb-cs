@@ -42,7 +42,7 @@ public class Light : IMapEntity, IEntityHolder, IPrerenderable {
     }
 
     public void Prerender(float interp) {
-        _lensflare.Model.IsVisible = !_scene.Physics.RayCastVisible(_scene.Camera.Position, _glimmer.Transform.Position);
+        _lensflare.Model.IsVisible = _scene.Physics.RayCastVisible(_scene.Camera.Position, _glimmer.Transform.Position) is null;
 
         _lensflare.Transform = _lensflare.Transform with {
             Scale = new(RMeshRoomProvider.ROOM_SCALE / RMeshRoomProvider.ROOM_SCALE_OLD

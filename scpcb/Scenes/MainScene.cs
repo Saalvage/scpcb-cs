@@ -252,7 +252,7 @@ public class MainScene : Scene3D {
                 var from = _player.Camera.Position;
                 var to = from + Vector3.Transform(Vector3.UnitZ, _player.Camera.Rotation) * 5f;
                 var line = new DebugLine(_gfxRes, from, to);
-                line.Color = Physics.RayCastVisible(from, to) ? new(1, 0, 0) : new(0, 1, 0);
+                line.Color = Physics.RayCastVisible(from, to) is not null ? new(1, 0, 0) : new(0, 1, 0);
                 AddEntity(line);
                 break;
             }

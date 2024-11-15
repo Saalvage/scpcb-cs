@@ -7,35 +7,35 @@ using scpcb.Physics;
 namespace scpcb.Utility; 
 
 public static class PhysicsExtensions {
-    private struct VisibilityRayHitHandler : IRayHitHandler {
-        public bool Hit;
+    private struct RayHitHandler : IRayHitHandler {
+        public CollidableReference? Hit { get; private set; }
 
-        private readonly PhysicsResources _physics;
+        private readonly Predicate<CollidableReference> _pred;
 
-        public VisibilityRayHitHandler(PhysicsResources physics) {
-            _physics = physics;
+        public RayHitHandler(Predicate<CollidableReference> pred) {
+            _pred = pred;
         }
 
         public bool AllowTest(CollidableReference collidable) {
             // Allocate is unfortunate naming, it just makes sure we're not having a buffer overrun
             // because not every collidable will have a visibility property.
-            return !Hit && !_physics.Visibility.Allocate(collidable).IsInvisible;
+            return Hit is null && _pred(collidable);
         }
 
         public bool AllowTest(CollidableReference collidable, int childIndex) => AllowTest(collidable);
 
         public void OnRayHit(in RayData ray, ref float maximumT, float t, Vector3 normal, CollidableReference collidable, int childIndex) {
-            Hit = true;
+            Hit = collidable;
         }
     }
 
-    public static bool RayCastVisible(this PhysicsResources physics, Vector3 from, Vector3 to) {
+    public static CollidableReference? RayCastVisible(this PhysicsResources physics, Vector3 from, Vector3 to) {
         var dir = to - from;
         return physics.RayCastVisible(from, dir, 1f);
     }
 
-    public static bool RayCastVisible(this PhysicsResources physics, Vector3 from, Vector3 dir, float length) {
-        VisibilityRayHitHandler handler = new(physics);
+    public static CollidableReference? RayCastVisible(this PhysicsResources physics, Vector3 from, Vector3 dir, float length) {
+        RayHitHandler handler = new(x => !physics.Visibility.Allocate(x).IsInvisible);
         physics.Simulation.RayCast(from, dir, length, ref handler);
         return handler.Hit;
     }
