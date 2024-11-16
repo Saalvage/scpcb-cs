@@ -26,6 +26,6 @@ public class ItemManager {
     }
 
     public T CreateItem<T>(Transform transform) where T : IItem<T> {
-        return T.Create(_gfxRes, _physics, _scene, transform);
+        return T.Create(_gfxRes, _scene, transform);
     }
 }
