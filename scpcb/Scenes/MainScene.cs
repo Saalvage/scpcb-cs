@@ -115,6 +115,9 @@ public class MainScene : Scene3D {
         _hud = new(_player, ui);
         AddEntity(_hud);
 
+        // TODO: Remove, necessary for now because item creation looks for the physics object in the scene.
+        DealWithEntityBuffers();
+
         var manager = new ItemManager(_gfxRes, Physics, this);
         var test = manager.CreateItem("GasMask", new(_player.Camera.Position, Quaternion.Identity));
         AddEntity(test);
