@@ -17,10 +17,6 @@ public interface IItem : IPickableEntity {
     void OnDropped() { }
 }
 
-public interface IItem<out T> : IItem where T : IItem<T> {
-    static abstract T Create(GraphicsResources gfxRes, IScene scene, Transform transform);
-}
-
 public class Item : IItem, IEntityHolder {
     private readonly GraphicsResources _gfxRes;
     private readonly IScene _scene;

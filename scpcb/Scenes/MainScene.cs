@@ -118,10 +118,11 @@ public class MainScene : Scene3D {
         // TODO: Remove, necessary for now because item creation looks for the physics object in the scene.
         DealWithEntityBuffers();
 
-        var manager = new ItemManager(_gfxRes, Physics, this);
-        var test = manager.CreateItem("GasMask", new(_player.Camera.Position, Quaternion.Identity));
-        AddEntity(test);
-        _player.PickItem(test);
+        var x = new ItemRegistry(_gfxRes, this);
+        x.RegisterItemsFromFile("Assets/Items/items.txt");
+        var itemmm = x.CreateItem(new(_player.Camera.Position, Quaternion.Identity), "gasmask");
+        AddEntity(itemmm);
+        _player.PickItem(itemmm);
 
         _gfxRes.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
             Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f));

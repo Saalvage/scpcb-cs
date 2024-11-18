@@ -1,0 +1,1 @@
+gasmask;scpcb.Entities.Items.GasMask
