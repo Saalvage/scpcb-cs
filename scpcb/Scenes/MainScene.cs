@@ -89,7 +89,7 @@ public class MainScene : Scene3D {
         var ui = new UIManager(_gfxRes, _input);
         AddEntity(ui);
 
-        var uiElem = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.Aqua));
+        var uiElem = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.MidnightBlue));
         uiElem.Alignment = Alignment.TopRight;
         uiElem.Position = new(-10, 0);
         uiElem.PixelSize = new(500, 50);
