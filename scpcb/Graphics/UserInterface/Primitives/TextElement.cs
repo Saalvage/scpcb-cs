@@ -35,6 +35,7 @@ public class TextElement : UIElement {
             return;
         }
 
+        // TODO: Allocate on heap when too big.
         Span<TextShader.Vertex> vertices = stackalloc TextShader.Vertex[Text.Length * 4];
         Span<uint> indices = stackalloc uint[Text.Length * 6];
 
