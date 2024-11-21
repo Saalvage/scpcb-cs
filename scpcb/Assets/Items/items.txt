@@ -1,1 +1,2 @@
 gasmask;scpcb.Entities.Items.GasMask
+doc173;scpcb.Entities.Items.Document;Assets/Textures/InventoryIcons/INVpaper.jpg;Assets/Items/paper.x;Assets/Textures/Documents/doc173.jpg

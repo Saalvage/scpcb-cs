@@ -18,10 +18,10 @@ public interface IItem : IPickableEntity {
 }
 
 public class Item : IItem, IEntityHolder {
-    private readonly GraphicsResources _gfxRes;
-    private readonly IScene _scene;
+    protected readonly GraphicsResources _gfxRes;
+    protected readonly IScene _scene;
     // TODO: Make this work with serialization.
-    private readonly Prop _prop;
+    protected readonly Prop _prop;
 
     private bool _picked = false;
 

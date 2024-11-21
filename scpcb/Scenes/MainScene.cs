@@ -120,7 +120,7 @@ public class MainScene : Scene3D {
 
         var x = new ItemRegistry(_gfxRes, this);
         x.RegisterItemsFromFile("Assets/Items/items.txt");
-        var itemmm = x.CreateItem(new(_player.Camera.Position, Quaternion.Identity), "gasmask");
+        var itemmm = x.CreateItem(new(_player.Camera.Position, Quaternion.Identity), "doc173");
         AddEntity(itemmm);
         _player.PickItem(itemmm);
 
