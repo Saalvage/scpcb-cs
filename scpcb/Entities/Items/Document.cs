@@ -15,5 +15,7 @@ public class Document : Item {
 
     public override void OnUsed() {
         _scene.GetEntitiesOfType<HUD>().Single().SetItem(_texture);
+        // TODO: Ugly cast!
+        ((MainScene)_scene).SetOpenMenu(null);
     }
 }

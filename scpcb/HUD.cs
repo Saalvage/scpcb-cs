@@ -14,6 +14,9 @@ public class HUD : IUpdatable {
     private readonly Player _player;
     private readonly UIManager _ui;
 
+    // Exists to prevent issues of modifying children while enumerating.
+    private readonly UIElement _headsUpTextureDummy;
+
     private TextureElement? _singleHeadsUpItem;
 
     private readonly LoadingBar _blinkBar;
@@ -25,6 +28,9 @@ public class HUD : IUpdatable {
         _player = player;
         _ui = ui;
         var gfxRes = _ui.GraphicsResources;
+
+        _headsUpTextureDummy = new() { Alignment = Alignment.Center };
+        _ui.Root.AddChild(_headsUpTextureDummy);
 
         const int X = 30; const int Y = -65;
 
@@ -60,12 +66,12 @@ public class HUD : IUpdatable {
         ClearItem();
         _singleHeadsUpItem = new(_ui.GraphicsResources, texture) { Alignment = Alignment.Center, Z = 1 };
         _singleHeadsUpItem.PixelSize *= _ui.MenuScale;
-        _ui.Root.AddChild(_singleHeadsUpItem);
+        _headsUpTextureDummy.AddChild(_singleHeadsUpItem);
     }
 
     public void ClearItem() {
         if (_singleHeadsUpItem != null) {
-            _ui.Root.RemoveChild(_singleHeadsUpItem);
+            _headsUpTextureDummy.RemoveChild(_singleHeadsUpItem);
             _singleHeadsUpItem = null;
         }
     }

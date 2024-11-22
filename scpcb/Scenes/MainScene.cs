@@ -298,7 +298,8 @@ public class MainScene : Scene3D {
         }
     }
 
-    private void SetOpenMenu(IUIElement? newOpenMenu) {
+    // TODO: Turn into property?
+    public void SetOpenMenu(IUIElement? newOpenMenu) {
         if (_openMenu != null) {
             _openMenu.IsVisible = false;
         }
