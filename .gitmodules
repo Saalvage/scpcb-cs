@@ -1,6 +1,3 @@
 [submodule "submodules/ShaderGen"]
 	path = submodules/ShaderGen
 	url = https://github.com/Saalvage/ShaderGen
-[submodule "submodules/AssimpNet"]
-	path = submodules/AssimpNet
-	url = https://github.com/Saalvage/AssimpNet
