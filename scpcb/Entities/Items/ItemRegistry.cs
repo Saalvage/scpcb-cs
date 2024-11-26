@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using scpcb.Graphics;
 using scpcb.Scenes;
 using scpcb.Utility;
@@ -25,7 +26,7 @@ public class ItemRegistry(GraphicsResources gfxRes, IScene scene) {
                     .Zip(split.Skip(2))))
                 .First(x => x.@params.All(x => x.First.IsValid(x.Second)));
             RegisterItem(split[0], transform => (IItem)ctor.Invoke(new object[]{gfxRes, scene, transform}
-                .Concat(@params.Select(x => x.First.ConvertFromString(x.Second)))
+                .Concat(@params.Select(x => x.First.ConvertFromString(null, CultureInfo.InvariantCulture, x.Second)))
                 .ToArray()));
         }
     }

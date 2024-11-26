@@ -21,8 +21,8 @@ public class InventoryMenu : UIElement {
         if (items.Count != _internalChildren.Count) {
             RecomputeChildren(items);
         } else {
-            foreach (var (i, item) in Enumerable.Range(0, items.Count).Zip(items)) {
-                ((InventorySlot)_internalChildren[i]).Item = item;
+            foreach (var (child, item) in _internalChildren.Zip(items)) {
+                ((InventorySlot)child).Item = item;
             }
         }
     }

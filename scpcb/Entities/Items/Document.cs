@@ -8,8 +8,8 @@ namespace scpcb.Entities.Items;
 public class Document : Item {
     private readonly ICBTexture _texture;
 
-    public Document(GraphicsResources gfxRes, IScene scene, Transform transform, string invIcon, string model, string texture)
-        : base(gfxRes, scene, invIcon, model, transform) {
+    public Document(GraphicsResources gfxRes, IScene scene, Transform transform, float scale, string invIcon, string model, string texture)
+        : base(gfxRes, scene, invIcon, model, transform with { Scale = transform.Scale * scale }) {
         _texture = gfxRes.TextureCache.GetTexture(texture);
     }
 
