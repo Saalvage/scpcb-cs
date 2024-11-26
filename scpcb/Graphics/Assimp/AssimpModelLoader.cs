@@ -29,8 +29,9 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
             var splitterIndex = Math.Max(0, msg.IndexOf(SPLITTER));
             var severity = msg[..splitterIndex];
             Serilog.Log.Write(severity switch {
-                "Debug" => LogEventLevel.Debug,
-                "Info" => LogEventLevel.Information,
+                // We downgrade their severity because Assimp is yapping too much.
+                "Debug" => LogEventLevel.Verbose,
+                "Info" => LogEventLevel.Debug,
                 "Warn" => LogEventLevel.Warning,
                 "Error" => LogEventLevel.Error,
                 _ => LogEventLevel.Fatal,

@@ -23,7 +23,7 @@ public class Game : Disposable {
 
     public Game(int width, int height) {
         var config = new LoggerConfiguration()
-            .MinimumLevel.Debug();
+            .MinimumLevel.Information();
         if (Debugger.IsAttached) {
             config.WriteTo.Console();
         } else {
