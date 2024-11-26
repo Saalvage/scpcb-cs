@@ -37,7 +37,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
             verts[i] = ConvertVertex(sv);
         }
 
-        return new(new CBMesh<TVertex>(gfx, verts, Array.ConvertAll(mesh.GetIndices(), Convert.ToUInt32)), mat);
+        return new(new CBMesh<TVertex>(gfx, verts, mesh.GetUnsignedIndices().ToArray()), mat);
     }
 
     public ICBShape<ConvexHull> ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 center) {
