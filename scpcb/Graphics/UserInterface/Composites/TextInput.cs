@@ -8,9 +8,6 @@ using Veldrid.Sdl2;
 
 namespace scpcb.Graphics.UserInterface.Composites;
 
-// TODO:
-// - Interaction with ctrl.
-// - Selecting by clicking/dragging.
 public class TextInput : InteractableUIElement<TextElement> {
     private readonly InputManager _input;
 

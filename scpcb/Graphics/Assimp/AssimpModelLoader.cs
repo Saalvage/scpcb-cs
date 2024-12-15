@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Assimp;
+using Assimp.Unmanaged;
 using BepuPhysics.Collidables;
 using scpcb.Graphics.Primitives;
 using scpcb.Physics;
@@ -44,7 +45,14 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
     }
 
     public MeshMaterial<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 center) {
-        // TODO: Upper limit to stackalloc size
+        if (mesh.TextureCoordinateChannelCount > AiDefines.AI_MAX_NUMBER_OF_TEXTURECOORDS) {
+            throw new ArgumentException("Abnormal amount of texture coordinate channels!", nameof(mesh));
+        }
+
+        if (mesh.VertexColorChannelCount > AiDefines.AI_MAX_NUMBER_OF_COLOR_SETS) {
+            throw new ArgumentException("Abnormal amount of vertex color sets!", nameof(mesh));
+        }
+
         Span<Vector3> textureCoords = stackalloc Vector3[mesh.TextureCoordinateChannelCount];
         Span<Vector4> vertexColors = stackalloc Vector4[mesh.VertexColorChannelCount];
 
