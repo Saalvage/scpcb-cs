@@ -8,7 +8,6 @@ namespace scpcb.PlayerController;
 
 public partial class Player : IUpdatable {
     private readonly IScene _scene;
-    private IUIElement _currHand;
 
     private float _yaw;
     private float _pitch;

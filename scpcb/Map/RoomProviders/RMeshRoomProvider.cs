@@ -18,7 +18,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
 
     public const string PROP_PATH = "Assets/Props/";
 
-    public IEnumerable<string> SupportedExtensions { get; } = new[] { "rmesh" };
+    public IEnumerable<string> SupportedExtensions { get; } = ["rmesh"];
 
     public IRoomData LoadRoom(IScene scene, GraphicsResources gfxRes, PhysicsResources physics, string filename) {
         object[] globals = [scene, gfxRes, physics]; // TODO: Physics could be extracted from the scene, should we pass it explicitly?

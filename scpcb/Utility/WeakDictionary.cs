@@ -102,7 +102,7 @@ public class WeakDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TVal
         }
     }
 
-    // We need to do the sweep to make sure that Values does not return less items than Keys does.
+    // We need to do the sweep to make sure that Values does not return fewer items than Keys does.
     public ICollection<TKey> Keys {
         get {
             CleanUp();

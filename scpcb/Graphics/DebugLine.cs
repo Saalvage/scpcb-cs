@@ -25,7 +25,7 @@ public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<
     public DebugLine(IScene? scene, GraphicsResources gfxRes, TimeSpan? disappearsAfter, params Vector3[] points) {
         _scene = scene;
         var shader = gfxRes.ShaderCache.GetShader<LineShader, VPosition>();
-        var mat = gfxRes.MaterialCache.GetMaterial(shader, Enumerable.Empty<ICBTexture>(), Enumerable.Empty<Sampler>());
+        var mat = gfxRes.MaterialCache.GetMaterial(shader, [], []);
         var mesh = new CBMesh<VPosition>(gfxRes.GraphicsDevice, points
             .Select(x => new VPosition { Position = x })
             .ToArray(), points.Select((_, i) => (uint)i).ToArray());

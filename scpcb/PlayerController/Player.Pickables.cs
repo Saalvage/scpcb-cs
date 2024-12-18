@@ -7,6 +7,7 @@ namespace scpcb.PlayerController;
 
 public partial class Player {
     private IPickableEntity? _closestPickable;
+    private IUIElement? _currHand;
 
     private void UpdatePickables() {
         // Inefficient, but likely negligible impact on performance.
@@ -16,8 +17,9 @@ public partial class Player {
 
         if (newClosestPickable != _closestPickable) {
             var ui = _scene.GetEntitiesOfType<UIManager>().Single();
-            if (_closestPickable != null) {
+            if (_currHand != null) {
                 ui.Root.RemoveChild(_currHand);
+                _currHand = null;
             }
 
             if (newClosestPickable != null) {

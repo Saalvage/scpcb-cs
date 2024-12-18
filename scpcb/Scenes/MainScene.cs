@@ -208,7 +208,7 @@ public class MainScene : Scene3D {
         // meaning potential for optimization might not actually be there. :(
 
         // TODO: This also messes with objects that utilize non-instance shader constants
-        // on a per-instance basis (e.g. for objects intended to be very light weight (UI components))
+        // on a per-instance basis (e.g. for objects intended to be very lightweight (UI components))
         // which is why it's been disabled for now. Either the usage of shader constants in the manner
         // described above or the parallelism here needs to be revisited.
 
@@ -237,12 +237,14 @@ public class MainScene : Scene3D {
             case Key.Space: {
                 var body = _hull.CreateDynamic(new(_player.Camera.Position, _player.Camera.Rotation), 1);
                 body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
-                AddEntity(new PhysicsModelCollection(Physics, body, new[] { new CBModel<VPositionTexture>(
+                AddEntity(new PhysicsModelCollection(Physics, body, [
+                    new CBModel<VPositionTexture>(
                     _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
                         0 => _renderMat,
                         1 => _otherMat,
                         2 => _logoMat,
-                    }, _scp173.Mesh)}));
+                    }, _scp173.Mesh),
+                ]));
                 break;
             }
             case Key.Escape:

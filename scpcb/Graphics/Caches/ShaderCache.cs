@@ -41,7 +41,7 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
     private ICBShader CreateGeneratedShader<TShader>(Type vertexType, ShaderParameters? shaderParameterOverrides)
             where TShader : IAutoShader {
         Debug.Assert(GetVertexTypeFromVS<TShader>() == vertexType,
-            "Tried getting shader from cache with incorret vertex type.");
+            "Tried getting shader from cache with incorrect vertex type.");
 
         var parameterizedType = typeof(GeneratedShader<,,,,,>)
             .MakeGenericType(typeof(TShader),

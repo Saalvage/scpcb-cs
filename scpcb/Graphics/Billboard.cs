@@ -65,5 +65,5 @@ public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember,
                 new(new(-1f, -1f, 0), new(1, 1)),
                 new(new(1f, -1f, 0), new(0, 1)),
             },
-            new uint[] { 0, 1, 2, 3, 2, 1 });
+            [0, 1, 2, 3, 2, 1]);
 }
