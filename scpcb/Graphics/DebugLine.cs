@@ -8,7 +8,6 @@ using scpcb.Graphics.Shaders.Vertices;
 using scpcb.Graphics.Textures;
 using scpcb.Scenes;
 using scpcb.Utility;
-using Veldrid;
 
 namespace scpcb.Graphics;
 

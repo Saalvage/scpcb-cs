@@ -34,7 +34,7 @@ public class Game : Disposable {
         GraphicsResources = new(width, height);
         InputManager = new(GraphicsResources.Window);
 
-        _scene = false ? new VideoScene(this, "Assets/Splash_UTG.mp4") : new MainScene(this);
+        _scene = new MapCreatorScene(this); //false ? new VideoScene(this, "Assets/Splash_UTG.mp4") : new MainScene(this);
         _scene.OnEnter();
     }
 
