@@ -1,12 +1,13 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using scpcb.Graphics.UserInterface.Primitives;
+using scpcb.Graphics.UserInterface.Utility;
 using Veldrid;
 
 namespace scpcb.Graphics.UserInterface.Composites;
 
 public class MapGrid : InteractableUIElement<UIElement> {
-    private const int TILE_SIZE = 32;
+    private const int TILE_SIZE = 28;
     private const int OFFSET = 1;
 
     private readonly int _size;
@@ -15,6 +16,8 @@ public class MapGrid : InteractableUIElement<UIElement> {
     private readonly GraphicsResources _gfx;
 
     private readonly TextureElement _activeMarker;
+    private readonly TextureElement _rotator;
+    private MapTile? _activeRotator;
 
     public MapGrid(GraphicsResources gfx, int size) : base(new() { PixelSize = new(TILE_SIZE + (size - 1) * (TILE_SIZE + OFFSET)), }) {
         _gfx = gfx;
@@ -35,13 +38,19 @@ public class MapGrid : InteractableUIElement<UIElement> {
             Z = -1,
             Color = Color.FromArgb(255, 0xC8, 0xC8, 0xC8),
         });
+        _rotator = new(gfx, gfx.TextureCache.GetTexture("Assets/MapCreator/arrows.png")) {
+            Alignment = Alignment.Center,
+        };
     }
 
     public override void OnUpdate(Vector2 pos, InputSnapshot snapshot) {
-        var (x, y) = GetIndices(snapshot.MousePosition);
+        var (x, y) = GetIndices(pos);
 
         if (x >= 0 && x < _size && y >= 0 && y < _size) {
             _activeMarker.Position = new Vector2(x, y) * (TILE_SIZE + OFFSET);
+            _activeMarker.IsVisible = true;
+        } else {
+            _activeMarker.IsVisible = false;
         }
     }
 
@@ -52,10 +61,25 @@ public class MapGrid : InteractableUIElement<UIElement> {
 
         var (x, y) = GetIndices(pos);
 
-        ((MapTile)_internalChildren[_internalStart + x * _size + y]).Tile = button == MouseButton.Left
-            ? new TextureElement(_gfx, _gfx.TextureCache.GetTexture("Assets/MapCreator/room2.png")) {
-                PixelSize = new(TILE_SIZE),
-            } : null;
+        var mapTile = (MapTile)_internalChildren[_internalStart + x * _size + y];
+        if (button == MouseButton.Left) {
+            if (mapTile.Tile != null) {
+                mapTile.AddChild(_rotator);
+                mapTile.GrabRotate(pos - mapTile.Position);
+                _activeRotator = mapTile;
+            } else {
+                mapTile.Tile = new(_gfx, _gfx.TextureCache.GetTexture("Assets/MapCreator/room2.png")) {
+                    PixelSize = new(TILE_SIZE),
+                };
+            }
+        } else {
+            mapTile.Tile = null;
+        }
+    }
+
+    protected override void OnMouseUp(MouseButton button, Vector2 pos) {
+        _activeRotator?.RemoveChild(_rotator);
+        _activeRotator = null;
     }
 
     private (int, int) GetIndices(Vector2 pos) {

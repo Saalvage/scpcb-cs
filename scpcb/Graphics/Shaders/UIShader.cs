@@ -11,8 +11,8 @@ using scpcb.Graphics.Shaders.Fragments;
 namespace scpcb.Graphics.Shaders;
 
 public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.FragmentConstants, Empty, Empty> {
-    public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector4 TexCoords, Vector3 Position, float Pad, Vector2 Scale)
-        : IPositionConstantMember, IUIProjectionMatrixConstantMember, IUIScaleConstantMember, ITexCoordsConstantMember;
+    public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector4 TexCoords, Vector3 Position, float Pad, Vector2 Scale, Vector2 SinCosDeg)
+        : IPositionConstantMember, IUIProjectionMatrixConstantMember, IUIScaleConstantMember, ITexCoordsConstantMember, IRotation2DConstantMember;
 
     public record struct FragmentConstants(Vector4 Color) : IColorAlphaConstantMember;
 
@@ -24,7 +24,12 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.F
     [VertexShader]
     public FPositionTexture VS(Vertex input) {
         FPositionTexture output;
-        var originalPos = VertexBlock.Position + new Vector3(input.Position * VertexBlock.Scale, 1);
+        var basePos = input.Position * VertexBlock.Scale;
+        // TODO: Matrix2x2. Take the bitter pill and just supply one Matrix3x3 for everything?
+        var originalPos = VertexBlock.Position + new Vector3(
+            basePos.X * VertexBlock.SinCosDeg.Y - basePos.Y * VertexBlock.SinCosDeg.X,
+            basePos.Y * VertexBlock.SinCosDeg.Y + basePos.X * VertexBlock.SinCosDeg.X,
+            1);
         output.Position = new(Vector3.Transform(originalPos, VertexBlock.ProjectionMatrix), 1);
         output.TextureCoord = new(VertexBlock.TexCoords[Mod((int)VertexID, 2)],
             VertexBlock.TexCoords[2 + (int)VertexID / 2]);
@@ -37,6 +42,11 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.F
 
     [FragmentShader]
     public Vector4 FS(FPositionTexture input) {
-        return Sample(SurfaceTexture, Sampler, input.TextureCoord) * FragmentBlock.Color;
+        var color = Sample(SurfaceTexture, Sampler, input.TextureCoord);
+        // TODO: Implement Z-sorting.
+        if (color.W == 0) {
+            Discard();
+        }
+        return color * FragmentBlock.Color;
     }
 }
