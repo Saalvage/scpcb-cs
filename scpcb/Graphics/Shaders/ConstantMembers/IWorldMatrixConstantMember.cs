@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics.Shaders.ConstantMembers; 
+namespace SCPCB.Graphics.Shaders.ConstantMembers; 
 
 public interface IWorldMatrixConstantMember : IConstantMember<IWorldMatrixConstantMember, Matrix4x4> {
     public Matrix4x4 WorldMatrix { get; set; }

@@ -1,13 +1,13 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Caches;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Graphics.Textures;
-using scpcb.Physics;
-using scpcb.Utility;
+using SCPCB.Graphics.Caches;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Textures;
+using SCPCB.Physics;
+using SCPCB.Utility;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public class ModelImageGenerator : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4> {
     private readonly GraphicsResources _gfxRes;

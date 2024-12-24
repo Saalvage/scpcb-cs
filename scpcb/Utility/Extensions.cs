@@ -1,4 +1,4 @@
-﻿namespace scpcb.Utility; 
+﻿namespace SCPCB.Utility; 
 
 public static class Extensions {
     public static IEnumerable<T> AsEnumerableElementOrEmpty<T>(this T? item) {

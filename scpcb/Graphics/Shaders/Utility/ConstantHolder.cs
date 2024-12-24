@@ -1,11 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.Shaders.Utility;
+namespace SCPCB.Graphics.Shaders.Utility;
 
 public interface IConstantHolder : IDisposable {
     bool HasConstant<T>() where T : IConstantMember<T>;

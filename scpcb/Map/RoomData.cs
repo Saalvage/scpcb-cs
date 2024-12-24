@@ -1,15 +1,15 @@
 ﻿using System.Numerics;
 using BepuPhysics.Collidables;
-using scpcb.Entities;
-using scpcb.Graphics;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Map.Entities;
-using scpcb.Physics;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Map.Entities;
+using SCPCB.Physics;
+using SCPCB.Utility;
 
-namespace scpcb.Map;
+namespace SCPCB.Map;
 
 public interface IRoomData : IDisposable {
     public IRoomInstance Instantiate(Vector3 offset, Quaternion rotation);

@@ -1,9 +1,9 @@
-﻿using scpcb.Graphics.UserInterface.Composites;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
-using scpcb.Physics;
+﻿using SCPCB.Graphics.UserInterface.Composites;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
+using SCPCB.Physics;
 
-namespace scpcb.Graphics.UserInterface.Menus;
+namespace SCPCB.Graphics.UserInterface.Menus;
 
 public class ModelImageGeneratorMenu : UIElement {
     private readonly ModelImageGenerator _mig;

@@ -1,9 +1,9 @@
 ﻿using System.Collections;
-using scpcb.Entities;
-using scpcb.Graphics.Textures;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics.Textures;
+using SCPCB.Utility;
 
-namespace scpcb.Scenes;
+namespace SCPCB.Scenes;
 
 public class BaseScene : Disposable, IScene {
     // This fucking sucks, all because BinarySearch is not an extension method for some reason??

@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Utility;
 using ShaderGen;
 
-namespace scpcb.Graphics.Caches;
+namespace SCPCB.Graphics.Caches;
 
 // TODO: Add a way to get non-generated shaders.
 public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {

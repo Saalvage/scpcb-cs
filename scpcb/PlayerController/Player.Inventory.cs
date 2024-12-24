@@ -1,6 +1,6 @@
-﻿using scpcb.Entities.Items;
+﻿using SCPCB.Entities.Items;
 
-namespace scpcb.PlayerController;
+namespace SCPCB.PlayerController;
 
 public partial class Player {
     private IItem?[] _items = new IItem?[10];

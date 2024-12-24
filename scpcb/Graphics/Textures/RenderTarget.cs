@@ -1,9 +1,9 @@
-﻿using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Utility;
+﻿using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.Textures;
+namespace SCPCB.Graphics.Textures;
 
 public interface IRenderTarget {
     void Start();

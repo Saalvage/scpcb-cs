@@ -1,8 +1,8 @@
-﻿using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.Utility;
+﻿using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.Caches; 
+namespace SCPCB.Graphics.Caches; 
 
 public class MaterialCache : BaseCache<int, ICBMaterial> {
     private readonly GraphicsDevice _gfx;

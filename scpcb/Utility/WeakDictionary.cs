@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
-namespace scpcb.Utility; 
+namespace SCPCB.Utility; 
 
 public class WeakDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TValue : class {
     private readonly Dictionary<TKey, WeakReference<TValue>> _dict = [];

@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using scpcb.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Primitives;
 using Veldrid;
 
-namespace scpcb.Graphics.UserInterface.Composites;
+namespace SCPCB.Graphics.UserInterface.Composites;
 
 public enum Direction {
     Up,

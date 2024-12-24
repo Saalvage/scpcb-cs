@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
-using scpcb.Graphics;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Textures;
-using scpcb.Physics;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Textures;
+using SCPCB.Physics;
 
-namespace scpcb.Scenes;
+namespace SCPCB.Scenes;
 
 public class Scene3D : BaseScene {
     private readonly GraphicsResources _gfxRes;

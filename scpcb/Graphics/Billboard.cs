@@ -1,15 +1,15 @@
-﻿using scpcb.Entities;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders;
-using scpcb.Utility;
-using System.Numerics;
-using scpcb.Graphics.Caches;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Graphics.Shaders.Vertices;
+﻿using System.Numerics;
+using SCPCB.Entities;
+using SCPCB.Graphics.Caches;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Shaders.Vertices;
+using SCPCB.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, IConstantProvider<IColorAlphaConstantMember, Vector4>,
         ISharedMeshProvider<Billboard, VPositionTexture> {

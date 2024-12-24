@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
-using scpcb.Entities;
-using scpcb.Graphics;
-using scpcb.Scenes;
+using SCPCB.Entities;
+using SCPCB.Graphics;
+using SCPCB.Scenes;
 
-namespace scpcb.PlayerController;
+namespace SCPCB.PlayerController;
 
 public partial class Player : IUpdatable {
     private readonly IScene _scene;

@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using scpcb.Utility;
+using SCPCB.Utility;
 
-namespace scpcb.PlayerController;
+namespace SCPCB.PlayerController;
 
 public partial class Player {
     public bool Noclip { get; set; } = true;

@@ -1,15 +1,15 @@
 ﻿using System.Numerics;
-using scpcb.Entities;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Graphics.Textures;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Shaders.Vertices;
+using SCPCB.Graphics.Textures;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<IColorConstantMember, Vector3> {
     private readonly IScene? _scene;

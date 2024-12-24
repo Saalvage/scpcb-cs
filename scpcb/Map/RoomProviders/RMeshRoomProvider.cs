@@ -2,15 +2,15 @@
 using System.Numerics;
 using System.Text.RegularExpressions;
 using BepuPhysics.Collidables;
-using scpcb.Graphics;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders;
-using scpcb.Map.Entities;
-using scpcb.Physics;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Map.Entities;
+using SCPCB.Physics;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Map.RoomProviders;
+namespace SCPCB.Map.RoomProviders;
 
 public partial class RMeshRoomProvider : IRoomProvider {
     public const float ROOM_SCALE_OLD = 8f / 2048f;

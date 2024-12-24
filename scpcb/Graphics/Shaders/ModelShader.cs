@@ -1,17 +1,17 @@
 ﻿using ShaderGen;
 using System.Numerics;
 using Assimp;
-using scpcb.Graphics.Assimp;
-using scpcb.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Assimp;
 using static ShaderGen.ShaderBuiltins;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Graphics.Shaders.Fragments;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Fragments;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Shaders.Vertices;
 
 #pragma warning disable CS8618
 
-namespace scpcb.Graphics.Shaders;
+namespace SCPCB.Graphics.Shaders;
 
 public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, GraphicsResources>,
         IAutoShader<ModelShader.VertexConstants, Empty, ModelShader.InstanceVertexConstants, Empty> {

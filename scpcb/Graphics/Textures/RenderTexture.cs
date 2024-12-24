@@ -1,7 +1,7 @@
-﻿using scpcb.Graphics.Primitives;
+﻿using SCPCB.Graphics.Primitives;
 using Veldrid;
 
-namespace scpcb.Graphics.Textures;
+namespace SCPCB.Graphics.Textures;
 
 // TODO: Of course, OpenGL doesn't work with recursive render textures because of its Y-flip.
 public class RenderTexture : RenderTarget, ICBTexture {

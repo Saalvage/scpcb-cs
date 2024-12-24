@@ -1,10 +1,10 @@
 ﻿using System.Drawing;
-using scpcb.Graphics.Textures;
-using scpcb.Utility;
+using SCPCB.Graphics.Textures;
+using SCPCB.Utility;
 using StbImageSharp;
 using Veldrid;
 
-namespace scpcb.Graphics.Primitives;
+namespace SCPCB.Graphics.Primitives;
 
 public interface ICBTexture : IDisposable {
     TextureView View { get; }

@@ -1,7 +1,7 @@
-﻿using scpcb.Graphics.Primitives;
+﻿using SCPCB.Graphics.Primitives;
 using Veldrid;
 
-namespace scpcb.Graphics.Textures;
+namespace SCPCB.Graphics.Textures;
 
 public interface IMipmappable : ICBTexture {
     void GenerateMipmaps(CommandList commands);

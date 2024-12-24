@@ -2,9 +2,9 @@
 using BepuPhysics.Collidables;
 using System.Numerics;
 using BepuUtilities;
-using scpcb.Physics.Primitives;
+using SCPCB.Physics.Primitives;
 
-namespace scpcb.Physics;
+namespace SCPCB.Physics;
 
 public static class CBShapeExtensions {
     public static CBBody CreateDynamic(this ICBShape shape, RigidPose pose, BodyInertia inertia, BodyActivityDescription activity)

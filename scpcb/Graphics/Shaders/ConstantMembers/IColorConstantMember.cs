@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics.Shaders.ConstantMembers; 
+namespace SCPCB.Graphics.Shaders.ConstantMembers; 
 
 public interface IColorConstantMember : IConstantMember<IColorConstantMember, Vector3> {
     public Vector3 Color { get; set; }

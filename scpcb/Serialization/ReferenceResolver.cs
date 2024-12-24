@@ -1,7 +1,7 @@
-﻿using scpcb.Entities;
-using scpcb.Utility;
+﻿using SCPCB.Entities;
+using SCPCB.Utility;
 
-namespace scpcb.Serialization;
+namespace SCPCB.Serialization;
 
 /// <summary>
 /// Allows for restoring relationships between entities by storing the hash code of the ENTITY (not the data) in the data.

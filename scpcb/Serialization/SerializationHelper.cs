@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
-using scpcb.Entities;
-using scpcb.Graphics;
-using scpcb.Scenes;
+using SCPCB.Entities;
+using SCPCB.Graphics;
+using SCPCB.Scenes;
 
-namespace scpcb.Serialization; 
+namespace SCPCB.Serialization; 
 
 public static class SerializationHelper {
     private static readonly JsonSerializerOptions _opt = new() {

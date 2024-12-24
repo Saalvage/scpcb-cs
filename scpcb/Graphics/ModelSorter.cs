@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using scpcb.Entities;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Textures;
-using scpcb.Scenes;
+using SCPCB.Entities;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Textures;
+using SCPCB.Scenes;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
     private readonly List<I3DModel> _opaque = [];

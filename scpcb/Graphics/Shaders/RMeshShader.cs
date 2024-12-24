@@ -1,13 +1,13 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Utility;
 using ShaderGen;
 using static ShaderGen.ShaderBuiltins;
 
 #pragma warning disable CS8618
 
-namespace scpcb.Graphics.Shaders;
+namespace SCPCB.Graphics.Shaders;
 
 public partial class RMeshShader : IAutoShader<RMeshShader.VertUniforms, Empty, RMeshShader.VertInstanceUniforms, Empty> {
 

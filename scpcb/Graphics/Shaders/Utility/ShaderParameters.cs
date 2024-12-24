@@ -1,6 +1,6 @@
 ﻿using Veldrid;
 
-namespace scpcb.Graphics.Shaders.Utility;
+namespace SCPCB.Graphics.Shaders.Utility;
 
 public record struct ShaderParameters(
     BlendStateDescription BlendState,

@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public interface ICamera {
     Vector3 Position { get; set; }

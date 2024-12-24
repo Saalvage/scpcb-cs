@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace scpcb.Graphics.UserInterface.Primitives;
+namespace SCPCB.Graphics.UserInterface.Primitives;
 
 public interface IColorizableElement {
     public Color Color { get; set; }

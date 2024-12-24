@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
-using scpcb.Entities.Items;
-using scpcb.Graphics.UserInterface.Composites;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
+using SCPCB.Entities.Items;
+using SCPCB.Graphics.UserInterface.Composites;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
 
-namespace scpcb.Graphics.UserInterface.Menus;
+namespace SCPCB.Graphics.UserInterface.Menus;
 
 public class InventoryMenu : UIElement {
     private readonly GraphicsResources _gfxRes;

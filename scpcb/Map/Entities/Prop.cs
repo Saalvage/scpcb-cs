@@ -1,17 +1,17 @@
 ﻿using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
-using scpcb.Entities;
-using scpcb.Graphics;
-using scpcb.Graphics.Caches;
-using scpcb.Graphics.ModelCollections;
-using scpcb.Physics;
-using scpcb.Physics.Primitives;
-using scpcb.Scenes;
-using scpcb.Serialization;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Caches;
+using SCPCB.Graphics.ModelCollections;
+using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
+using SCPCB.Scenes;
+using SCPCB.Serialization;
+using SCPCB.Utility;
 
-namespace scpcb.Map.Entities;
+namespace SCPCB.Map.Entities;
 
 public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     private record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic) : SerializableData {

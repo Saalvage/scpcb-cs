@@ -1,6 +1,6 @@
 ﻿using Veldrid;
 
-namespace scpcb.Graphics.Primitives;
+namespace SCPCB.Graphics.Primitives;
 
 public interface ICBMaterial : IDisposable {
     ICBShader Shader { get; }

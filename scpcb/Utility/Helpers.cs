@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using ShaderGen;
 using Veldrid;
 
-namespace scpcb.Utility; 
+namespace SCPCB.Utility; 
 
 public static class Helpers {
     /// <summary>

@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
 using BepuPhysics.Collidables;
-using scpcb.Physics;
-using scpcb.Physics.Primitives;
-using scpcb.Utility;
+using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
+using SCPCB.Utility;
 
-namespace scpcb.Graphics.Caches;
+namespace SCPCB.Graphics.Caches;
 
 public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IModelLoader loader) : BaseCache<string, ModelCache.CacheEntry> {
     public class CacheEntry : Disposable {

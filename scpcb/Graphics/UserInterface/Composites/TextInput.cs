@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
 using Veldrid;
 using Veldrid.Sdl2;
 
-namespace scpcb.Graphics.UserInterface.Composites;
+namespace SCPCB.Graphics.UserInterface.Composites;
 
 public class TextInput : InteractableUIElement<TextElement> {
     private readonly InputManager _input;

@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.UserInterface;
-using scpcb.Graphics.UserInterface.Composites;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.UserInterface;
+using SCPCB.Graphics.UserInterface.Composites;
 
-namespace scpcb.Scenes;
+namespace SCPCB.Scenes;
 
 public class MapCreatorScene : BaseScene {
     public MapCreatorScene(Game game) {

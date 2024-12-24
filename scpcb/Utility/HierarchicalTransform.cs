@@ -1,4 +1,4 @@
-﻿namespace scpcb.Utility; 
+﻿namespace SCPCB.Utility; 
 
 public class HierarchicalTransform {
     // Which one to store and which one to calculate on the fly is up to preference.

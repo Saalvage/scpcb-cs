@@ -1,10 +1,10 @@
 ﻿using BepuPhysics.Collidables;
-using scpcb.Physics;
-using scpcb.Physics.Primitives;
 using System.Numerics;
+using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
 using Veldrid;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public interface IModelLoader {
     (IMeshMaterial[] Models, ICBShape<ConvexHull> Collision, Vector3 CenterOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file);

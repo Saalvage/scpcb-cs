@@ -1,12 +1,12 @@
 ﻿using System.Numerics;
 using FreeTypeSharp;
 using FreeTypeSharp.Native;
-using scpcb.Graphics.Primitives;
-using scpcb.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Utility;
 using Veldrid;
 using static FreeTypeSharp.Native.FT;
 
-namespace scpcb.Graphics.UserInterface.Utility;
+namespace SCPCB.Graphics.UserInterface.Utility;
 
 public class Font : Disposable {
     private readonly GraphicsResources _gfxRes;

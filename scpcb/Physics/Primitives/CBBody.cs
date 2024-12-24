@@ -1,7 +1,7 @@
 ﻿using BepuPhysics;
-using scpcb.Utility;
+using SCPCB.Utility;
 
-namespace scpcb.Physics.Primitives;
+namespace SCPCB.Physics.Primitives;
 
 public class CBBody : Disposable {
     private readonly ICBShape _shape;

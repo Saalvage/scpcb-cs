@@ -1,7 +1,7 @@
-﻿using scpcb.Graphics.Shaders.Utility;
-using scpcb.Graphics.Textures;
+﻿using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Textures;
 
-namespace scpcb.Graphics.Primitives;
+namespace SCPCB.Graphics.Primitives;
 
 // TODO: Consider making this mutable?
 public interface ICBModel {

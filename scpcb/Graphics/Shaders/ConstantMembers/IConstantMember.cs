@@ -1,4 +1,4 @@
-﻿namespace scpcb.Graphics.Shaders.ConstantMembers; 
+﻿namespace SCPCB.Graphics.Shaders.ConstantMembers; 
 
 public interface IConstantMember<T> { }
 

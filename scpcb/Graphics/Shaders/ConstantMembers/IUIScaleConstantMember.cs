@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics.Shaders.ConstantMembers;
+namespace SCPCB.Graphics.Shaders.ConstantMembers;
 
 public interface IUIScaleConstantMember : IConstantMember<IUIScaleConstantMember, Vector2> {
     public Vector2 Scale { get; set; }

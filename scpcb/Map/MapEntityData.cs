@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
 using System.Reflection;
-using scpcb.Graphics;
-using scpcb.Map.Entities;
-using scpcb.Physics;
-using scpcb.Utility;
+using SCPCB.Graphics;
+using SCPCB.Map.Entities;
+using SCPCB.Physics;
+using SCPCB.Utility;
 
-namespace scpcb.Map;
+namespace SCPCB.Map;
 
 public interface IMapEntityData {
     public IMapEntity Instantiate(GraphicsResources gfxRes, PhysicsResources physics, Transform roomTransform);

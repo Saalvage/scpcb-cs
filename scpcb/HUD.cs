@@ -1,14 +1,14 @@
 ﻿using System.Drawing;
-using scpcb.Entities;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.UserInterface;
-using scpcb.Graphics.UserInterface.Composites;
-using scpcb.Graphics.UserInterface.Menus;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
-using scpcb.PlayerController;
+using SCPCB.Entities;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.UserInterface;
+using SCPCB.Graphics.UserInterface.Composites;
+using SCPCB.Graphics.UserInterface.Menus;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
+using SCPCB.PlayerController;
 
-namespace scpcb;
+namespace SCPCB;
 
 public class HUD : IUpdatable {
     private readonly Player _player;

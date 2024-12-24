@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization.Metadata;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using scpcb.Utility;
+using SCPCB.Utility;
 
-namespace scpcb.Serialization;
+namespace SCPCB.Serialization;
 
 public class SerializableDataTypeResolver : DefaultJsonTypeInfoResolver {
     public static SerializableDataTypeResolver Instance { get; } = new();

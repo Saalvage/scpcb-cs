@@ -2,9 +2,9 @@
 using BepuPhysics.Trees;
 using BepuPhysics;
 using System.Numerics;
-using scpcb.Physics;
+using SCPCB.Physics;
 
-namespace scpcb.Utility; 
+namespace SCPCB.Utility; 
 
 public static class PhysicsExtensions {
     private struct RayHitHandler : IRayHitHandler {

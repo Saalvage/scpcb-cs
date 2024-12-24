@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Textures;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Textures;
 using Veldrid;
 
-namespace scpcb.Scenes;
+namespace SCPCB.Scenes;
 
 public class VideoScene : BaseScene {
     private readonly ICBModel _model;

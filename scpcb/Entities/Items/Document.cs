@@ -1,9 +1,9 @@
-using scpcb.Graphics;
-using scpcb.Graphics.Primitives;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Entities.Items;
+namespace SCPCB.Entities.Items;
 
 public class Document : Item {
     private readonly ICBTexture _texture;

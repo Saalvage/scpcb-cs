@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics.Assimp;
+namespace SCPCB.Graphics.Assimp;
 
 public ref struct AssimpVertex {
     public Vector3 Position;

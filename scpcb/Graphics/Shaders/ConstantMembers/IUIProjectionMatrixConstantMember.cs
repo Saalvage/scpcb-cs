@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics.Shaders.ConstantMembers;
+namespace SCPCB.Graphics.Shaders.ConstantMembers;
 
 public interface IUIProjectionMatrixConstantMember : IConstantMember<IUIProjectionMatrixConstantMember, Matrix4x4> {
     public Matrix4x4 ProjectionMatrix { get; set; }

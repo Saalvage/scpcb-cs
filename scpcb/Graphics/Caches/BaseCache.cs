@@ -1,6 +1,6 @@
-﻿using scpcb.Utility;
+﻿using SCPCB.Utility;
 
-namespace scpcb.Graphics.Caches; 
+namespace SCPCB.Graphics.Caches; 
 
 public abstract class BaseCache<TKey, TVal> : Disposable where TVal : class, IDisposable {
     protected WeakDictionary<TKey, TVal> _dic = [];

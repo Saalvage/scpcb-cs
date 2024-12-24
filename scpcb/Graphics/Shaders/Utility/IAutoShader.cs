@@ -1,4 +1,4 @@
-﻿namespace scpcb.Graphics.Shaders.Utility;
+﻿namespace SCPCB.Graphics.Shaders.Utility;
 
 /// <summary>
 /// DO NOT implement this interface, instead, implement the parameterized one.

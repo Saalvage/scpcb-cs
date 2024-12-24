@@ -1,7 +1,7 @@
-﻿using scpcb.Graphics.Primitives;
-using scpcb.PlayerController;
+﻿using SCPCB.Graphics.Primitives;
+using SCPCB.PlayerController;
 
-namespace scpcb.Entities;
+namespace SCPCB.Entities;
 
 public interface IPickableEntity : I3DEntity {
     bool CanBePicked(Player player) => true;

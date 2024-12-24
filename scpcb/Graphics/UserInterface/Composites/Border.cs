@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
 
-namespace scpcb.Graphics.UserInterface.Composites;
+namespace SCPCB.Graphics.UserInterface.Composites;
 
 public class Border : UIElement, IColorizableElement {
     private readonly TextureElement[] _internalChildren;

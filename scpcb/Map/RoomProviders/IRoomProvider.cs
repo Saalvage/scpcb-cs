@@ -1,8 +1,8 @@
-﻿using scpcb.Graphics;
-using scpcb.Physics;
-using scpcb.Scenes;
+﻿using SCPCB.Graphics;
+using SCPCB.Physics;
+using SCPCB.Scenes;
 
-namespace scpcb.Map.RoomProviders;
+namespace SCPCB.Map.RoomProviders;
 
 public interface IRoomProvider {
     /// <summary>

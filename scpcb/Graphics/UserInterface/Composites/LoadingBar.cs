@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.UserInterface.Primitives;
 
-namespace scpcb.Graphics.UserInterface.Composites;
+namespace SCPCB.Graphics.UserInterface.Composites;
 
 public enum ProgressHandling {
     /// <summary>

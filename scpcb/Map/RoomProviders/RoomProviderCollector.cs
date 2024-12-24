@@ -1,9 +1,9 @@
-﻿using scpcb.Graphics;
-using scpcb.Physics;
-using scpcb.Scenes;
-using scpcb.Utility;
+﻿using SCPCB.Graphics;
+using SCPCB.Physics;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Map.RoomProviders;
+namespace SCPCB.Map.RoomProviders;
 
 public class RoomProviderCollector {
     private readonly List<IRoomProvider> _providers;

@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using FFMediaToolkit.Decoding;
 using FFMediaToolkit.Graphics;
-using scpcb.Entities;
-using scpcb.Graphics.Primitives;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.Textures; 
+namespace SCPCB.Graphics.Textures; 
 
 public class Video : Disposable, IUpdatable {
     private readonly MediaFile _media;

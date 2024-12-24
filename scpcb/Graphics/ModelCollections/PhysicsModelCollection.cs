@@ -1,12 +1,12 @@
 ﻿using System.Numerics;
-using scpcb.Entities;
-using scpcb.Graphics.Primitives;
-using scpcb.Physics;
-using scpcb.Physics.Primitives;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Graphics.ModelCollections;
+namespace SCPCB.Graphics.ModelCollections;
 
 public sealed class PhysicsModelCollection : InterpolatedModelCollection, IEntity {
     private readonly PhysicsResources _physics;

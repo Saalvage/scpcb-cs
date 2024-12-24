@@ -1,4 +1,4 @@
-﻿namespace scpcb.Entities; 
+﻿namespace SCPCB.Entities; 
 
 /// <summary>
 /// Implementers do not need to dispose their held entities.

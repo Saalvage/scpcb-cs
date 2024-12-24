@@ -1,12 +1,12 @@
 ﻿using System.Numerics;
-using scpcb.Entities;
-using scpcb.Graphics;
-using scpcb.Graphics.Primitives;
-using scpcb.PlayerController;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Primitives;
+using SCPCB.PlayerController;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Map.Entities;
+namespace SCPCB.Map.Entities;
 
 public class Screen : IMapEntity, IPickableEntity {
     public Vector3 Position { get; }

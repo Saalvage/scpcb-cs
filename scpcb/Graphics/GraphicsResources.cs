@@ -1,17 +1,17 @@
 ﻿using FreeTypeSharp;
-using scpcb.Graphics.Caches;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Textures;
-using scpcb.Map;
-using scpcb.Map.RoomProviders;
-using scpcb.Physics;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Graphics.Caches;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Textures;
+using SCPCB.Map;
+using SCPCB.Map.RoomProviders;
+using SCPCB.Physics;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public class GraphicsResources : Disposable {
     private class MainRenderTarget : RenderTarget {

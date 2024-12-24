@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Assimp;
+using SCPCB.Graphics.Assimp;
 using ShaderGen;
 
-namespace scpcb.Graphics.Shaders.Vertices;
+namespace SCPCB.Graphics.Shaders.Vertices;
 
 public record struct VPositionTexture([PositionSemantic] Vector3 Position, [TextureCoordinateSemantic] Vector2 TextureCoord)
         : IAssimpVertexConvertible<VPositionTexture> {

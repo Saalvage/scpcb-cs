@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
-using scpcb.Graphics;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Graphics;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Entities.Items;
+namespace SCPCB.Entities.Items;
 
 public class ItemRegistry(GraphicsResources gfxRes, IScene scene) {
     private readonly Dictionary<string, Func<Transform, IItem>> _templates = [];

@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
-using scpcb.Entities;
-using scpcb.Graphics.Textures;
-using scpcb.Graphics.UserInterface.Primitives;
+using SCPCB.Entities;
+using SCPCB.Graphics.Textures;
+using SCPCB.Graphics.UserInterface.Primitives;
 using Veldrid.Sdl2;
 
-namespace scpcb.Graphics.UserInterface;
+namespace SCPCB.Graphics.UserInterface;
 
 // TODO: Some thoughts on the UI in general:
 // - Composite elements might not always support all inherited properties that they expose (e.g. inability to rescale via setting PixelSize).

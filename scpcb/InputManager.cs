@@ -1,7 +1,7 @@
 ﻿using Veldrid;
 using Veldrid.Sdl2;
 
-namespace scpcb;
+namespace SCPCB;
 
 public class InputManager {
     private readonly Sdl2Window _window;

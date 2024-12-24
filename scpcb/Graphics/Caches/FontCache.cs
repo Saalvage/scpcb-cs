@@ -1,7 +1,7 @@
 ﻿using FreeTypeSharp;
-using scpcb.Graphics.UserInterface.Utility;
+using SCPCB.Graphics.UserInterface.Utility;
 
-namespace scpcb.Graphics.Caches;
+namespace SCPCB.Graphics.Caches;
 
 public class FontCache : BaseCache<(string, int), Font> {
     private readonly GraphicsResources _gfxRes;

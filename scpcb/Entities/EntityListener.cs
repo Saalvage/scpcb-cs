@@ -1,7 +1,7 @@
-﻿using scpcb.Scenes;
-using scpcb.Utility;
+﻿using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Entities;
+namespace SCPCB.Entities;
 
 /// <summary>
 /// Helper class that automatically takes care of (un-)subscribing to the events.

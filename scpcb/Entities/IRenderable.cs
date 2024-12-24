@@ -1,6 +1,6 @@
-﻿using scpcb.Graphics.Textures;
+﻿using SCPCB.Graphics.Textures;
 
-namespace scpcb.Entities;
+namespace SCPCB.Entities;
 
 public interface IRenderable : IPriorizableEntity {
     void Render(IRenderTarget target, float interp);

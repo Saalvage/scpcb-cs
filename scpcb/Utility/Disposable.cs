@@ -1,4 +1,4 @@
-﻿namespace scpcb.Utility; 
+﻿namespace SCPCB.Utility; 
 
 public abstract class Disposable : IDisposable {
     private bool _disposed = false;

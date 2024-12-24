@@ -1,6 +1,6 @@
-﻿using scpcb.Entities;
+﻿using SCPCB.Entities;
 
-namespace scpcb.Serialization;
+namespace SCPCB.Serialization;
 
 public interface ISerializableEntity : IEntity {
     protected SerializableData SerializeImpl();

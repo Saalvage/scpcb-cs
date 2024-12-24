@@ -3,7 +3,7 @@ using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 
-namespace scpcb.Physics;
+namespace SCPCB.Physics;
 
 public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks {
     public SpringSettings ContactSpringiness { get; set; } = new(30, 1);

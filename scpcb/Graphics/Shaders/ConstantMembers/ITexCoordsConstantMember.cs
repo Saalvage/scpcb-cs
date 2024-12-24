@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics.Shaders.ConstantMembers;
+namespace SCPCB.Graphics.Shaders.ConstantMembers;
 
 public interface ITexCoordsConstantMember : IConstantMember<ITexCoordsConstantMember, Vector4> {
     public Vector4 TexCoords { get; set; }

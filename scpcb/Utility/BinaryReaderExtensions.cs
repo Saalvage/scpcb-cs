@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Text;
 
-namespace scpcb.Utility;
+namespace SCPCB.Utility;
 
 public static class BinaryReaderExtensions {
     [ThreadStatic]

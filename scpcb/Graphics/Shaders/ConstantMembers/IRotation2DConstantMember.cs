@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace scpcb.Graphics.Shaders.ConstantMembers;
+namespace SCPCB.Graphics.Shaders.ConstantMembers;
 
 public interface IRotation2DConstantMember : IConstantMember<IRotation2DConstantMember, Vector2> {
     public Vector2 SinCosDeg { get; set; }

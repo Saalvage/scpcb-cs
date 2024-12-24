@@ -1,14 +1,14 @@
 ﻿using ShaderGen;
 using System.Numerics;
 using static ShaderGen.ShaderBuiltins;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Graphics.Shaders.Fragments;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Fragments;
+using SCPCB.Graphics.Shaders.Utility;
 
 #pragma warning disable CS8618
 
-namespace scpcb.Graphics.Shaders;
+namespace SCPCB.Graphics.Shaders;
 
 public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.FragmentConstants, Empty, Empty> {
     public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector4 TexCoords, Vector3 Position, float Pad, Vector2 Scale, Vector2 SinCosDeg)

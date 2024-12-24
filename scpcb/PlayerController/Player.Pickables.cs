@@ -1,9 +1,9 @@
-﻿using scpcb.Entities;
-using scpcb.Graphics.UserInterface;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
+﻿using SCPCB.Entities;
+using SCPCB.Graphics.UserInterface;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
 
-namespace scpcb.PlayerController;
+namespace SCPCB.PlayerController;
 
 public partial class Player {
     private IPickableEntity? _closestPickable;

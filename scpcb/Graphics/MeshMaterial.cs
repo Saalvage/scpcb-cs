@@ -1,7 +1,7 @@
-﻿using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.Utility;
+﻿using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.Utility;
 
-namespace scpcb.Graphics;
+namespace SCPCB.Graphics;
 
 public interface IMeshMaterial {
     ICBMesh Mesh { get; }

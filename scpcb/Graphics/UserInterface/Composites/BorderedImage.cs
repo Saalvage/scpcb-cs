@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.UserInterface.Primitives;
 
-namespace scpcb.Graphics.UserInterface.Composites;
+namespace SCPCB.Graphics.UserInterface.Composites;
 
 public class BorderedImage : Border {
     public BorderedImage(GraphicsResources gfxRes, Vector2 dimensions, float thickness, Color color, ICBTexture texture) : base(gfxRes,

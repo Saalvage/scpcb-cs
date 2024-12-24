@@ -1,6 +1,6 @@
-﻿using scpcb.Graphics.Primitives;
+﻿using SCPCB.Graphics.Primitives;
 
-namespace scpcb.Entities;
+namespace SCPCB.Entities;
 
 /// <summary>
 /// This only needs the rough position of the model, as it's solely used for the rendering order of transparent objects here.

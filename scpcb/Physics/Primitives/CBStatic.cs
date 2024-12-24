@@ -1,7 +1,7 @@
 ﻿using BepuPhysics;
-using scpcb.Utility;
+using SCPCB.Utility;
 
-namespace scpcb.Physics.Primitives;
+namespace SCPCB.Physics.Primitives;
 
 public class CBStatic : Disposable {
     private readonly Simulation _sim;

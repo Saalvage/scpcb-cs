@@ -1,15 +1,15 @@
 ﻿using ShaderGen;
 using System.Numerics;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
 using static ShaderGen.ShaderBuiltins;
-using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Graphics.Shaders.Fragments;
+using SCPCB.Graphics.Shaders.Fragments;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Shaders.Vertices;
 
 #pragma warning disable CS8618
 
-namespace scpcb.Graphics.Shaders;
+namespace SCPCB.Graphics.Shaders;
 
 public partial class BillboardShader : IAutoShader<BillboardShader.VertexConstants, Empty,
         BillboardShader.InstanceVertexConstants, BillboardShader.InstanceFragmentConstants> {

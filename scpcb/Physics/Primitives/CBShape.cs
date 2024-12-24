@@ -1,8 +1,8 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
-using scpcb.Utility;
+using SCPCB.Utility;
 
-namespace scpcb.Physics.Primitives; 
+namespace SCPCB.Physics.Primitives; 
 
 public interface ICBShape : IDisposable {
     Simulation Simulation { get; }

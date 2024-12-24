@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
-using scpcb.Graphics.Primitives;
-using scpcb.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Utility;
 
-namespace scpcb.Graphics.Caches;
+namespace SCPCB.Graphics.Caches;
 
 public class TextureCache : Disposable {
     private readonly WeakDictionary<string, ICBTexture> _textures = [];

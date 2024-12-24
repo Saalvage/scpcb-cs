@@ -2,14 +2,14 @@
 using Assimp;
 using Assimp.Unmanaged;
 using BepuPhysics.Collidables;
-using scpcb.Graphics.Primitives;
-using scpcb.Physics;
-using scpcb.Physics.Primitives;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
 using Serilog.Events;
 using Veldrid;
 using Mesh = Assimp.Mesh;
 
-namespace scpcb.Graphics.Assimp;
+namespace SCPCB.Graphics.Assimp;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
 public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where TVertex : unmanaged {

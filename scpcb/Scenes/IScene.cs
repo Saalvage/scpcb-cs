@@ -1,7 +1,7 @@
-﻿using scpcb.Entities;
-using scpcb.Graphics.Textures;
+﻿using SCPCB.Entities;
+using SCPCB.Graphics.Textures;
 
-namespace scpcb.Scenes; 
+namespace SCPCB.Scenes; 
 
 public interface IScene : IDisposable {
     IEnumerable<IEntity> Entities { get; }

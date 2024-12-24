@@ -1,6 +1,6 @@
-﻿using scpcb.Graphics.Primitives;
+﻿using SCPCB.Graphics.Primitives;
 
-namespace scpcb.Graphics.Caches; 
+namespace SCPCB.Graphics.Caches; 
 
 public interface ISharedMeshProvider<TSelf> where TSelf : ISharedMeshProvider<TSelf> {
     static abstract ICBMesh CreateSharedMesh(GraphicsResources gfxRes);

@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Textures;
-using scpcb.Graphics.UserInterface.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Textures;
+using SCPCB.Graphics.UserInterface.Utility;
 
-namespace scpcb.Graphics.UserInterface.Primitives;
+namespace SCPCB.Graphics.UserInterface.Primitives;
 
 using AtlasMesh = (ICBTexture, ICBMesh<TextShader.Vertex>);
 

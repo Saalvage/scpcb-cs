@@ -1,8 +1,8 @@
-﻿using scpcb.Graphics;
-using scpcb.Scenes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using SCPCB.Graphics;
+using SCPCB.Scenes;
 
-namespace scpcb.Serialization;
+namespace SCPCB.Serialization;
 
 [JsonPolymorphic]
 public abstract record SerializableData {

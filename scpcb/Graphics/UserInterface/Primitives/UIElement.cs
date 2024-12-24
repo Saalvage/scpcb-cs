@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Textures;
-using scpcb.Graphics.UserInterface.Utility;
-using scpcb.Utility;
+using SCPCB.Graphics.Textures;
+using SCPCB.Graphics.UserInterface.Utility;
+using SCPCB.Utility;
 
-namespace scpcb.Graphics.UserInterface.Primitives;
+namespace SCPCB.Graphics.UserInterface.Primitives;
 
 public interface IUIElement {
     /// <summary>

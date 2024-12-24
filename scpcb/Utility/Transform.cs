@@ -2,7 +2,7 @@
 using System.Numerics;
 using BepuPhysics;
 
-namespace scpcb.Utility;
+namespace SCPCB.Utility;
 
 // TODO: Consider turning this into a regular ol' struct.. The inability to modify properties is annoying.
 public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Scale) {

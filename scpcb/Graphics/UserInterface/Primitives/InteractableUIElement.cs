@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Veldrid;
 
-namespace scpcb.Graphics.UserInterface.Primitives;
+namespace SCPCB.Graphics.UserInterface.Primitives;
 
 public interface IInteractableUIElement : IUIElement {
     void Update(Vector2 pos, InputSnapshot snapshot);

@@ -1,8 +1,8 @@
 ﻿using ShaderGen;
 using System.Numerics;
-using scpcb.Graphics.Assimp;
+using SCPCB.Graphics.Assimp;
 
-namespace scpcb.Graphics.Shaders.Vertices;
+namespace SCPCB.Graphics.Shaders.Vertices;
 
 public record struct VPosition([PositionSemantic] Vector3 Position) : IAssimpVertexConvertible<VPosition> {
     public static VPosition ConvertVertex(AssimpVertex vert) => new(vert.Position);

@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using scpcb.Graphics.Primitives;
-using scpcb.Utility;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Utility;
 using ShaderGen;
 
-namespace scpcb.Graphics.Shaders.Utility;
+namespace SCPCB.Graphics.Shaders.Utility;
 
 public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, TInstanceVertConstants, TInstanceFragConstants>
     : CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertConstants, TInstanceFragConstants>

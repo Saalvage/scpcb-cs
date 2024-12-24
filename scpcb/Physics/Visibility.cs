@@ -1,4 +1,4 @@
-﻿namespace scpcb.Physics; 
+﻿namespace SCPCB.Physics; 
 
 public struct Visibility {
     public bool IsInvisible;

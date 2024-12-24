@@ -1,12 +1,12 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using scpcb.Graphics.Caches;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Textures;
+using SCPCB.Graphics.Caches;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Textures;
 
-namespace scpcb.Graphics.UserInterface.Primitives;
+namespace SCPCB.Graphics.UserInterface.Primitives;
 
 public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIShader.Vertex>, IColorizableElement {
     private readonly CBModel<UIShader.Vertex> _model;

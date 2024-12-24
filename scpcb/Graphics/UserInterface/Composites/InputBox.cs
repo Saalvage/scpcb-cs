@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.UserInterface.Composites;
+namespace SCPCB.Graphics.UserInterface.Composites;
 
 internal class InputBox : InteractableUIElement<MenuFrame> {
     private readonly UIManager _ui;

@@ -1,4 +1,4 @@
-﻿namespace scpcb.Graphics.UserInterface.Utility;
+﻿namespace SCPCB.Graphics.UserInterface.Utility;
 
 using Return = (string Text, int Caret, int CaretWanderer);
 

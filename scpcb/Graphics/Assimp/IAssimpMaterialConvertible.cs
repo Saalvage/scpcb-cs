@@ -1,7 +1,7 @@
 ﻿using Assimp;
-using scpcb.Graphics.Primitives;
+using SCPCB.Graphics.Primitives;
 
-namespace scpcb.Graphics.Assimp; 
+namespace SCPCB.Graphics.Assimp; 
 
 // TODO: Make this generic instead of Assimp specific.
 // In general, I don't think this should be attached to shaders. Just always make the mat converter a plugin?

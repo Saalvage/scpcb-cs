@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Utility;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Utility;
 using Veldrid;
 using Veldrid.SPIRV;
 
-namespace scpcb.Graphics.Primitives;
+namespace SCPCB.Graphics.Primitives;
 
 public interface ICBShader : IDisposable {
     ICBMaterial CreateMaterial(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers);

@@ -1,14 +1,14 @@
 ﻿using System.Numerics;
-using scpcb.Graphics.Primitives;
-using scpcb.Graphics.Shaders.ConstantMembers;
-using scpcb.Graphics.Shaders.Fragments;
-using scpcb.Graphics.Shaders.Utility;
-using scpcb.Graphics.Shaders.Vertices;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.ConstantMembers;
+using SCPCB.Graphics.Shaders.Fragments;
+using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Shaders.Vertices;
 using ShaderGen;
 using Veldrid;
 using static ShaderGen.ShaderBuiltins;
 
-namespace scpcb.Graphics.Shaders;
+namespace SCPCB.Graphics.Shaders;
 
 public partial class LineShader : IAutoShader<LineShader.VertexConstants, Empty,
         LineShader.InstanceVertexConstants, LineShader.InstanceFragmentConstants> {

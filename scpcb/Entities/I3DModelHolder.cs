@@ -1,4 +1,4 @@
-﻿namespace scpcb.Entities; 
+﻿namespace SCPCB.Entities; 
 
 public interface I3DModelHolder : IEntity {
     // TODO: Consider a changing mode provider?

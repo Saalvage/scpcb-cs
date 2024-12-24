@@ -2,7 +2,7 @@
 using BepuPhysics;
 using BepuUtilities;
 
-namespace scpcb.Physics; 
+namespace SCPCB.Physics; 
 
 public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks {
     public Vector3 Gravity { get; set; } = new(0, -9.81f, 0);

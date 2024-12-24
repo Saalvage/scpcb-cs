@@ -1,10 +1,10 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using scpcb.Graphics.UserInterface.Primitives;
-using scpcb.Graphics.UserInterface.Utility;
+using SCPCB.Graphics.UserInterface.Primitives;
+using SCPCB.Graphics.UserInterface.Utility;
 using Veldrid;
 
-namespace scpcb.Graphics.UserInterface.Composites;
+namespace SCPCB.Graphics.UserInterface.Composites;
 
 public class MapGrid : InteractableUIElement<UIElement> {
     private const int TILE_SIZE = 28;

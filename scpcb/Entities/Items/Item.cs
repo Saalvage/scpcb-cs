@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using scpcb.Graphics;
-using scpcb.Graphics.Primitives;
-using scpcb.Map.Entities;
-using scpcb.Physics;
-using scpcb.PlayerController;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Map.Entities;
+using SCPCB.Physics;
+using SCPCB.PlayerController;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Entities.Items;
+namespace SCPCB.Entities.Items;
 
 public interface IItem : IPickableEntity {
     string DisplayName => GetType().FullName!;

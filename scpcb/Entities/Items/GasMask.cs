@@ -1,8 +1,8 @@
-﻿using scpcb.Graphics;
-using scpcb.Scenes;
-using scpcb.Utility;
+﻿using SCPCB.Graphics;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Entities.Items;
+namespace SCPCB.Entities.Items;
 
 public class GasMask : Item {
     public GasMask(GraphicsResources gfxRes, IScene scene, Transform transform)

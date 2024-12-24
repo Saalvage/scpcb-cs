@@ -1,4 +1,4 @@
-﻿namespace scpcb.Entities; 
+﻿namespace SCPCB.Entities; 
 
 public interface IPriorizableEntity : IComparable<IPriorizableEntity>, IEntity {
     int Priority => 0;

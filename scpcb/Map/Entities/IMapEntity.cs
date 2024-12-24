@@ -1,6 +1,6 @@
-﻿using scpcb.Entities;
+﻿using SCPCB.Entities;
 
-namespace scpcb.Map.Entities;
+namespace SCPCB.Map.Entities;
 
 public interface IMapEntity : IEntity {
 

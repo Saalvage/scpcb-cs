@@ -1,15 +1,15 @@
 ﻿using BepuPhysics;
 using BepuUtilities;
 using BepuUtilities.Memory;
-using scpcb.Entities;
-using scpcb.Graphics;
-using scpcb.Graphics.Assimp;
-using scpcb.Graphics.Caches;
-using scpcb.Graphics.Shaders;
-using scpcb.Graphics.Shaders.Vertices;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics;
+using SCPCB.Graphics.Assimp;
+using SCPCB.Graphics.Caches;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Graphics.Shaders.Vertices;
+using SCPCB.Utility;
 
-namespace scpcb.Physics;
+namespace SCPCB.Physics;
 
 public class PhysicsResources : Disposable, ITickable {
     public Simulation Simulation { get; }

@@ -1,6 +1,6 @@
-﻿using scpcb.Scenes;
+﻿using SCPCB.Scenes;
 
-namespace scpcb.Entities;
+namespace SCPCB.Entities;
 
 public interface IEntity {
     void OnAdd(IScene scene) { }

@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using scpcb.Entities;
-using scpcb.Graphics;
-using scpcb.Map.RoomProviders;
-using scpcb.Scenes;
-using scpcb.Utility;
+using SCPCB.Entities;
+using SCPCB.Graphics;
+using SCPCB.Map.RoomProviders;
+using SCPCB.Scenes;
+using SCPCB.Utility;
 
-namespace scpcb.Map.Entities;
+namespace SCPCB.Map.Entities;
 
 public class Light : IMapEntity, IEntityHolder, IPrerenderable {
     private Billboard _glimmer;

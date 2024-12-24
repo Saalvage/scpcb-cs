@@ -1,6 +1,6 @@
-﻿using scpcb.Graphics.Primitives;
+﻿using SCPCB.Graphics.Primitives;
 
-namespace scpcb.Graphics.Caches; 
+namespace SCPCB.Graphics.Caches; 
 
 public class MeshCache : BaseCache<Type, ICBMesh> {
     private readonly GraphicsResources _gfxRes;

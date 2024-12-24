@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace scpcb.Utility;
+namespace SCPCB.Utility;
 
 public class ReadOnlyDuoList<T> : IReadOnlyList<T> {
     private readonly IReadOnlyList<T> _a;
