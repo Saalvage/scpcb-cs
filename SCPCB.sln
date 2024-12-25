@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33015.44
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scpcb", "scpcb\scpcb.csproj", "{7D21F335-8A79-4108-9093-2CDB12E3A67D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCPCB", "SCPCB\SCPCB.csproj", "{7D21F335-8A79-4108-9093-2CDB12E3A67D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1B69CC33-86BF-47FC-A166-C4255A5E947E} = {1B69CC33-86BF-47FC-A166-C4255A5E947E}
 		{38B313E1-4A12-414E-8CF9-A823DF524049} = {38B313E1-4A12-414E-8CF9-A823DF524049}
