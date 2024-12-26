@@ -1,2 +1,2 @@
-gasmask;scpcb.Entities.Items.GasMask
-doc173;scpcb.Entities.Items.Document;0.1;Assets/Textures/InventoryIcons/INVpaper.jpg;Assets/Items/paper.x;Assets/Textures/Documents/doc173.jpg
+gasmask;SCPCB.Entities.Items.GasMask
+doc173;SCPCB.Entities.Items.Document;0.1;Assets/Textures/InventoryIcons/INVpaper.jpg;Assets/Items/paper.x;Assets/Textures/Documents/doc173.jpg
