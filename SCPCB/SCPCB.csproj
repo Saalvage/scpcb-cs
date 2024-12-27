@@ -43,7 +43,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Utility\AutoShaderSourceGenerator\AutoShaderSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\submodules\AssimpNet\AssimpNet\AssimpNet.csproj" />
     <ProjectReference Include="..\submodules\ShaderGen\src\ShaderGen.Primitives\ShaderGen.Primitives.csproj" />
   </ItemGroup>
 
