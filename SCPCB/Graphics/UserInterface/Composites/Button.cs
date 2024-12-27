@@ -9,26 +9,33 @@ namespace SCPCB.Graphics.UserInterface.Composites;
 public class Button : InteractableUIElement<MenuFrame> {
     private readonly UIManager _ui;
 
-    private readonly IUIElement _hover;
+    private readonly TextureElement _hover;
 
     public event Action OnClicked;
 
-    public Button(GraphicsResources gfxRes, UIManager ui, string text, float outerXOff, float innerXOff, float yOff)
+    public Button(GraphicsResources gfxRes, UIManager ui, string text, float outerXOff, float innerXOff, float yOff, int textSize = 64)
             : base(new(gfxRes, ui, outerXOff, innerXOff, yOff)) {
         _ui = ui;
-        PixelSize = new(512, 64);
-        _internalChildren.Add(_hover = new TextureElement(ui.GraphicsResources,
+        _internalChildren.Add(_hover = new(ui.GraphicsResources,
             ui.GraphicsResources.TextureCache.GetTexture(Color.FromArgb(30, 30, 30))) {
             Alignment = Alignment.Center,
-            PixelSize = PixelSize - new Vector2(8),
             IsVisible = false,
         });
-        _internalChildren.Add(new TextElement(gfxRes, gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 64)) {
+        PixelSize = new(512, 64);
+        _internalChildren.Add(new TextElement(gfxRes, gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", textSize)) {
             Text = text,
             Alignment = Alignment.Center,
         });
     }
-    
+
+    public override Vector2 PixelSize {
+        get => base.PixelSize;
+        set {
+            _hover.PixelSize = value - new Vector2(8);
+            base.PixelSize = value;
+        }
+    }
+
     protected override void OnBeginHover() {
         _hover.IsVisible = true;
         _ui.SetCursorStyle(UIManager.CursorStyle.Click);

@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "room008",
+    "Shape": "_1",
+    "Mesh": "room008/008_opt.rmesh"
+  },
+  {
+    "Name": "4tunnels",
+    "Shape": "_4",
+    "Mesh": "4tunnels/4tunnels_opt.rmesh"
+  },
+  {
+    "Name": "coffin",
+    "Shape": "_1",
+    "Mesh": "coffin/coffin_opt.rmesh"
+  }
+]

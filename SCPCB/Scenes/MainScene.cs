@@ -60,7 +60,9 @@ public class MainScene : Scene3D {
     private bool _paused = false;
     private IUIElement? _openMenu = null;
 
-    public MainScene(Game game) : base(game.GraphicsResources) {
+    private readonly Dictionary<string, IRoomData> _rooms;
+
+    public MainScene(Game game, PlacedRoomInfo?[,]? map = null) : base(game.GraphicsResources) {
         _game = game;
         _gfxRes = game.GraphicsResources;
         _input = game.InputManager;
@@ -118,9 +120,9 @@ public class MainScene : Scene3D {
         // TODO: Remove, necessary for now because item creation looks for the physics object in the scene.
         DealWithEntityBuffers();
 
-        var x = new ItemRegistry(_gfxRes, this);
-        x.RegisterItemsFromFile("Assets/Items/items.txt");
-        var itemmm = x.CreateItem(new(_player.Camera.Position, Quaternion.Identity), "doc173");
+        var reg = new ItemRegistry(_gfxRes, this);
+        reg.RegisterItemsFromFile("Assets/Items/items.txt");
+        var itemmm = reg.CreateItem(new(_player.Camera.Position, Quaternion.Identity), "doc173");
         AddEntity(itemmm);
         _player.PickItem(itemmm);
 
@@ -145,25 +147,48 @@ public class MainScene : Scene3D {
 
         _renderMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [_renderTexture], [gfx.PointSampler]);
 
-        var billboard = Billboard.Create(_gfxRes, _renderTexture);
-        billboard.Transform = billboard.Transform with {
-            Position = new(-2, 2, -0.1f),
-            Rotation = Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0),
-        };
-        AddEntity(billboard);
+        if (map != null) {
+            _rooms = map.Cast<PlacedRoomInfo?>()
+                .Where(x => x != null)
+                .Select(x => x.Room.Mesh)
+                .Distinct()
+                .ToDictionary(x => x, x => _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/" + x));
+            for (var x = 0; x < map.GetLength(0); x++) {
+                for (var y = 0; y < map.GetLength(1); y++) {
+                    var info = map[x, y];
+                    if (info != null) {
+                        var room = _rooms[info.Room.Mesh].Instantiate(new(x * 20.5f, 0, y * 20.5f),
+                            Quaternion.CreateFromYawPitchRoll(info.Direction.ToRadians() + MathF.PI, 0, 0));
+                        AddEntity(room);
+                    }
+                }
+            }
+        } else {
+            var billboard = Billboard.Create(_gfxRes, _renderTexture);
+            billboard.Transform = billboard.Transform with {
+                Position = new(-2, 2, -0.1f),
+                Rotation = Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0),
+            };
+            AddEntity(billboard);
 
-        // TODO: Remove call and make method private again.
-        DealWithEntityBuffers();
+            // TODO: Remove call and make method private again.
+            DealWithEntityBuffers();
 
-        _room008 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/008/008_opt.rmesh");
-        _room895 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/coffin/coffin_opt.rmesh");
-        _room4Tunnels = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
-        foreach (var i in Enumerable.Range(0, 5)) {
-            foreach (var j in Enumerable.Range(0, 10)) {
-                var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : i == 2 || j == 5 ? _room895 : _room4Tunnels)
-                    .Instantiate(new(j * -20.5f, 0, i * -20.5f),
-                        Quaternion.CreateFromYawPitchRoll(((i + j) % 4) * MathF.PI / 2f, 0, 0));
-                AddEntity(room);
+            _room008 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/008/008_opt.rmesh");
+            _room895 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/coffin/coffin_opt.rmesh");
+            _room4Tunnels = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
+            _rooms = new() {
+                ["008"] = _room008,
+                ["895"] = _room895,
+                ["4tunnels"] = _room4Tunnels,
+            };
+            foreach (var i in Enumerable.Range(0, 5)) {
+                foreach (var j in Enumerable.Range(0, 10)) {
+                    var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : i == 2 || j == 5 ? _room895 : _room4Tunnels)
+                        .Instantiate(new(j * -20.5f, 0, i * -20.5f),
+                            Quaternion.CreateFromYawPitchRoll(((i + j) % 4) * MathF.PI / 2f, 0, 0));
+                    AddEntity(room);
+                }
             }
         }
 
@@ -351,9 +376,9 @@ public class MainScene : Scene3D {
     }
 
     protected override void DisposeImpl() {
-        _room008.Dispose();
-        _room895.Dispose();
-        _room4Tunnels.Dispose();
+        foreach (var r in _rooms.Values) {
+            r.Dispose();
+        }
         _renderMat.Dispose();
         _renderTexture.Dispose();
         base.DisposeImpl();
