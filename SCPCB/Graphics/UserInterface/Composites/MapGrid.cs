@@ -53,6 +53,11 @@ public class MapGrid : InteractableUIElement<UIElement> {
         return rooms;
     }
 
+    public PlacedRoomInfo? this[int x, int y] {
+        get => GetMapTile(x, y).Room;
+        set => GetMapTile(x, y).Room = value;
+    }
+
     public override void OnUpdate(Vector2 pos, InputSnapshot snapshot) {
         var (x, y) = GetIndices(pos);
 

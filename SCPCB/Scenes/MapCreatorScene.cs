@@ -28,6 +28,7 @@ public class MapCreatorScene : BaseScene {
 
         using var roomsFile = File.OpenRead("Assets/Rooms/rooms.json");
         var rooms = JsonSerializer.Deserialize<RoomInfo[]>(roomsFile);
+        var roomsDic = rooms.ToDictionary(x => x.Name, x => x);
 
         var yOff = 0;
         foreach (var room in rooms) {
@@ -46,6 +47,14 @@ public class MapCreatorScene : BaseScene {
 
         gfx.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
             Matrix4x4.CreateOrthographic(gfx.Window.Width, gfx.Window.Height, -100, 100));
+
+        foreach (var i in Enumerable.Range(0, 5)) {
+            foreach (var j in Enumerable.Range(0, 10)) {
+                _grid[i, j] = new(roomsDic[
+                    i == 0 || i == 4 || j == 0 || j == 9 ? "room008" :
+                    i == 2 || j == 5 ? "coffin" : "4tunnels"], (Direction)((i + j) % 4));
+            }
+        }
     }
 
     public override void Update(float delta) {

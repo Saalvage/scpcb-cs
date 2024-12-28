@@ -147,46 +147,23 @@ public class MainScene : Scene3D {
 
         _renderMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [_renderTexture], [gfx.PointSampler]);
 
-        if (map != null) {
-            _rooms = map.Cast<PlacedRoomInfo?>()
-                .Where(x => x != null)
-                .Select(x => x.Room.Mesh)
-                .Distinct()
-                .ToDictionary(x => x, x => _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/" + x));
-            for (var x = 0; x < map.GetLength(0); x++) {
-                for (var y = 0; y < map.GetLength(1); y++) {
-                    var info = map[x, y];
-                    if (info != null) {
-                        var room = _rooms[info.Room.Mesh].Instantiate(new(x * 20.5f, 0, y * 20.5f),
-                            Quaternion.CreateFromYawPitchRoll(info.Direction.ToRadians() + MathF.PI, 0, 0));
-                        AddEntity(room);
-                    }
-                }
-            }
-        } else {
-            var billboard = Billboard.Create(_gfxRes, _renderTexture);
-            billboard.Transform = billboard.Transform with {
-                Position = new(-2, 2, -0.1f),
-                Rotation = Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0),
-            };
-            AddEntity(billboard);
+        var billboard = Billboard.Create(_gfxRes, _renderTexture);
+        billboard.Transform = billboard.Transform with {
+            Position = new(2, 2, -0.1f),
+        };
+        AddEntity(billboard);
 
-            // TODO: Remove call and make method private again.
-            DealWithEntityBuffers();
-
-            _room008 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/008/008_opt.rmesh");
-            _room895 = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/coffin/coffin_opt.rmesh");
-            _room4Tunnels = _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/4tunnels/4tunnels_opt.rmesh");
-            _rooms = new() {
-                ["008"] = _room008,
-                ["895"] = _room895,
-                ["4tunnels"] = _room4Tunnels,
-            };
-            foreach (var i in Enumerable.Range(0, 5)) {
-                foreach (var j in Enumerable.Range(0, 10)) {
-                    var room = (i == 0 || i == 4 || j == 0 || j == 9 ? _room008 : i == 2 || j == 5 ? _room895 : _room4Tunnels)
-                        .Instantiate(new(j * -20.5f, 0, i * -20.5f),
-                            Quaternion.CreateFromYawPitchRoll(((i + j) % 4) * MathF.PI / 2f, 0, 0));
+        _rooms = map.Cast<PlacedRoomInfo?>()
+            .Where(x => x != null)
+            .Select(x => x.Room.Mesh)
+            .Distinct()
+            .ToDictionary(x => x, x => _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/" + x));
+        for (var x = 0; x < map.GetLength(0); x++) {
+            for (var y = 0; y < map.GetLength(1); y++) {
+                var info = map[x, y];
+                if (info != null) {
+                    var room = _rooms[info.Room.Mesh].Instantiate(new(x * 20.5f, 0, y * 20.5f),
+                        Quaternion.CreateFromYawPitchRoll(info.Direction.ToRadians() + MathF.PI, 0, 0));
                     AddEntity(room);
                 }
             }
