@@ -136,7 +136,7 @@ public class TextElement : UIElement {
         _shader = gfxRes.ShaderCache.GetShader<TextShader>();
     }
 
-    protected override void DrawInternal(IRenderTarget target, Vector2 position) {
+    protected override void DrawInternal(IRenderTarget target, Vector2 position, float z) {
         GenerateMeshes();
 
         var constants = _shader.Constants!;
@@ -144,7 +144,7 @@ public class TextElement : UIElement {
         var halfDimension = _dimensions * 0.5f;
         halfDimension.Y *= -1;
 
-        constants.SetValue<IPositionConstantMember, Vector3>(new(position + Scale * (new Vector2(0f, -_font.Height) - halfDimension), Z));
+        constants.SetValue<IPositionConstantMember, Vector3>(new(position + Scale * (new Vector2(0f, -_font.Height) - halfDimension), z + Z));
         foreach (var (tex, mesh) in _meshes) {
             var mat = _gfxRes.MaterialCache.GetMaterial<TextShader, TextShader.Vertex>([tex], [_gfxRes.ClampAnisoSampler]);
             target.Render<TextShader.Vertex>(new(mesh, mat));

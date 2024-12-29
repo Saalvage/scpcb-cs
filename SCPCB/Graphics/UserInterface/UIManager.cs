@@ -36,7 +36,7 @@ public class UIManager : IRenderable, IUpdatable {
 
     public void Render(IRenderTarget target, float interp) {
         target.ClearDepthStencil();
-        Root.Draw(target, Root, Vector2.Zero);
+        Root.Draw(target, Root, Vector2.Zero, 0);
     }
 
     public void Update(float delta) {

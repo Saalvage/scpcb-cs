@@ -19,7 +19,7 @@ public interface IUIElement {
     float Z { get; }
     Alignment Alignment { get; }
     bool IsVisible { get; set; }
-    void Draw(IRenderTarget target, IUIElement parent, Vector2 drawPos);
+    void Draw(IRenderTarget target, IUIElement parent, Vector2 drawPos, float drawZ);
     void Visit(IUIElement parent, Vector2 drawPos, Func<IUIElement, Vector2, bool> visitor, bool visitInvisible = false);
 }
 
@@ -58,7 +58,7 @@ public class UIElement : IUIElement {
         Children = new ReadOnlyDuoList<IUIElement>(_publicChildren, _internalChildren);
     }
 
-    protected virtual void DrawInternal(IRenderTarget target, Vector2 position) { }
+    protected virtual void DrawInternal(IRenderTarget target, Vector2 position, float z) { }
 
     // TODO: The design here needs to be revisited, the layout itself should be done by the element itself,
     // same goes for the drawing of the pre-positioned object, the "glue" part should be within the manager
@@ -100,15 +100,15 @@ public class UIElement : IUIElement {
         }
     }
 
-    public void Draw(IRenderTarget target, IUIElement parent, Vector2 drawPos) {
+    public void Draw(IRenderTarget target, IUIElement parent, Vector2 drawPos, float drawZ) {
         if (!IsVisible) {
             return;
         }
 
         var absPos = CalculateAbsolutePosition(parent, drawPos);
-        DrawInternal(target, absPos);
+        DrawInternal(target, absPos, drawZ);
         foreach (var child in Children) {
-            child.Draw(target, this, absPos);
+            child.Draw(target, this, absPos, drawZ + Z);
         }
     }
 

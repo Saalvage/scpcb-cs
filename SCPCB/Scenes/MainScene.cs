@@ -39,10 +39,6 @@ public class MainScene : Scene3D {
     private readonly ICBMaterial<VPositionTexture> _logoMat;
     private readonly ICBModel<VPositionTexture> _scp173;
 
-    private readonly IRoomData _room008;
-    private readonly IRoomData _room895;
-    private readonly IRoomData _room4Tunnels;
-
     private readonly RenderTexture _renderTexture;
     private readonly ModelCache.CacheEntry _cacheEntry;
 

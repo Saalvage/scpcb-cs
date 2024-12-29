@@ -35,8 +35,8 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
         RotationDegrees = 0;
     }
 
-    protected override void DrawInternal(IRenderTarget target, Vector2 position) {
-        _model.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z));
+    protected override void DrawInternal(IRenderTarget target, Vector2 position, float z) {
+        _model.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z + z));
         _model.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
         _model.Material.Shader.Constants!.SetValue<IColorAlphaConstantMember, Vector4>(new Vector4(Color.R, Color.G, Color.B, Color.A) / 255f);
         var uvPositionEnd = UvOffset + UvSize;
