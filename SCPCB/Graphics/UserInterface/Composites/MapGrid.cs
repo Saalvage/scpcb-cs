@@ -83,7 +83,37 @@ public class MapGrid : InteractableUIElement<UIElement> {
                 mapTile.GrabRotate(pos - mapTile.Position);
                 _activeRotator = mapTile;
             } else if (PlacingRoom != null) {
-                mapTile.Room = new(PlacingRoom, Direction.Up);
+                // If a room can be rotated to fit the surroundings exactly when being placed, do so.
+                // This could be improved:
+                // - Rotate surrounding rooms if the newly placed one makes them fit exactly.
+                // - Rotate rooms of shape 2 if they have one connecting room.
+                // There should probably be an option to disable this as well.
+                // I'm also not sure if this is even helpful in all that many circumstances.
+                Span<(int, int)> offsets = [(0, -1), (1, 0), (0, 1), (-1, 0)];
+                Span<bool> connects = stackalloc bool[4];
+                foreach (var (dir, i) in Enum.GetValues<Direction>().Select((x, i) => (x, i))) {
+                    var (dx, dy) = offsets[i];
+                    connects[i] = x + dx >= 0 && x + dx < _size && y + dy >= 0 && y + dy < _size
+                                  && GetMapTile(x + dx, y + dy).Room?.HasOpening(dir.Rotate(2)) == true;
+                }
+                var correctAmount = connects.Count(true) == PlacingRoom.Shape switch {
+                    Shape._1 => 1,
+                    Shape._2 or Shape._2C => 2,
+                    Shape._3 => 3,
+                    Shape._4 => 4,
+                };
+                var finalDir = correctAmount
+                    ? PlacingRoom.Shape switch {
+                        Shape._1 => ((Direction)connects.IndexOf(true)).Rotate(2),
+                        Shape._2 when connects.IndexOf(true) % 2 == connects.LastIndexOf(true) % 2 => (Direction)connects.IndexOf(true),
+                        Shape._3 => (Direction)connects.IndexOf(false),
+                        // Magic function!
+                        Shape._2C => ((Direction)connects.IndexOf(true) + connects.IndexOf(false) % 2 * 3).Rotate(3),
+                        _ => Direction.Up,
+                    }
+                    : Direction.Up;
+
+                mapTile.Room = new(PlacingRoom, finalDir);
             }
         } else {
             mapTile.Room = null;

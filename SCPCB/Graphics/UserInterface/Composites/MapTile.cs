@@ -36,7 +36,7 @@ public class MapTile : InteractableUIElement<UIElement> {
             Tile = value == null ? null : new(_gfxRes, _gfxRes.TextureCache.GetTexture($"Assets/MapCreator/{value.Room.Shape switch {
                 Shape._1 => "room1",
                 Shape._2 => "room2",
-                Shape._2C => "room2",
+                Shape._2C => "room2C",
                 Shape._3 => "room3",
                 Shape._4 => "room4",
             }}.png")) {
