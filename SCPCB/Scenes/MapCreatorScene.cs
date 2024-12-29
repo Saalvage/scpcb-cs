@@ -23,7 +23,7 @@ public class MapCreatorScene : BaseScene {
         var ui = new UIManager(gfx, input);
         AddEntity(ui);
 
-        _grid = new(gfx, 10);
+        _grid = new(gfx, ui, 10);
         ui.Root.AddChild(_grid);
 
         using var roomsFile = File.OpenRead("Assets/Rooms/rooms.json");
@@ -32,7 +32,7 @@ public class MapCreatorScene : BaseScene {
 
         var yOff = 0;
         foreach (var room in rooms) {
-            var button = new Button(gfx, ui, room.Name, 0, 0, 0, 20) {
+            var button = new Button(gfx, ui, room.Name, 0, 0, 0, 19) {
                 PixelSize = new(128, 32),
                 Position = new(_grid.PixelSize.X + 5, yOff += 34),
             };
@@ -40,6 +40,7 @@ public class MapCreatorScene : BaseScene {
             ui.Root.AddChild(button);
         }
 
+        // TODO: Implement a better system on the scene level.
         gfx.GraphicsDevice.SyncToVerticalBlank = true;
 
         gfx.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(

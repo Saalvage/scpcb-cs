@@ -6,7 +6,7 @@ using Veldrid;
 
 namespace SCPCB.Graphics.UserInterface.Composites;
 
-public class Button : InteractableUIElement<MenuFrame> {
+public class Button : InteractableUIElement<Label> {
     private readonly UIManager _ui;
 
     private readonly TextureElement _hover;
@@ -14,7 +14,7 @@ public class Button : InteractableUIElement<MenuFrame> {
     public event Action OnClicked;
 
     public Button(GraphicsResources gfxRes, UIManager ui, string text, float outerXOff, float innerXOff, float yOff, int textSize = 64)
-            : base(new(gfxRes, ui, outerXOff, innerXOff, yOff)) {
+            : base(new(gfxRes, ui, outerXOff, innerXOff, yOff, textSize)) {
         _ui = ui;
         _internalChildren.Add(_hover = new(ui.GraphicsResources,
             ui.GraphicsResources.TextureCache.GetTexture(Color.FromArgb(30, 30, 30))) {
@@ -22,10 +22,8 @@ public class Button : InteractableUIElement<MenuFrame> {
             IsVisible = false,
         });
         PixelSize = new(512, 64);
-        _internalChildren.Add(new TextElement(gfxRes, gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", textSize)) {
-            Text = text,
-            Alignment = Alignment.Center,
-        });
+        Inner.Text.Z = 1;
+        Inner.Text.Text = text;
     }
 
     public override Vector2 PixelSize {

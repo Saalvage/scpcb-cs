@@ -14,14 +14,24 @@ public class MapGrid : InteractableUIElement<UIElement> {
     private readonly int _size;
     private readonly int _internalStart;
 
+    private readonly MouseFollowerElement<Label> _infoBox;
     private readonly TextureElement _activeMarker;
     private readonly TextureElement _rotator;
     private MapTile? _activeRotator;
 
     public RoomInfo? PlacingRoom { private get; set; }
 
-    public MapGrid(GraphicsResources gfx, int size) : base(new() { PixelSize = new(TILE_SIZE + (size - 1) * (TILE_SIZE + OFFSET)), }) {
+    public MapGrid(GraphicsResources gfx, UIManager ui, int size) : base(new() { PixelSize = new(TILE_SIZE + (size - 1) * (TILE_SIZE + OFFSET)), }) {
         _size = size;
+
+        _infoBox = new(new(gfx, ui, 0, 0, 0, 19)) {
+            PixelSize = new(128, 32),
+            Z = 10,
+        };
+        var infoText = _infoBox.Inner.Text;
+        infoText.Alignment = Alignment.CenterLeft;
+        infoText.Position = new(5, 0);
+        _internalChildren.Add(_infoBox);
 
         _internalStart = _internalChildren.Count;
         foreach (var x in Enumerable.Range(0, size)) {
@@ -63,8 +73,17 @@ public class MapGrid : InteractableUIElement<UIElement> {
         if (x >= 0 && x < _size && y >= 0 && y < _size) {
             _activeMarker.Position = new Vector2(x, y) * (TILE_SIZE + OFFSET);
             _activeMarker.IsVisible = true;
+
+            var room = GetMapTile(x, y).Room;
+            if (room == null || _activeRotator != null || snapshot.IsMouseDown(MouseButton.Right)) {
+                _infoBox.IsVisible = false;
+            } else {
+                _infoBox.IsVisible = true;
+                _infoBox.Inner.Text.Text = $"Room: {room.Room.Name}\nRotation: {room.Direction.ToDegrees()}°";
+            }
         } else {
             _activeMarker.IsVisible = false;
+            _infoBox.IsVisible = false;
         }
     }
 
