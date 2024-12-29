@@ -43,10 +43,6 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.F
     [FragmentShader]
     public Vector4 FS(FPositionTexture input) {
         var color = Sample(SurfaceTexture, Sampler, input.TextureCoord);
-        // TODO: Implement Z-sorting.
-        if (color.W == 0) {
-            Discard();
-        }
         return color * FragmentBlock.Color;
     }
 }

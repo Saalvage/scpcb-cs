@@ -35,8 +35,7 @@ public class MapGrid : InteractableUIElement<UIElement> {
 
         _internalChildren.Add(_activeMarker = new(gfx, gfx.TextureCache.GetTexture(Color.White)) {
             PixelSize = new(TILE_SIZE),
-            Z = -1,
-            Color = Color.FromArgb(255, 0xC8, 0xC8, 0xC8),
+            Color = Color.FromArgb(0xC8, Color.White),
         });
         _rotator = new(gfx, gfx.TextureCache.GetTexture("Assets/MapCreator/arrows.png")) {
             Alignment = Alignment.Center,
