@@ -49,11 +49,11 @@ internal class InputBox : InteractableUIElement<MenuFrame> {
         _selecting = false;
     }
 
-    protected override void OnBeginHover() {
+    protected override void OnBeginHover(InputSnapshot snapshot) {
         _ui.SetCursorStyle(UIManager.CursorStyle.Text);
     }
 
-    protected override void OnEndHover() {
+    protected override void OnEndHover(InputSnapshot snapshot) {
         _ui.SetCursorStyle(UIManager.CursorStyle.Default);
     }
 }

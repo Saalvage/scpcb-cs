@@ -56,12 +56,12 @@ public class InventorySlot : InteractableUIElement<MenuFrame> {
         });
     }
 
-    protected override void OnBeginHover() {
+    protected override void OnBeginHover(InputSnapshot snapshot) {
         _hoverBorder.IsVisible = true;
         _itemText.IsVisible = true;
     }
 
-    protected override void OnEndHover() {
+    protected override void OnEndHover(InputSnapshot snapshot) {
         _hoverBorder.IsVisible = false;
         _itemText.IsVisible = false;
     }

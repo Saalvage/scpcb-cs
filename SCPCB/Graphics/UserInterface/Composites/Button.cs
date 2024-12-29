@@ -36,12 +36,12 @@ public class Button : InteractableUIElement<MenuFrame> {
         }
     }
 
-    protected override void OnBeginHover() {
+    protected override void OnBeginHover(InputSnapshot snapshot) {
         _hover.IsVisible = true;
         _ui.SetCursorStyle(UIManager.CursorStyle.Click);
     }
 
-    protected override void OnEndHover() {
+    protected override void OnEndHover(InputSnapshot snapshot) {
         _hover.IsVisible = false;
         _ui.SetCursorStyle(UIManager.CursorStyle.Default);
     }

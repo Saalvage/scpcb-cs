@@ -66,6 +66,7 @@ public class UIManager : IRenderable, IUpdatable {
     private static readonly SDL_Cursor CURSOR_IBEAM = Sdl2Native.SDL_CreateSystemCursor(SDL_SystemCursor.IBeam);
     private static readonly SDL_Cursor CURSOR_HAND = Sdl2Native.SDL_CreateSystemCursor(SDL_SystemCursor.Hand);
 
+    // TODO: Implement this stack-based to prevent overrides.
     public void SetCursorStyle(CursorStyle style) {
         Sdl2Native.SDL_SetCursor(style switch {
             CursorStyle.Default => CURSOR_ARROW,

@@ -27,9 +27,9 @@ public class InteractableUIElement<TInner> : UIElement, IInteractableUIElement w
         var mouseInElem = IsInElement(snapshot.MousePosition - pos);
         if (_hovering != mouseInElem) {
             if (mouseInElem) {
-                OnBeginHover();
+                OnBeginHover(snapshot);
             } else {
-                OnEndHover();
+                OnEndHover(snapshot);
             }
             _hovering = mouseInElem;
         }
@@ -72,8 +72,8 @@ public class InteractableUIElement<TInner> : UIElement, IInteractableUIElement w
 
     public virtual void OnUpdate(Vector2 pos, InputSnapshot snapshot) { }
 
-    protected virtual void OnBeginHover() { }
-    protected virtual void OnEndHover() { }
+    protected virtual void OnBeginHover(InputSnapshot snapshot) { }
+    protected virtual void OnEndHover(InputSnapshot snapshot) { }
 
     protected virtual void OnMouseDown(MouseButton button, Vector2 pos) { }
     protected virtual void OnMouseUp(MouseButton button, Vector2 pos) { }

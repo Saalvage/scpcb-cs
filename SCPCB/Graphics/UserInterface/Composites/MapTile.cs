@@ -57,6 +57,12 @@ public class MapTile : InteractableUIElement<UIElement> {
         _tile.RotationDegrees = dir.ToDegrees();
     }
 
+    protected override void OnBeginHover(InputSnapshot snapshot) {
+        if (snapshot.IsMouseDown(MouseButton.Right)) {
+            Room = null;
+        }
+    }
+
     protected override void OnMouseUp(MouseButton button, Vector2 pos) {
         _grabbedPos = null;
     }
