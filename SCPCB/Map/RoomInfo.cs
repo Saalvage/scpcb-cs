@@ -24,9 +24,9 @@ public enum Direction {
 public static class DirectionExtensions {
     public static float ToDegrees(this Direction dir) => dir switch {
         Direction.Up => 0,
-        Direction.Down => 180,
         Direction.Left => 90,
-        Direction.Right => -90,
+        Direction.Down => 180,
+        Direction.Right => 270,
     };
 
     public static float ToRadians(this Direction dir) => dir.ToDegrees() * MathF.PI / 180;
