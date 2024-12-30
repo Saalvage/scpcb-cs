@@ -5,7 +5,7 @@ using Veldrid;
 
 namespace SCPCB.Graphics.UserInterface.Composites;
 
-internal class InputBox : InteractableUIElement<MenuFrame> {
+public class InputBox : InteractableUIElement<MenuFrame> {
     private readonly UIManager _ui;
 
     private bool _selecting = false;

@@ -21,7 +21,8 @@ public class MapGrid : InteractableUIElement<UIElement> {
 
     public RoomInfo? PlacingRoom { private get; set; }
 
-    public MapGrid(GraphicsResources gfx, UIManager ui, int size) : base(new() { PixelSize = new(TILE_SIZE + (size - 1) * (TILE_SIZE + OFFSET)), }) {
+    public MapGrid(GraphicsResources gfx, UIManager ui, int size)
+            : base(new() { PixelSize = new(TILE_SIZE + (size - 1) * (TILE_SIZE + OFFSET)), }) {
         _size = size;
 
         _infoBox = new(new(gfx, ui, 0, 0, 0, 19)) {
