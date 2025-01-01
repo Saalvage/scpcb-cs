@@ -6,6 +6,7 @@ public interface IColorAlphaConstantMember : IConstantMember<IColorAlphaConstant
     public Vector4 Color { get; set; }
 
     Vector4 IConstantMember<IColorAlphaConstantMember, Vector4>.Value {
+        get => Color;
         set => Color = value;
     }
 }

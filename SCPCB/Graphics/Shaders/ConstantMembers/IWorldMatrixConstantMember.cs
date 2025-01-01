@@ -6,6 +6,7 @@ public interface IWorldMatrixConstantMember : IConstantMember<IWorldMatrixConsta
     public Matrix4x4 WorldMatrix { get; set; }
 
     Matrix4x4 IConstantMember<IWorldMatrixConstantMember, Matrix4x4>.Value {
+        get => WorldMatrix;
         set => WorldMatrix = value;
     }
 }

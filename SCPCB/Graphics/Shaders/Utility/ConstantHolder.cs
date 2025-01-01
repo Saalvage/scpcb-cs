@@ -9,7 +9,7 @@ namespace SCPCB.Graphics.Shaders.Utility;
 
 public interface IConstantHolder : IDisposable {
     bool HasConstant<T>() where T : IConstantMember<T>;
-    void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged;
+    void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal>;
     void UpdateAndSetBuffers(CommandList commands, uint index);
 }
 
@@ -155,15 +155,19 @@ public class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConst
     public bool HasConstant<T>() where T : IConstantMember<T>
         => _vertexBoxed is T || _fragmentBoxed is T;
 
-    public void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged {
+    public void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal> {
         if (_vertexBoxed is T tVert) {
-            tVert.Value = val;
-            // TODO: We could be checking here if Value == val, might make sense for certain access patterns, needs benchmarking.
-            _isDirty = true;
+            if (!tVert.Value.Equals(val)) {
+                tVert.Value = val;
+                _isDirty = true;
+            }
+
         }
         if (_fragmentBoxed is T tFrag) {
-            tFrag.Value = val;
-            _isDirty = true;
+            if (!tFrag.Value.Equals(val)) {
+                tFrag.Value = val;
+                _isDirty = true;
+            }
         }
     }
 

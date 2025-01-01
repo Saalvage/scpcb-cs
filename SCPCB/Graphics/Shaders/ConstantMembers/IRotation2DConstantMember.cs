@@ -6,6 +6,7 @@ public interface IRotation2DConstantMember : IConstantMember<IRotation2DConstant
     public Vector2 SinCosDeg { get; set; }
 
     Vector2 IConstantMember<IRotation2DConstantMember, Vector2>.Value {
+        get => SinCosDeg;
         set => SinCosDeg = value;
     }
 }

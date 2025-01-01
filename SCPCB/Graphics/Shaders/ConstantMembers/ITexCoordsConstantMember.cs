@@ -6,6 +6,7 @@ public interface ITexCoordsConstantMember : IConstantMember<ITexCoordsConstantMe
     public Vector4 TexCoords { get; set; }
 
     Vector4 IConstantMember<ITexCoordsConstantMember, Vector4>.Value {
+        get => TexCoords;
         set => TexCoords = value;
     }
 }

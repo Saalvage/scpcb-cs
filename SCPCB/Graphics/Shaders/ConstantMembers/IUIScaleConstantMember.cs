@@ -6,6 +6,7 @@ public interface IUIScaleConstantMember : IConstantMember<IUIScaleConstantMember
     public Vector2 Scale { get; set; }
 
     Vector2 IConstantMember<IUIScaleConstantMember, Vector2>.Value {
+        get => Scale;
         set => Scale = value;
     }
 }

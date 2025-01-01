@@ -6,6 +6,7 @@ public interface IPositionConstantMember : IConstantMember<IPositionConstantMemb
     public Vector3 Position { get; set; }
 
     Vector3 IConstantMember<IPositionConstantMember, Vector3>.Value {
+        get => Position;
         set => Position = value;
     }
 }

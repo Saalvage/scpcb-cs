@@ -6,6 +6,7 @@ public interface IUIProjectionMatrixConstantMember : IConstantMember<IUIProjecti
     public Matrix4x4 ProjectionMatrix { get; set; }
 
     Matrix4x4 IConstantMember<IUIProjectionMatrixConstantMember, Matrix4x4>.Value {
+        get => ProjectionMatrix;
         set => ProjectionMatrix = value;
     }
 }
