@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using SCPCB.Utility;
 
 namespace SCPCB.Map;
@@ -76,7 +77,7 @@ public class MapGenerator {
     }
 
     private int GetZone(int y) {
-        return Math.Min((int)((float)(_mapWidth - y) / _mapWidth * ZONE_COUNT), ZONE_COUNT - 1);
+        return Math.Min((int)((float)(_mapHeight - y) / _mapHeight * ZONE_COUNT), ZONE_COUNT - 1);
     }
 
     public PlacedRoomInfo?[,] GenerateMap(IDictionary<Shape, RoomInfo[]> rooms, string seed) {
@@ -109,11 +110,11 @@ public class MapGenerator {
                 width = -x + 2;
             }
 
-            x = Math.Min(x, x + width);
+            x = Math.Clamp(x, 0, x + width);
             width = Math.Abs(width);
 
-            for (var i = x; i <= x + width; i++) {
-                mapTemp[Math.Min(i, _mapWidth), y] = 1;
+            for (var i = x; i <= Math.Min(x + width, _mapWidth); i++) {
+                mapTemp[i, y] = 1;
             }
 
             var height = rng.NextInt(3, 4);
@@ -130,8 +131,12 @@ public class MapGenerator {
             for (var i = 0; i < yHallways; i++) {
                 var x2 = Math.Max(Math.Min(rng.NextInt(x, x + width - 1), _mapWidth - 2), 2);
 
-                while ((mapTemp[x2, y - 1] | mapTemp[x2 - 1, y - 1] | mapTemp[x2 + 1, y - 1]) != 0) {
+                while (x2 < _mapWidth && (mapTemp[x2, y - 1] | mapTemp[x2 - 1, y - 1] | mapTemp[x2 + 1, y - 1]) != 0) {
                     x2++;
+                }
+
+                if (x2 >= _mapWidth) {
+                    continue;
                 }
 
                 if (x2 < x + width) {
@@ -139,6 +144,7 @@ public class MapGenerator {
                     if (i == 0) {
                         tempHeight = height;
                         x2 = rng.NextInt(2) == 1 ? x : x + width;
+                        x2 = Math.Min(_mapWidth, x2);
                     } else {
                         tempHeight = rng.NextInt(1, height);
                     }
@@ -350,16 +356,16 @@ public class MapGenerator {
 
         Shape DetermineShape2(int x, int y) => Up(x, y) && Down(x, y) || Left(x, y) && Right(x, y) ? Shape._2 : Shape._2C;
         int NeighborCount(int x, int y) => UpI(x, y) + DownI(x, y) + LeftI(x, y) + RightI(x, y);
-        bool Up(int x, int y) => mapTemp[x, y - 1] != 0;
-        bool Down(int x, int y) => mapTemp[x, y + 1] != 0;
-        bool Left(int x, int y) => mapTemp[x - 1, y] != 0;
-        bool Right(int x, int y) => mapTemp[x + 1, y] != 0;
+        bool Up(int x, int y) => y > 0 && mapTemp[x, y - 1] != 0;
+        bool Down(int x, int y) => y + 1 < mapTemp.GetLength(1) && mapTemp[x, y + 1] != 0;
+        bool Left(int x, int y) => x > 0 && mapTemp[x - 1, y] != 0;
+        bool Right(int x, int y) => x + 1 < mapTemp.GetLength(0) && mapTemp[x + 1, y] != 0;
         int UpI(int x, int y) => Up(x, y) ? 1 : 0;
         int DownI(int x, int y) => Down(x, y) ? 1 : 0;
         int LeftI(int x, int y) => Left(x, y) ? 1 : 0;
         int RightI(int x, int y) => Right(x, y) ? 1 : 0;
 
-        var plac = new PlacedRoomInfo?[_mapWidth - 1, _mapHeight - 1];
+        var plac = new PlacedRoomInfo?[_mapWidth + 1, _mapHeight + 1];
         for (x = 0; x < mapTemp.GetLength(0); x++) {
             for (y = 0; y < mapTemp.GetLength(1); y++) {
                 /*if (x < 1 || x > _mapWidth - 2 || y < 1 || y > _mapHeight - 1) {

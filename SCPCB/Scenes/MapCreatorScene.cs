@@ -10,8 +10,10 @@ namespace SCPCB.Scenes;
 
 public class MapCreatorScene : BaseScene {
     private readonly MapGrid _grid;
+    private readonly Game _game;
 
     public MapCreatorScene(Game game) {
+        _game = game;
         var gfx = game.GraphicsResources;
         var input = game.InputManager;
 
@@ -50,21 +52,27 @@ public class MapCreatorScene : BaseScene {
             Position = new(0, -50),
         };
         width.Input.Inner.Text = _grid.Width.ToString();
-        width.Input.OnTextChanged += _ => _grid.Width = int.Parse(width.Input.Inner.Text);
+        width.Input.OnTextChanged += _ => _grid.Width = int.Parse(width.Input.Inner.Text) + 2;
         ui.Root.AddChild(width);
 
         var height = new InputBox(gfx, ui, input, gfx.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32)) {
             Alignment = Alignment.BottomRight,
         };
         height.Input.Inner.Text = _grid.Height.ToString();
-        height.Input.OnTextChanged += _ => _grid.Height = int.Parse(height.Input.Inner.Text);
+        height.Input.OnTextChanged += _ => _grid.Height = int.Parse(height.Input.Inner.Text) + 2;
         ui.Root.AddChild(height);
 
         var start = new Button(gfx, ui, "START", 12.222f, -42, float.E) {
             Alignment = Alignment.BottomRight,
             Position = new(0, -150),
         };
-        start.OnClicked += () => game.Scene = new MainScene(game, _grid.GetRooms());
+        start.OnClicked += ()
+        => {
+            var gen = new MapGenerator(_grid.Width - 2, _grid.Height - 2);
+            for (var i = 0; i < 1000; i++) {
+                gen.GenerateMap(roomsDic, MapGenerator.GenerateRandomSeed());
+            }
+        };
         ui.Root.AddChild(start);
 
         var yOff = 0;
@@ -94,7 +102,7 @@ public class MapCreatorScene : BaseScene {
         }
 
         void GenerateMap(string seed) {
-            var map = new MapGenerator(_grid.Width, _grid.Height).GenerateMap(roomsDic, seed);
+            var map = new MapGenerator(_grid.Width - 2, _grid.Height - 2).GenerateMap(roomsDic, seed);
 
             foreach (var (x, y) in Enumerable.Range(0, map.GetLength(0))
                          .SelectMany(x => Enumerable.Range(0, map.GetLength(1)).Select(y => (x, y)))) {
