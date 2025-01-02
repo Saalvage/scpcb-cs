@@ -3,18 +3,15 @@ using System.Text.Json;
 using SCPCB.Graphics.Shaders.ConstantMembers;
 using SCPCB.Graphics.UserInterface;
 using SCPCB.Graphics.UserInterface.Composites;
+using SCPCB.Graphics.UserInterface.Utility;
 using SCPCB.Map;
-using Veldrid;
 
 namespace SCPCB.Scenes;
 
 public class MapCreatorScene : BaseScene {
-    private readonly Game _game;
-
     private readonly MapGrid _grid;
 
     public MapCreatorScene(Game game) {
-        _game = game;
         var gfx = game.GraphicsResources;
         var input = game.InputManager;
 
@@ -23,12 +20,52 @@ public class MapCreatorScene : BaseScene {
         var ui = new UIManager(gfx, input);
         AddEntity(ui);
 
-        _grid = new(gfx, ui, 10);
+        _grid = new(gfx, ui, 17, 17);
         ui.Root.AddChild(_grid);
 
         using var roomsFile = File.OpenRead("Assets/Rooms/rooms.json");
         var rooms = JsonSerializer.Deserialize<RoomInfo[]>(roomsFile);
-        var roomsDic = rooms.ToDictionary(x => x.Name, x => x);
+        var roomsDic = rooms.GroupBy(x => x.Shape).ToDictionary(x => x.Key, x => x.ToArray());
+
+        var seed = new InputBox(gfx, ui, input, gfx.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32)) {
+            Alignment = Alignment.BottomLeft,
+            Position = new(0, -100),
+        };
+        seed.Input.OnTextChanged += _ => GenerateMap(seed.Input.Inner.Text);
+        ui.Root.AddChild(seed);
+
+        var regenerate = new Button(gfx, ui, "I'm feeling lucky!", 0, 0, 0) {
+            Alignment = Alignment.BottomLeft,
+        };
+        regenerate.OnClicked += () => {
+            var newSeed = MapGenerator.GenerateRandomSeed();
+            // TODO: This throws in the TextInput when the new seed is shorter and the old one is selected.
+            seed.Input.Inner.Text = newSeed;
+            GenerateMap(newSeed);
+        };
+        ui.Root.AddChild(regenerate);
+
+        var width = new InputBox(gfx, ui, input, gfx.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32)) {
+            Alignment = Alignment.BottomRight,
+            Position = new(0, -50),
+        };
+        width.Input.Inner.Text = _grid.Width.ToString();
+        width.Input.OnTextChanged += _ => _grid.Width = int.Parse(width.Input.Inner.Text);
+        ui.Root.AddChild(width);
+
+        var height = new InputBox(gfx, ui, input, gfx.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32)) {
+            Alignment = Alignment.BottomRight,
+        };
+        height.Input.Inner.Text = _grid.Height.ToString();
+        height.Input.OnTextChanged += _ => _grid.Height = int.Parse(height.Input.Inner.Text);
+        ui.Root.AddChild(height);
+
+        var start = new Button(gfx, ui, "START", 12.222f, -42, float.E) {
+            Alignment = Alignment.BottomRight,
+            Position = new(0, -150),
+        };
+        start.OnClicked += () => game.Scene = new MainScene(game, _grid.GetRooms());
+        ui.Root.AddChild(start);
 
         var yOff = 0;
         foreach (var room in rooms) {
@@ -41,8 +78,6 @@ public class MapCreatorScene : BaseScene {
         }
 
         // TODO: Implement a better system on the scene level.
-        gfx.GraphicsDevice.SyncToVerticalBlank = true;
-
         gfx.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
             Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)gfx.Window.Width / gfx.Window.Height, 0.1f, 100f));
 
@@ -51,18 +86,20 @@ public class MapCreatorScene : BaseScene {
 
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {
-                _grid[i, j] = new(roomsDic[
+                var roomName =
                     i == 0 || i == 4 || j == 0 || j == 9 ? "room008" :
-                    i == 2 || j == 5 ? "coffin" : "4tunnels"], (Direction)((i + j) % 4));
+                    i == 2 || j == 5 ? "coffin" : "4tunnels";
+                _grid[i, j] = new(rooms.First(x => x.Name == roomName), (Direction)((i + j) % 4));
             }
         }
-    }
 
-    public override void Update(float delta) {
-        base.Update(delta);
+        void GenerateMap(string seed) {
+            var map = new MapGenerator(_grid.Width, _grid.Height).GenerateMap(roomsDic, seed);
 
-        if (_game.InputManager.IsKeyDown(Key.X)) {
-            _game.Scene = new MainScene(_game, _grid.GetRooms());
+            foreach (var (x, y) in Enumerable.Range(0, map.GetLength(0))
+                         .SelectMany(x => Enumerable.Range(0, map.GetLength(1)).Select(y => (x, y)))) {
+                _grid[x, y] = map[x, y];
+            }
         }
     }
 }

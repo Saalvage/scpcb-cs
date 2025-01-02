@@ -12,4 +12,7 @@ public static class Extensions {
             list.Add(item);
         }
     }
+
+    public static T RandomElement<T>(this IEnumerable<T> enumerable)
+        => enumerable.ElementAt(Random.Shared.Next(enumerable.Count()));
 }

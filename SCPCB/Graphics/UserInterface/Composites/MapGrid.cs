@@ -11,7 +11,53 @@ public class MapGrid : InteractableUIElement<UIElement> {
     private const int TILE_SIZE = 28;
     private const int OFFSET = 1;
 
-    private readonly int _size;
+    private readonly GraphicsResources _gfx;
+
+    private int _width;
+    private int _height;
+    public int Width {
+        get => _width;
+        set {
+            if (_width > value) {
+                for (var x = _width - 1; x >= value; x--) {
+                    for (var y = _height - 1; y >= 0; y--) {
+                        _internalChildren.RemoveAt(GetIndex(x, y));
+                    }
+                }
+            } else if (_width < value) {
+                for (var x = _width; x < value; x++) {
+                    for (var y = 0; y < _height; y++) {
+                        _internalChildren.Insert(GetIndex(x, y), MakeTile(x, y));
+                    }
+                }
+            }
+            _width = value;
+            UpdatePixelSize();
+        }
+    }
+    public int Height {
+        get => _height;
+        set {
+            if (_height > value) {
+                for (var x = _width - 1; x >= 0; x--) {
+                    for (var y = _height - 1; y >= value; y--) {
+                        _internalChildren.RemoveAt(GetIndex(x, y));
+                    }
+                }
+            } else if (_height < value) {
+                var oldHeight = _height;
+                _height = value;
+                for (var x = 0; x < _width; x++) {
+                    for (var y = oldHeight; y < value; y++) {
+                        _internalChildren.Insert(GetIndex(x, y), MakeTile(x, y));
+                    }
+                }
+            }
+            _height = value;
+            UpdatePixelSize();
+        }
+    }
+
     private readonly int _internalStart;
 
     private readonly MouseFollowerElement<Label> _infoBox;
@@ -21,9 +67,9 @@ public class MapGrid : InteractableUIElement<UIElement> {
 
     public RoomInfo? PlacingRoom { private get; set; }
 
-    public MapGrid(GraphicsResources gfx, UIManager ui, int size)
-            : base(new() { PixelSize = new(TILE_SIZE + (size - 1) * (TILE_SIZE + OFFSET)), }) {
-        _size = size;
+    public MapGrid(GraphicsResources gfx, UIManager ui, int width, int height)
+            : base(new()) {
+        _gfx = gfx;
 
         _infoBox = new(new(gfx, ui, 0, 0, 0, 19)) {
             PixelSize = new(128, 32),
@@ -35,14 +81,8 @@ public class MapGrid : InteractableUIElement<UIElement> {
         _internalChildren.Add(_infoBox);
 
         _internalStart = _internalChildren.Count;
-        foreach (var x in Enumerable.Range(0, size)) {
-            foreach (var y in Enumerable.Range(0, size)) {
-                var tile = new MapTile(gfx, TILE_SIZE) {
-                    Position = new((TILE_SIZE + OFFSET) * x, (TILE_SIZE + OFFSET) * y),
-                };
-                _internalChildren.Add(tile);
-            }
-        }
+        Width = width;
+        Height = height;
 
         _internalChildren.Add(_activeMarker = new(gfx, gfx.TextureCache.GetTexture(Color.White)) {
             PixelSize = new(TILE_SIZE),
@@ -53,10 +93,14 @@ public class MapGrid : InteractableUIElement<UIElement> {
         };
     }
 
+    private void UpdatePixelSize() {
+        PixelSize = new Vector2(TILE_SIZE) + new Vector2(_width - 1, _height - 1) * (TILE_SIZE + OFFSET);
+    }
+
     public PlacedRoomInfo?[,] GetRooms() {
-        var rooms = new PlacedRoomInfo?[_size, _size];
-        for (var x = 0; x < _size; x++) {
-            for (var y = 0; y < _size; y++) {
+        var rooms = new PlacedRoomInfo?[_width, _height];
+        for (var x = 0; x < _width; x++) {
+            for (var y = 0; y < _height; y++) {
                 rooms[x, y] = GetMapTile(x, y).Room;
             }
         }
@@ -71,7 +115,7 @@ public class MapGrid : InteractableUIElement<UIElement> {
     public override void OnUpdate(Vector2 pos, InputSnapshot snapshot) {
         var (x, y) = GetIndices(pos);
 
-        if (x >= 0 && x < _size && y >= 0 && y < _size) {
+        if (x >= 0 && x < _width && y >= 0 && y < _height) {
             _activeMarker.Position = new Vector2(x, y) * (TILE_SIZE + OFFSET);
             _activeMarker.IsVisible = true;
 
@@ -112,7 +156,7 @@ public class MapGrid : InteractableUIElement<UIElement> {
                 Span<bool> connects = stackalloc bool[4];
                 foreach (var (dir, i) in Enum.GetValues<Direction>().Select((x, i) => (x, i))) {
                     var (dx, dy) = offsets[i];
-                    connects[i] = x + dx >= 0 && x + dx < _size && y + dy >= 0 && y + dy < _size
+                    connects[i] = x + dx >= 0 && x + dx < _width && y + dy >= 0 && y + dy < _height
                                   && GetMapTile(x + dx, y + dy).Room?.HasOpening(dir.Rotate(2)) == true;
                 }
                 var correctAmount = connects.Count(true) == PlacingRoom.Shape switch {
@@ -144,9 +188,13 @@ public class MapGrid : InteractableUIElement<UIElement> {
         _activeRotator = null;
     }
 
-    private MapTile GetMapTile(int x, int y) => (MapTile)_internalChildren[_internalStart + x * _size + y];
+    private MapTile MakeTile(int x, int y) => new (_gfx, TILE_SIZE) {
+        Position = new((TILE_SIZE + OFFSET) * x, (TILE_SIZE + OFFSET) * y),
+    };
 
-    private (int, int) GetIndices(Vector2 pos) {
-        return ((int)(pos.X / (TILE_SIZE + OFFSET)), (int)(pos.Y / (TILE_SIZE + OFFSET)));
-    }
+    private int GetIndex(int x, int y) => _internalStart + x * _height + y;
+
+    private MapTile GetMapTile(int x, int y) => (MapTile)_internalChildren[GetIndex(x, y)];
+
+    private (int, int) GetIndices(Vector2 pos) => ((int)(pos.X / (TILE_SIZE + OFFSET)), (int)(pos.Y / (TILE_SIZE + OFFSET)));
 }

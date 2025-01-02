@@ -50,6 +50,8 @@ public class TextInput : InteractableUIElement<TextElement> {
 
     private Color _caretSelectionColor => Color.FromArgb(128, _selected ? Color.White : Color.Gray);
 
+    // TODO: This only returning the text BEFORE change is unintuitive.
+    // Would also be neat to be able to prevent changes.
     public event Action<string> OnTextChanged;
 
     public TextInput(GraphicsResources gfxRes, InputManager input, Font font) : base(new(gfxRes, font)) {

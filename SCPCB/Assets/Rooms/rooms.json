@@ -5,6 +5,21 @@
     "Mesh": "008/008_opt.rmesh"
   },
   {
+    "Name": "room2_2",
+    "Shape": "_2",
+    "Mesh": "room2_2/room2_2_opt.rmesh"
+  },
+  {
+    "Name": "room2c",
+    "Shape": "_2C",
+    "Mesh": "room2C/room2C_opt.rmesh"
+  },
+  {
+    "Name": "room3",
+    "Shape": "_3",
+    "Mesh": "room3_2/room3_2_opt.rmesh"
+  },
+  {
     "Name": "4tunnels",
     "Shape": "_4",
     "Mesh": "4tunnels/4tunnels_opt.rmesh"
