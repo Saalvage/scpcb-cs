@@ -21,7 +21,7 @@
     <PackageReference Include="Veldrid" Version="4.9.0-beta2" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0-beta2" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
-    <PackageReference Include="AssimpNetter" Version="5.4.3" />
+    <PackageReference Include="AssimpNetter" Version="5.4.3.2" />
     <PackageReference Include="StbImageSharper" Version="1.0.1" />
     <PackageReference Include="FFMediaToolkit" Version="4.5.1" />
     <PackageReference Include="FreeTypeSharp" Version="2.2.0" />

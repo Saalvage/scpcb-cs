@@ -138,7 +138,7 @@ public class MapGenerator {
                     int tempHeight;
                     if (i == 0) {
                         tempHeight = height;
-                        x2 = rng.NextInt(2) == 1 ? x : x + width; // TODO
+                        x2 = rng.NextInt(2) == 1 ? x : x + width;
                     } else {
                         tempHeight = rng.NextInt(1, height);
                     }
