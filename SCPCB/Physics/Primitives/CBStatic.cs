@@ -1,10 +1,9 @@
 ﻿using BepuPhysics;
-using SCPCB.Utility;
+using BepuPhysics.Collidables;
 
 namespace SCPCB.Physics.Primitives;
 
-public class CBStatic : Disposable {
-    private readonly PhysicsResources _physics;
+public class CBStatic : CBCollidable {
     private readonly ICBShape _shape;
     private readonly StaticHandle _handle;
     private readonly StaticReference _ref;
@@ -14,18 +13,7 @@ public class CBStatic : Disposable {
         set => _ref.Pose = value;
     }
 
-    private bool _isInvisible;
-    public bool IsInvisible {
-        get => _isInvisible;
-        set {
-            // Remember to make sure to (re)apply this when (re)attaching statics becomes possible later on.
-            _isInvisible = value;
-            _physics.Visibility.Allocate(_handle).IsInvisible = value;
-        }
-    }
-
-    public CBStatic(PhysicsResources physics, ICBShape shape, in StaticDescription desc) {
-        _physics = physics;
+    public CBStatic(PhysicsResources physics, ICBShape shape, in StaticDescription desc) : base(physics) {
         _shape = shape;
         _handle = _physics.Simulation.Statics.Add(desc);
         _ref = _physics.Simulation.Statics[_handle];
@@ -34,4 +22,6 @@ public class CBStatic : Disposable {
     protected override void DisposeImpl() {
         _physics.Simulation.Statics.Remove(_handle);
     }
+
+    protected override CollidableReference GetCollidableReference() => new(_handle);
 }

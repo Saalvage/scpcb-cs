@@ -40,6 +40,7 @@ public class Game : Disposable {
 
     public const int TICK_RATE = 60;
     private const int TICK_GOAL = (int)(TimeSpan.TicksPerSecond / TICK_RATE);
+    public const float TICK_DELTA = 1f / TICK_RATE;
 
     public void Run() {
         Log.Information("Hello, world!");

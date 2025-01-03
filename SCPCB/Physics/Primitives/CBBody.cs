@@ -1,16 +1,14 @@
 ﻿using BepuPhysics;
-using SCPCB.Utility;
+using BepuPhysics.Collidables;
 
 namespace SCPCB.Physics.Primitives;
 
-public class CBBody : Disposable {
-    private readonly PhysicsResources _physics;
-
+public class CBBody : CBCollidable {
     private readonly ICBShape _shape;
     private readonly Bodies _bodies;
     
     private BodyDescription _desc;
-    public BodyReference _reference;
+    private BodyReference _reference;
     public bool Attached { get; private set; }
 
     public RigidPose Pose {
@@ -23,17 +21,7 @@ public class CBBody : Disposable {
         set => _reference.Velocity = value;
     }
 
-    private bool _isInvisible;
-    public bool IsInvisible {
-        get => _isInvisible;
-        set {
-            _isInvisible = value;
-            _physics.Visibility.Allocate(_reference).IsInvisible = value;
-        }
-    }
-
-    public CBBody(PhysicsResources physics, ICBShape shape, in BodyDescription desc) {
-        _physics = physics;
+    public CBBody(PhysicsResources physics, ICBShape shape, in BodyDescription desc) : base(physics) {
         _shape = shape;
         _bodies = physics.Simulation.Bodies;
         _desc = desc;
@@ -47,7 +35,7 @@ public class CBBody : Disposable {
 
         _reference = new(_bodies.Add(_desc), _bodies);
         // We need to set it again because we might have received a different reference.
-        IsInvisible = _isInvisible;
+        ReapplyProperties();
         Attached = true;
     }
 
@@ -61,7 +49,10 @@ public class CBBody : Disposable {
             Pose = _reference.Pose,
             Velocity = _reference.Velocity,
         };
-        _physics.Visibility[_reference].IsInvisible = false;
+        // TODO: Can handles be reassigned to a different entity? This could be cause for some nasty bugs if it were the case.
+        // We know that detaching and reattaching requires resetting of properties to make sure they're correct.
+        // If they CANNOT, then this is unnecessary.
+        ResetProperties();
         _bodies.Remove(_reference.Handle);
         _reference = default;
         Attached = false;
@@ -70,4 +61,6 @@ public class CBBody : Disposable {
     protected override void DisposeImpl() {
         Detach();
     }
+
+    protected override CollidableReference GetCollidableReference() => new(CollidableMobility.Dynamic, _reference.Handle);
 }
