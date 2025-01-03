@@ -7,6 +7,7 @@ using SCPCB.Graphics.Shaders.ConstantMembers;
 using SCPCB.Graphics.Shaders.Utility;
 using SCPCB.Map.Entities;
 using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
 using SCPCB.Utility;
 
 namespace SCPCB.Map;
@@ -17,8 +18,8 @@ public interface IRoomData : IDisposable {
 
 public class RoomData : Disposable, IRoomData {
     private readonly MeshInfo[] _meshes;
-    private readonly TypedIndex? _visibleCollIndex;
-    private readonly TypedIndex? _invisibleCollIndex;
+    private readonly ICBShape<Mesh>? _visibleCollIndex;
+    private readonly ICBShape<Mesh>? _invisibleCollIndex;
     private readonly IMapEntityData[] _mapEntities;
 
     private readonly GraphicsResources _gfxRes;
@@ -29,8 +30,8 @@ public class RoomData : Disposable, IRoomData {
         _gfxRes = gfxRes;
         _physics = physics;
         _meshes = meshes;
-        _visibleCollIndex = visibleCollision.HasValue ? physics.Simulation.Shapes.Add(visibleCollision.Value) : null;
-        _invisibleCollIndex = invisibleCollision.HasValue ? physics.Simulation.Shapes.Add(invisibleCollision.Value) : null;
+        _visibleCollIndex = visibleCollision.HasValue ? new CBShape<Mesh>(physics, visibleCollision.Value) : null;
+        _invisibleCollIndex = invisibleCollision.HasValue ? new CBShape<Mesh>(physics, invisibleCollision.Value) : null;
         _mapEntities = mapEntities;
     }
 
@@ -41,12 +42,8 @@ public class RoomData : Disposable, IRoomData {
             .Select(x => x.Instantiate(_gfxRes, _physics, new(offset, rotation))).ToArray());
 
     protected override void DisposeImpl() {
-        if (_visibleCollIndex.HasValue) {
-            _physics.Simulation.Shapes.RecursivelyRemoveAndDispose(_visibleCollIndex.Value, _physics.BufferPool);
-        }
-        if (_invisibleCollIndex.HasValue) {
-            _physics.Simulation.Shapes.RecursivelyRemoveAndDispose(_invisibleCollIndex.Value, _physics.BufferPool);
-        }
+        _visibleCollIndex?.Dispose();
+        _invisibleCollIndex?.Dispose();
         foreach (var mesh in _meshes) {
             mesh.Geometry.Dispose();
             mesh.Material.Dispose();
@@ -56,7 +53,7 @@ public class RoomData : Disposable, IRoomData {
 
 public interface IRoomInstance : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, I3DModelHolder, IEntityHolder { }
 
-public class RoomInstance : IRoomInstance {
+public class RoomInstance : Disposable, IRoomInstance {
     private record Model3D(Vector3 Position, ICBModel Model, bool IsOpaque) : I3DModel;
 
     IEnumerable<I3DModel> I3DModelHolder.Models => Models;
@@ -68,7 +65,10 @@ public class RoomInstance : IRoomInstance {
     private readonly Matrix4x4 _transform;
     private readonly RoomData _data; // Keep alive.
 
-    public RoomInstance(PhysicsResources physics, RoomData data, RoomData.MeshInfo[] meshes, TypedIndex? visibleCollIndex, TypedIndex? invisibleCollIndex,
+    private readonly CBStatic? _visibleColl;
+    private readonly CBStatic? _invisibleColl;
+
+    public RoomInstance(PhysicsResources physics, RoomData data, RoomData.MeshInfo[] meshes, ICBShape<Mesh>? visibleCollShape, ICBShape<Mesh>? invisibleCollShape,
             Vector3 offset, Quaternion rotation, IMapEntity[] mapEntities) {
         _data = data;
 
@@ -86,16 +86,19 @@ public class RoomInstance : IRoomInstance {
             m.Model.ConstantProviders.Add(this);
         }
 
-        if (visibleCollIndex.HasValue) {
-            physics.Simulation.Statics.Add(new(offset, rotation, visibleCollIndex.Value));
-        }
-        if (invisibleCollIndex.HasValue) {
-            physics.Visibility.Allocate(physics.Simulation.Statics.Add(new(offset, rotation, invisibleCollIndex.Value)))
-                = new() { IsInvisible = true };
+        _visibleColl = visibleCollShape?.CreateStatic(new(offset, rotation));
+        _invisibleColl = invisibleCollShape?.CreateStatic(new(offset, rotation));
+        if (_invisibleColl != null) {
+            _invisibleColl.IsInvisible = true;
         }
 
         _transform = Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(offset);
     }
     
     public Matrix4x4 GetValue(float interp) => _transform;
+
+    protected override void DisposeImpl() {
+        _visibleColl?.Dispose();
+        _invisibleColl?.Dispose();
+    }
 }

@@ -4,7 +4,7 @@ using SCPCB.Utility;
 namespace SCPCB.Physics.Primitives;
 
 public class CBStatic : Disposable {
-    private readonly Simulation _sim;
+    private readonly PhysicsResources _physics;
     private readonly ICBShape _shape;
     private readonly StaticHandle _handle;
     private readonly StaticReference _ref;
@@ -14,14 +14,24 @@ public class CBStatic : Disposable {
         set => _ref.Pose = value;
     }
 
-    public CBStatic(Simulation sim, ICBShape shape, in StaticDescription desc) {
-        _sim = sim;
+    private bool _isInvisible;
+    public bool IsInvisible {
+        get => _isInvisible;
+        set {
+            // Remember to make sure to (re)apply this when (re)attaching statics becomes possible later on.
+            _isInvisible = value;
+            _physics.Visibility.Allocate(_handle).IsInvisible = value;
+        }
+    }
+
+    public CBStatic(PhysicsResources physics, ICBShape shape, in StaticDescription desc) {
+        _physics = physics;
         _shape = shape;
-        _handle = sim.Statics.Add(desc);
-        _ref = _sim.Statics[_handle];
+        _handle = _physics.Simulation.Statics.Add(desc);
+        _ref = _physics.Simulation.Statics[_handle];
     }
 
     protected override void DisposeImpl() {
-        _sim.Statics.Remove(_handle);
+        _physics.Simulation.Statics.Remove(_handle);
     }
 }

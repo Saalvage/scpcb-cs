@@ -14,7 +14,7 @@ public static class CBShapeExtensions {
         => new(shape.Physics, shape, BodyDescription.CreateKinematic(pose, new(shape.ShapeIndex), activity));
 
     public static CBStatic CreateStatic(this ICBShape shape, RigidPose pose)
-        => new(shape.Physics.Simulation, shape, new(pose, shape.ShapeIndex));
+        => new(shape.Physics, shape, new(pose, shape.ShapeIndex));
 
     public static CBBody CreateDynamic<T>(this ICBShape<T> shape, RigidPose pose, float mass)
             where T : unmanaged, IConvexShape
