@@ -8,17 +8,17 @@ namespace SCPCB.Physics;
 
 public static class CBShapeExtensions {
     public static CBBody CreateDynamic(this ICBShape shape, RigidPose pose, BodyInertia inertia, BodyActivityDescription activity)
-        => new(shape.Simulation, shape, BodyDescription.CreateDynamic(pose, inertia, new(shape.ShapeIndex), activity));
+        => new(shape.Physics, shape, BodyDescription.CreateDynamic(pose, inertia, new(shape.ShapeIndex), activity));
 
     public static CBBody CreateKinematic(this ICBShape shape, RigidPose pose, BodyActivityDescription activity)
-        => new(shape.Simulation, shape, BodyDescription.CreateKinematic(pose, new(shape.ShapeIndex), activity));
+        => new(shape.Physics, shape, BodyDescription.CreateKinematic(pose, new(shape.ShapeIndex), activity));
 
     public static CBStatic CreateStatic(this ICBShape shape, RigidPose pose)
-        => new(shape.Simulation, shape, new(pose, shape.ShapeIndex));
+        => new(shape.Physics.Simulation, shape, new(pose, shape.ShapeIndex));
 
     public static CBBody CreateDynamic<T>(this ICBShape<T> shape, RigidPose pose, float mass)
             where T : unmanaged, IConvexShape
-        => new(shape.Simulation, shape,
+        => new(shape.Physics, shape,
             new() {
                 Pose = pose,
                 Activity = BodyDescription.GetDefaultActivity(shape.Shape),
@@ -28,7 +28,7 @@ public static class CBShapeExtensions {
 
     public static CBBody CreateKinematic<T>(this ICBShape<T> shape, RigidPose pose)
             where T : unmanaged, IConvexShape
-        => new(shape.Simulation, shape, new() {
+        => new(shape.Physics, shape, new() {
             Pose = pose,
             Activity = BodyDescription.GetDefaultActivity(shape.Shape),
             Collidable = shape.ShapeIndex,
@@ -40,7 +40,7 @@ public static class CBShapeExtensions {
     }
 
     public static ICBShape<ConvexHull> CreateTransformedCopy(this ICBShape<ConvexHull> shape, in Matrix3x3 transform) {
-        ConvexHullHelper.CreateTransformedCopy(shape.Shape, transform, shape.Simulation.BufferPool, out var scaledHull);
-        return new CBShape<ConvexHull>(shape.Simulation, scaledHull);
+        ConvexHullHelper.CreateTransformedCopy(shape.Shape, transform, shape.Physics.BufferPool, out var scaledHull);
+        return new CBShape<ConvexHull>(shape.Physics, scaledHull);
     }
 }

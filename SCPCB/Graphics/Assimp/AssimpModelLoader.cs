@@ -85,7 +85,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
             .SelectMany(x => x.Vertices)
             .Select(x => x / 10)
             .ToArray(), physics.BufferPool, out center, out var hull);
-        return new CBShape<ConvexHull>(physics.Simulation, hull);
+        return new CBShape<ConvexHull>(physics, hull);
     }
 
     public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision, Vector3 CenterOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {

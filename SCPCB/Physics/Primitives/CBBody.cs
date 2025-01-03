@@ -4,11 +4,13 @@ using SCPCB.Utility;
 namespace SCPCB.Physics.Primitives;
 
 public class CBBody : Disposable {
+    private readonly PhysicsResources _physics;
+
     private readonly ICBShape _shape;
     private readonly Bodies _bodies;
     
     private BodyDescription _desc;
-    private BodyReference _reference;
+    public BodyReference _reference;
     public bool Attached { get; private set; }
 
     public RigidPose Pose {
@@ -21,9 +23,19 @@ public class CBBody : Disposable {
         set => _reference.Velocity = value;
     }
 
-    public CBBody(Simulation sim, ICBShape shape, in BodyDescription desc) {
+    private bool _isInvisible;
+    public bool IsInvisible {
+        get => _isInvisible;
+        set {
+            _isInvisible = value;
+            _physics.Visibility.Allocate(_reference).IsInvisible = value;
+        }
+    }
+
+    public CBBody(PhysicsResources physics, ICBShape shape, in BodyDescription desc) {
+        _physics = physics;
         _shape = shape;
-        _bodies = sim.Bodies;
+        _bodies = physics.Simulation.Bodies;
         _desc = desc;
         Attach();
     }
@@ -34,6 +46,8 @@ public class CBBody : Disposable {
         }
 
         _reference = new(_bodies.Add(_desc), _bodies);
+        // We need to set it again because we might have received a different reference.
+        IsInvisible = _isInvisible;
         Attached = true;
     }
 
@@ -47,6 +61,7 @@ public class CBBody : Disposable {
             Pose = _reference.Pose,
             Velocity = _reference.Velocity,
         };
+        _physics.Visibility[_reference].IsInvisible = false;
         _bodies.Remove(_reference.Handle);
         _reference = default;
         Attached = false;

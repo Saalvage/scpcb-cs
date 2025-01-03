@@ -5,7 +5,7 @@ using SCPCB.Utility;
 namespace SCPCB.Physics.Primitives; 
 
 public interface ICBShape : IDisposable {
-    Simulation Simulation { get; }
+    PhysicsResources Physics { get; }
     IShape Shape { get; }
     TypedIndex ShapeIndex { get; }
 }
@@ -16,19 +16,19 @@ public interface ICBShape<T> : ICBShape where T : unmanaged, IShape {
 }
 
 public class CBShape<T> : Disposable, ICBShape<T> where T : unmanaged, IShape {
-    public Simulation Simulation { get; }
+    public PhysicsResources Physics { get; }
     
     private T _shape;
     public ref T Shape => ref _shape;
     public TypedIndex ShapeIndex { get; }
 
-    public CBShape(Simulation sim, T shape) {
-        Simulation = sim;
+    public CBShape(PhysicsResources physics, T shape) {
+        Physics = physics;
         _shape = shape;
-        ShapeIndex = Simulation.Shapes.Add(shape);
+        ShapeIndex = physics.Simulation.Shapes.Add(shape);
     }
 
     protected override void DisposeImpl() {
-        Simulation.Shapes.RecursivelyRemoveAndDispose(ShapeIndex, Simulation.BufferPool);
+        Physics.Simulation.Shapes.RecursivelyRemoveAndDispose(ShapeIndex, Physics.Simulation.BufferPool);
     }
 }

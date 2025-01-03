@@ -35,6 +35,8 @@ public static class PhysicsExtensions {
     }
 
     public static CollidableReference? RayCastVisible(this PhysicsResources physics, Vector3 from, Vector3 dir, float length) {
+        // Allocate is unfortunate naming, it just makes sure we're not having a buffer overrun
+        // because not every collidable will have a visibility property.
         RayHitHandler handler = new(x => !physics.Visibility.Allocate(x).IsInvisible);
         physics.Simulation.RayCast(from, dir, length, ref handler);
         return handler.Hit;
