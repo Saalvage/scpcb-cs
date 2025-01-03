@@ -9,8 +9,6 @@ using SCPCB.Map;
 namespace SCPCB.Scenes;
 
 public class MapCreatorScene : BaseScene {
-    private readonly MapGrid _grid;
-
     public MapCreatorScene(Game game) {
         var gfx = game.GraphicsResources;
         var input = game.InputManager;
@@ -20,8 +18,8 @@ public class MapCreatorScene : BaseScene {
         var ui = new UIManager(gfx, input);
         AddEntity(ui);
 
-        _grid = new(gfx, ui, 17, 17);
-        ui.Root.AddChild(_grid);
+        var grid = new MapGrid(gfx, ui, 17, 17);
+        ui.Root.AddChild(grid);
 
         using var roomsFile = File.OpenRead("Assets/Rooms/rooms.json");
         var rooms = JsonSerializer.Deserialize<RoomInfo[]>(roomsFile);
@@ -49,31 +47,31 @@ public class MapCreatorScene : BaseScene {
             Alignment = Alignment.BottomRight,
             Position = new(0, -50),
         };
-        width.Input.Inner.Text = _grid.Width.ToString();
-        width.Input.OnTextChanged += _ => _grid.Width = int.Parse(width.Input.Inner.Text);
+        width.Input.Inner.Text = grid.Width.ToString();
+        width.Input.OnTextChanged += _ => grid.Width = int.Parse(width.Input.Inner.Text);
         ui.Root.AddChild(width);
 
         var height = new InputBox(gfx, ui, input, gfx.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32)) {
             Alignment = Alignment.BottomRight,
         };
-        height.Input.Inner.Text = _grid.Height.ToString();
-        height.Input.OnTextChanged += _ => _grid.Height = int.Parse(height.Input.Inner.Text);
+        height.Input.Inner.Text = grid.Height.ToString();
+        height.Input.OnTextChanged += _ => grid.Height = int.Parse(height.Input.Inner.Text);
         ui.Root.AddChild(height);
 
         var start = new Button(gfx, ui, "START", 12.222f, -42, float.E) {
             Alignment = Alignment.BottomRight,
             Position = new(0, -150),
         };
-        start.OnClicked += () => game.Scene = new MainScene(game, _grid.GetRooms());
+        start.OnClicked += () => game.Scene = new MainScene(game, grid.GetRooms());
         ui.Root.AddChild(start);
 
         var yOff = 0;
         foreach (var room in rooms) {
             var button = new Button(gfx, ui, room.Name, 0, 0, 0, 19) {
                 PixelSize = new(128, 32),
-                Position = new(_grid.PixelSize.X + 5, yOff += 34),
+                Position = new(grid.PixelSize.X + 5, yOff += 34),
             };
-            button.OnClicked += () => _grid.PlacingRoom = room;
+            button.OnClicked += () => grid.PlacingRoom = room;
             ui.Root.AddChild(button);
         }
 
@@ -89,16 +87,16 @@ public class MapCreatorScene : BaseScene {
                 var roomName =
                     i == 0 || i == 4 || j == 0 || j == 9 ? "room008" :
                     i == 2 || j == 5 ? "coffin" : "4tunnels";
-                _grid[i, j] = new(rooms.First(x => x.Name == roomName), (Direction)((i + j) % 4));
+                grid[i, j] = new(rooms.First(x => x.Name == roomName), (Direction)((i + j) % 4));
             }
         }
 
         void GenerateMap(string seed) {
-            var map = new MapGenerator(_grid.Width, _grid.Height).GenerateMap(roomsDic, seed);
+            var map = new MapGenerator(grid.Width, grid.Height).GenerateMap(roomsDic, seed);
 
             foreach (var (x, y) in Enumerable.Range(0, map.GetLength(0))
                          .SelectMany(x => Enumerable.Range(0, map.GetLength(1)).Select(y => (x, y)))) {
-                _grid[x, y] = map[x, y];
+                grid[x, y] = map[x, y];
             }
         }
     }

@@ -18,8 +18,8 @@ public interface IRoomData : IDisposable {
 
 public class RoomData : Disposable, IRoomData {
     private readonly MeshInfo[] _meshes;
-    private readonly ICBShape<Mesh>? _visibleCollIndex;
-    private readonly ICBShape<Mesh>? _invisibleCollIndex;
+    private readonly CBShape<Mesh>? _visibleCollIndex;
+    private readonly CBShape<Mesh>? _invisibleCollIndex;
     private readonly IMapEntityData[] _mapEntities;
 
     private readonly GraphicsResources _gfxRes;
@@ -46,7 +46,7 @@ public class RoomData : Disposable, IRoomData {
         _invisibleCollIndex?.Dispose();
         foreach (var mesh in _meshes) {
             mesh.Geometry.Dispose();
-            mesh.Material.Dispose();
+            // Materials are cached.
         }
     }
 }
