@@ -229,8 +229,6 @@ public class MainScene : Scene3D {
         // TODO: This sucks! Might as well eliminate the entire method.
         Graphics.Window.KeyDown -= HandleKeyDown;
         Graphics.Window.MouseDown -= HandleMouseEvent;
-        Graphics.Window.KeyDown -= HandleKeyDown;
-        Graphics.Window.MouseDown -= HandleMouseEvent;
         Graphics.Window.MouseUp -= HandleMouseEvent;
     }
 
