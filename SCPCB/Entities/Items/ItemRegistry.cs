@@ -19,13 +19,13 @@ public class ItemRegistry(GraphicsResources gfxRes, IScene scene) {
             var split = line.Split(';');
             var type = Helpers.GetAllLoadedTypes().First(x => x.FullName == split[1]);
             var (ctor, @params) = type.GetConstructors()
-                .Where(x => x.GetParameters().Length - 3 == split.Length - 2)
+                .Where(x => x.GetParameters().Length - 2 == split.Length - 2)
                 .Select(x => (x, @params: x.GetParameters()
-                    .Skip(3)
+                    .Skip(2)
                     .Select(x => TypeDescriptor.GetConverter(x.ParameterType))
                     .Zip(split.Skip(2))))
                 .First(x => x.@params.All(x => x.First.IsValid(x.Second)));
-            RegisterItem(split[0], transform => (IItem)ctor.Invoke(new object[]{gfxRes, scene, transform}
+            RegisterItem(split[0], transform => (IItem)ctor.Invoke(new object[]{scene, transform}
                 .Concat(@params.Select(x => x.First.ConvertFromString(null, CultureInfo.InvariantCulture, x.Second)))
                 .ToArray()));
         }

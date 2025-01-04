@@ -7,22 +7,19 @@ using SCPCB.Physics;
 namespace SCPCB.Scenes;
 
 public class Scene3D : BaseScene {
-    private readonly GraphicsResources _gfxRes;
-
     public ICamera Camera { get; protected set; }
 
     public PhysicsResources Physics { get; }
 
-    public Scene3D(GraphicsResources gfxRes) {
-        _gfxRes = gfxRes;
-        Physics = new(_gfxRes); 
+    public Scene3D(GraphicsResources gfxRes) : base(gfxRes) {
+        Physics = new(Graphics); 
 
         AddEntity(new ModelSorter(this, interp => Camera.Position));
     }
 
     public override void Render(IRenderTarget target, float interp) {
-        _gfxRes.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(Camera.ViewMatrix);
-        _gfxRes.ShaderCache.SetGlobal<IViewPositionConstantMember, Vector3>(Camera.Position);
+        Graphics.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(Camera.ViewMatrix);
+        Graphics.ShaderCache.SetGlobal<IViewPositionConstantMember, Vector3>(Camera.Position);
 
         base.Render(target, interp);
     }

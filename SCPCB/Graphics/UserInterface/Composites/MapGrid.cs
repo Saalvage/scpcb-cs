@@ -11,7 +11,7 @@ public class MapGrid : InteractableUIElement<UIElement> {
     private const int TILE_SIZE = 28;
     private const int OFFSET = 1;
 
-    private readonly GraphicsResources _gfx;
+    private readonly GraphicsResources _gfxRes;
 
     private int _width;
     private int _height;
@@ -67,11 +67,11 @@ public class MapGrid : InteractableUIElement<UIElement> {
 
     public RoomInfo? PlacingRoom { private get; set; }
 
-    public MapGrid(GraphicsResources gfx, UIManager ui, int width, int height)
+    public MapGrid(GraphicsResources gfxRes, UIManager ui, int width, int height)
             : base(new()) {
-        _gfx = gfx;
+        _gfxRes = gfxRes;
 
-        _infoBox = new(new(gfx, ui, 0, 0, 0, 19)) {
+        _infoBox = new(new(gfxRes, ui, 0, 0, 0, 19)) {
             PixelSize = new(128, 32),
             Z = 10,
         };
@@ -84,11 +84,11 @@ public class MapGrid : InteractableUIElement<UIElement> {
         Width = width;
         Height = height;
 
-        _internalChildren.Add(_activeMarker = new(gfx, gfx.TextureCache.GetTexture(Color.White)) {
+        _internalChildren.Add(_activeMarker = new(gfxRes, gfxRes.TextureCache.GetTexture(Color.White)) {
             PixelSize = new(TILE_SIZE),
             Color = Color.FromArgb(0xC8, Color.White),
         });
-        _rotator = new(gfx, gfx.TextureCache.GetTexture("Assets/MapCreator/arrows.png")) {
+        _rotator = new(gfxRes, gfxRes.TextureCache.GetTexture("Assets/MapCreator/arrows.png")) {
             Alignment = Alignment.Center,
         };
     }
@@ -188,7 +188,7 @@ public class MapGrid : InteractableUIElement<UIElement> {
         _activeRotator = null;
     }
 
-    private MapTile MakeTile(int x, int y) => new (_gfx, TILE_SIZE) {
+    private MapTile MakeTile(int x, int y) => new (_gfxRes, TILE_SIZE) {
         Position = new((TILE_SIZE + OFFSET) * x, (TILE_SIZE + OFFSET) * y),
     };
 

@@ -102,7 +102,7 @@ public class GraphicsResources : Disposable {
 
         ShaderCache = new(this);
         TextureCache = new(this);
-        MaterialCache = new(GraphicsDevice, ShaderCache);
+        MaterialCache = new(ShaderCache);
         MeshCache = new(this);
         FontCache = new(this, _freeType);
 

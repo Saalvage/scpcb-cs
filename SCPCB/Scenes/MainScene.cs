@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using BepuPhysics.Collidables;
+using SCPCB.Entities;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Caches;
@@ -23,12 +24,12 @@ using SCPCB.Serialization;
 using SCPCB.Utility;
 using Veldrid;
 using Veldrid.Sdl2;
+using Helpers = SCPCB.Utility.Helpers;
 
 namespace SCPCB.Scenes;
 
 public class MainScene : Scene3D {
     private readonly Game _game;
-    private readonly GraphicsResources _gfxRes;
     private readonly InputManager _input;
     
     private readonly Player _player;
@@ -58,57 +59,60 @@ public class MainScene : Scene3D {
 
     private readonly Dictionary<string, IRoomData> _rooms;
 
+    private Vector3? _measuringTape;
+
     public MainScene(Game game, PlacedRoomInfo?[,]? map = null) : base(game.GraphicsResources) {
         _game = game;
-        _gfxRes = game.GraphicsResources;
         _input = game.InputManager;
 
         AddEntity(Physics);
+
+        DealWithEntityBuffers();
 
         _player = new(this);
         Camera = _player.Camera;
         AddEntity(_player);
 
-        _renderTexture = new(_gfxRes, 100, 100, true);
+        _renderTexture = new(Graphics, 100, 100, true);
 
-        _font = _gfxRes.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32);
+        _font = Graphics.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32);
 
         foreach (var c in Enumerable.Range(0, 1000)) {
             _font.GetGlyphInfo((char)c);
         }
 
-        var gfx = _gfxRes.GraphicsDevice;
-        var window = _gfxRes.Window;
+        var gfx = Graphics.GraphicsDevice;
+        var window = Graphics.Window;
 
-        var video = new Video(_gfxRes, "Assets/Splash_UTG.mp4");
+        var video = new Video(Graphics, "Assets/Splash_UTG.mp4");
         video.Loop = true;
         AddEntity(video);
 
-        var ui = new UIManager(_gfxRes, _input);
+        var ui = new UIManager(Graphics, _input);
         AddEntity(ui);
 
-        var uiElem = new TextureElement(_gfxRes, _gfxRes.TextureCache.GetTexture(Color.MidnightBlue));
+        var uiElem = new TextureElement(Graphics, Graphics.TextureCache.GetTexture(Color.MidnightBlue));
         uiElem.Alignment = Alignment.TopRight;
         uiElem.Position = new(-10, 0);
         uiElem.PixelSize = new(500, 50);
         ui.Root.AddChild(uiElem);
 
-        var uiElem2 = new TextureElement(_gfxRes, _renderTexture);
+        var uiElem2 = new TextureElement(Graphics, _renderTexture);
         uiElem2.Alignment = Alignment.BottomRight;
         //uiElem2.PixelSize *= 0.1f;
         ui.Root.AddChild(uiElem2);
 
-        _str = new(_gfxRes, _font);
+        _str = new(Graphics, _font);
         _str.Text = "T\nBla bla y_\n^";
         _str.Alignment = Alignment.TopLeft;
         _str.Scale *= 0.8f;
         ui.Root.Children[0].AddChild(_str);
 
-        ui.Root.AddChild(new Button(_gfxRes, ui, "Hello", 0, 0, 0) {
+        ui.Root.AddChild(new Button(Graphics, ui, "Hello", 0, 0, 0) {
             Alignment = Alignment.BottomRight,
         });
 
-        ui.Root.AddChild(new InputBox(_gfxRes, ui, _input, _font));
+        ui.Root.AddChild(new InputBox(Graphics, ui, _input, _font));
 
         _hud = new(_player, ui);
         AddEntity(_hud);
@@ -116,34 +120,34 @@ public class MainScene : Scene3D {
         // TODO: Remove, necessary for now because item creation looks for the physics object in the scene.
         DealWithEntityBuffers();
 
-        var reg = new ItemRegistry(_gfxRes, this);
+        var reg = new ItemRegistry(Graphics, this);
         reg.RegisterItemsFromFile("Assets/Items/items.txt");
         var itemmm = reg.CreateItem(new(_player.Camera.Position, Quaternion.Identity), "doc173");
         AddEntity(itemmm);
         _player.PickItem(itemmm);
 
-        _gfxRes.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
+        Graphics.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
             Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f));
 
-        _gfxRes.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
-            Matrix4x4.CreateOrthographic(_gfxRes.Window.Width, _gfxRes.Window.Height, -100, 100));
+        Graphics.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
+            Matrix4x4.CreateOrthographic(Graphics.Window.Width, Graphics.Window.Height, -100, 100));
         
         Sdl2Native.SDL_SetRelativeMouseMode(true);
 
-        var modelShader = _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>();
+        var modelShader = Graphics.ShaderCache.GetShader<ModelShader, VPositionTexture>();
 
-        _mig = new(_gfxRes, ui, _input, Physics);
+        _mig = new(Graphics, ui, _input, Physics);
         _mig.IsVisible = false;
         ui.Root.AddChild(_mig);
 
-        var coolTexture = _gfxRes.TextureCache.GetTexture("Assets/173texture.jpg");
-        _logoMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [video.Texture], [gfx.PointSampler]);
+        var coolTexture = Graphics.TextureCache.GetTexture("Assets/173texture.jpg");
+        _logoMat = Graphics.MaterialCache.GetMaterial(modelShader, [video.Texture], [gfx.PointSampler]);
 
-        _otherMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [coolTexture], [gfx.PointSampler]);
+        _otherMat = Graphics.MaterialCache.GetMaterial(modelShader, [coolTexture], [gfx.PointSampler]);
 
-        _renderMat = _gfxRes.MaterialCache.GetMaterial(modelShader, [_renderTexture], [gfx.PointSampler]);
+        _renderMat = Graphics.MaterialCache.GetMaterial(modelShader, [_renderTexture], [gfx.PointSampler]);
 
-        var billboard = Billboard.Create(_gfxRes, _renderTexture);
+        var billboard = Billboard.Create(Graphics, _renderTexture);
         billboard.Transform = billboard.Transform with {
             Position = new(2, 2, -0.1f),
         };
@@ -153,7 +157,7 @@ public class MainScene : Scene3D {
             .Where(x => x != null)
             .Select(x => x.Room.Mesh)
             .Distinct()
-            .ToDictionary(x => x, x => _gfxRes.LoadRoom(this, Physics, "Assets/Rooms/" + x));
+            .ToDictionary(x => x, x => Graphics.LoadRoom(this, Physics, "Assets/Rooms/" + x));
         for (var x = 0; x < map.GetLength(0); x++) {
             for (var y = 0; y < map.GetLength(1); y++) {
                 var info = map[x, y];
@@ -176,8 +180,8 @@ public class MainScene : Scene3D {
 
     public override void Update(float delta) {
         if (!_paused) {
-            if (_gfxRes.Window.MouseDelta != Vector2.Zero) {
-                _player.HandleMouse(_gfxRes.Window.MouseDelta * 0.01f);
+            if (Graphics.Window.MouseDelta != Vector2.Zero) {
+                _player.HandleMouse(Graphics.Window.MouseDelta * 0.01f);
             }
 
             var dir = Vector2.Zero;
@@ -223,9 +227,11 @@ public class MainScene : Scene3D {
 
     public override void OnLeave() {
         // TODO: This sucks! Might as well eliminate the entire method.
-        _gfxRes.Window.KeyDown -= HandleKeyDown;
-        _gfxRes.Window.MouseDown -= HandleMouseEvent;
-        _gfxRes.Window.MouseUp -= HandleMouseEvent;
+        Graphics.Window.KeyDown -= HandleKeyDown;
+        Graphics.Window.MouseDown -= HandleMouseEvent;
+        Graphics.Window.KeyDown -= HandleKeyDown;
+        Graphics.Window.MouseDown -= HandleMouseEvent;
+        Graphics.Window.MouseUp -= HandleMouseEvent;
     }
 
     private static string? _serialized;
@@ -237,7 +243,7 @@ public class MainScene : Scene3D {
                 body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
                 AddEntity(new PhysicsModelCollection(Physics, body, [
                     new CBModel<VPositionTexture>(
-                    _gfxRes.ShaderCache.GetShader<ModelShader, VPositionTexture>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
+                    Graphics.ShaderCache.GetShader<ModelShader, VPositionTexture>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
                         0 => _renderMat,
                         1 => _otherMat,
                         2 => _logoMat,
@@ -255,8 +261,9 @@ public class MainScene : Scene3D {
             case Key.AltLeft: {
                 var from = _player.Camera.Position;
                 var to = from + Vector3.Transform(Vector3.UnitZ, _player.Camera.Rotation) * 5f;
-                var line = new DebugLine(_gfxRes, from, to);
-                line.Color = Physics.RayCastVisible(from, to) is not null ? new(1, 0, 0) : new(0, 1, 0);
+                var line = new DebugLine(Graphics, from, to);
+                var cast = Physics.RayCastVisible(from, to);
+                line.Color = cast is not null ? new(1, 0, 0) : new(0, 1, 0);
                 AddEntity(line);
                 break;
             }
@@ -270,14 +277,15 @@ public class MainScene : Scene3D {
             }
             case Key.F5: {
                 _serialized = SerializationHelper.SerializeTest(GetEntitiesOfType<ISerializableEntity>());
-                foreach (var i in GetEntitiesOfType<ISerializableEntity>()) {
-                    //RemoveEntity(i);
+                // TODO: Serialize items properly.
+                foreach (var i in GetEntitiesOfType<ISerializableEntity>().Cast<IEntity>().Concat(GetEntitiesOfType<IItem>())) {
+                    RemoveEntity(i);
                 }
                 break;
             }
             case Key.BackSpace: {
                 if (_serialized != null) {
-                    AddEntities(SerializationHelper.DeserializeTest(_serialized, _gfxRes, this));
+                    AddEntities(SerializationHelper.DeserializeTest(_serialized, Graphics, this));
                 }
                 break;
             }
@@ -293,6 +301,18 @@ public class MainScene : Scene3D {
                     SetOpenMenu(null);
                 } else {
                     SetOpenMenu(_hud.Inventory);
+                }
+                break;
+            case Key.M:
+                var pos = _player.Camera.Position;
+                if (_measuringTape.HasValue) {
+                    var from = _measuringTape.Value;
+                    Log.Information("Measured distance from {From} to {To}: {Distance}", from, pos, Vector3.Distance(from, pos));
+                    AddEntity(new DebugLine(this, TimeSpan.FromSeconds(5), from, pos) { Color = new(1, 1, 0) });
+                    _measuringTape = null;
+                } else {
+                    Log.Information("Start measuring from {From}", pos);
+                    _measuringTape = pos;
                 }
                 break;
         }
@@ -327,7 +347,7 @@ public class MainScene : Scene3D {
                 }
                 AttachDebugBordersRecursive(elem.Children[i], add);
                 if (add) {
-                    elem.Children[i].AddChild(new DebugBorder(_gfxRes, elem.Children[i].PixelSize, 1f, Color.White) {
+                    elem.Children[i].AddChild(new DebugBorder(Graphics, elem.Children[i].PixelSize, 1f, Color.White) {
                         Color = Helpers.ColorFromHSV(_uiDebugHue, 1f, 1f),
                     });
                 }

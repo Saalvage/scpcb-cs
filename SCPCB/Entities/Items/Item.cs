@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using SCPCB.Graphics;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Map.Entities;
 using SCPCB.Physics;
@@ -18,7 +17,6 @@ public interface IItem : IPickableEntity {
 }
 
 public class Item : IItem, IEntityHolder {
-    protected readonly GraphicsResources _gfxRes;
     protected readonly IScene _scene;
     // TODO: Make this work with serialization.
     protected readonly Prop _prop;
@@ -29,15 +27,14 @@ public class Item : IItem, IEntityHolder {
 
     public Vector3 Position => _picked ? Vector3.Zero : _prop.Models.WorldTransform.Position;
 
-    public Item(GraphicsResources gfxRes, IScene scene, ICBTexture inventoryIcon, string modelFile, Transform transform) {
-        _gfxRes = gfxRes;
+    public Item(IScene scene, ICBTexture inventoryIcon, string modelFile, Transform transform) {
         _scene = scene;
         _prop = new(scene.GetEntitiesOfType<PhysicsResources>().First(), modelFile, transform, false);
         InventoryIcon = inventoryIcon;
     }
 
-    public Item(GraphicsResources gfxRes, IScene scene, string inventoryIconFile, string modelFile, Transform transform)
-        : this(gfxRes, scene, gfxRes.TextureCache.GetTexture(inventoryIconFile), modelFile, transform) { }
+    public Item(IScene scene, string inventoryIconFile, string modelFile, Transform transform)
+        : this(scene, scene.Graphics.TextureCache.GetTexture(inventoryIconFile), modelFile, transform) { }
 
     public virtual bool CanBePicked(Player player) => !_picked;
 
@@ -53,7 +50,7 @@ public class Item : IItem, IEntityHolder {
     public virtual void OnUsed() { }
     public virtual void OnDropped() { }
 
-    public virtual ICBTexture GetHandTexture() => _gfxRes.TextureCache.GetTexture("Assets/Textures/HUD/handsymbol.png");
+    public virtual ICBTexture GetHandTexture() => _scene.Graphics.TextureCache.GetTexture("Assets/Textures/HUD/handsymbol.png");
 
     public virtual IEnumerable<IEntity> Entities {
         get {

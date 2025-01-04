@@ -5,11 +5,9 @@ using Veldrid;
 namespace SCPCB.Graphics.Caches; 
 
 public class MaterialCache : BaseCache<int, ICBMaterial> {
-    private readonly GraphicsDevice _gfx;
     private readonly ShaderCache _shaderCache;
 
-    public MaterialCache(GraphicsDevice gfx, ShaderCache shaderCache) {
-        _gfx = gfx;
+    public MaterialCache(ShaderCache shaderCache) {
         _shaderCache = shaderCache;
     }
 

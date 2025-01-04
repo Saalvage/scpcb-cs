@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using SCPCB.Entities;
+using SCPCB.Graphics;
 using SCPCB.Graphics.Textures;
 using SCPCB.Utility;
 
 namespace SCPCB.Scenes;
 
 public class BaseScene : Disposable, IScene {
+    public GraphicsResources Graphics { get; }
+
     // This fucking sucks, all because BinarySearch is not an extension method for some reason??
     private interface IListWrapper {
         IList List { get; }
@@ -29,6 +32,10 @@ public class BaseScene : Disposable, IScene {
 
     public event Action<IEntity> OnAddEntity;
     public event Action<IEntity> OnRemoveEntity;
+
+    public BaseScene(GraphicsResources gfxRes) {
+        Graphics = gfxRes;
+    }
 
     public void AddEntity(IEntity entity) {
         _entitiesToAdd.Add(entity);

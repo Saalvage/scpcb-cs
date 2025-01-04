@@ -1,9 +1,12 @@
 ﻿using SCPCB.Entities;
+using SCPCB.Graphics;
 using SCPCB.Graphics.Textures;
 
 namespace SCPCB.Scenes; 
 
 public interface IScene : IDisposable {
+    GraphicsResources Graphics { get; }
+
     IEnumerable<IEntity> Entities { get; }
 
     IReadOnlyList<T> GetEntitiesOfType<T>() where T : IEntity;
