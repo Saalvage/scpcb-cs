@@ -1,19 +1,95 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using BepuPhysics.Collidables;
+using BepuPhysics;
+using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
 using SCPCB.Utility;
+using Helpers = SCPCB.Utility.Helpers;
+using SCPCB.Graphics;
 
 namespace SCPCB.PlayerController;
 
 public partial class Player {
-    public bool Noclip { get; set; } = true;
+    private bool _noclip;
+    public bool Noclip {
+        get => _noclip;
+        set {
+            if (_noclip == value) {
+                return;
+            }
+
+            if (value) {
+                _collider.Detach();
+            } else {
+                _collider.Attach();
+                _collider.Pose = _collider.Pose with { Position = Camera.Position - Vector3.UnitY * CAMERA_OFFSET };
+                // Prevent being sucked onto the ground.
+                IsFalling = true;
+            }
+            _noclip = value;
+        }
+    }
+
+    public bool IsFalling { get; private set; }
     public bool IsSprinting { get; set; } = false;
     public bool HasInfiniteStamina { get; set; } = true;
-    public float BaseSpeed { get; } = 10;
+    public float BaseSpeed { get; } = 2;
 
     public Vector2 MoveDir { get; set; } = Vector2.Zero;
 
     public float Stamina { get; private set; } = 20f;
     public float MaxStamina { get; } = 100f;
+
+    private readonly CBBody _collider;
+
+    //
+    // The player controller is shaped like a corn dog.
+    //
+    //   c - Camera  x - Center of collider
+    //
+    //      COLLIDER_RADIUS
+    //        ├──────┤
+    //           ---           ┬                   ┬
+    //          /   \          │ COLLIDER_RADIUS   │
+    //         /     \         ┴                   │
+    //        |   c   |        ┬  ┬                │
+    //        |       |        │  │ CAMERA_OFFSET  │ TOTAL_HEIGHT
+    //        |   x   |        │  ┴                │  ┬
+    //        |       |        │ COLLIDER_LENGTH   │  │
+    //        |       |        ┴                   │  │
+    //         \     /         ┬                   │  │
+    //          \   /          │ COLLIDER_RADIUS   │  │ HEIGHT_OFF_GROUND
+    //           ---           ┴                   │  │
+    //            |            ┬                   │  │
+    //            |            │ STEP_UP_HEIGHT    │  │
+    //            |            ┴                   ┴  ┴
+    // -----------+----------- - Ground level
+    //            |            ┬
+    //            |            │ STEP_DOWN_HEIGHT
+    //            |            ┴
+    //
+    public const float COLLIDER_LENGTH = 1.5f;
+    public const float COLLIDER_RADIUS = 0.25f;
+    public const float COLLIDER_TOTAL_HEIGHT = COLLIDER_LENGTH + COLLIDER_RADIUS * 2;
+    public const float TOTAL_HEIGHT = 2.5f;
+    public const float STEP_UP_HEIGHT = TOTAL_HEIGHT - COLLIDER_TOTAL_HEIGHT;
+    public const float STEP_DOWN_HEIGHT = STEP_UP_HEIGHT;
+    public const float HEIGHT_OFF_GROUND = COLLIDER_TOTAL_HEIGHT / 2f + STEP_UP_HEIGHT;
+    public const float CAMERA_OFFSET = COLLIDER_LENGTH / 2f;
+
+    private CBBody CreateCollider(PhysicsResources physics) {
+        var shape = new Capsule(COLLIDER_RADIUS, COLLIDER_LENGTH);
+        var bodyDesc = BodyDescription.CreateConvexDynamic(new(Vector3.UnitY * 1.5f + Vector3.UnitX), 1,
+            physics.Simulation.Shapes, shape);
+        // Never sleep.
+        bodyDesc.Activity.SleepThreshold = float.NegativeInfinity;
+        // Never rotate.
+        bodyDesc.LocalInertia.InverseInertiaTensor = default;
+        var ret = new CBBody(physics, new CBShape<Capsule>(physics, shape), bodyDesc);
+        ret.SetProperty<Visibility, bool>(true);
+        return ret;
+    }
 
     private void UpdateMovement(float delta) {
         var fpsFactor = delta * Helpers.DELTA_TO_FPS_FACTOR_FACTOR;
@@ -24,14 +100,8 @@ public partial class Player {
             Stamina += MathF.Min(MaxStamina, (MaxStamina - Stamina) * 0.01f * fpsFactor);
         }
 
+        var speed = delta * (IsSprinting && Stamina > 0 ? 2.5f : 1f) * BaseSpeed;
         if (MoveDir != Vector2.Zero) {
-            var d = Vector3.Transform(new(MoveDir.X, 0, MoveDir.Y), Camera.Rotation);
-            if (!Noclip) {
-                d.Y = 0;
-                d = Vector3.Normalize(d) * MoveDir.Length();
-            }
-            Camera.Position += d * delta * (IsSprinting && Stamina > 0 ? 2.5f : 1f) * BaseSpeed;
-
             if (IsSprinting) {
                 // TODO: Consider StaminaEffect.
                 Stamina -= fpsFactor * 0.4f;
@@ -44,7 +114,46 @@ public partial class Player {
         } else {
             Stamina += fpsFactor * 0.15f * 1.25f;
         }
-
         Stamina = Math.Min(Stamina, MaxStamina);
+
+        if (Noclip) {
+            var dir = Vector3.Transform(new(MoveDir.X, 0, MoveDir.Y), Camera.Rotation);
+            Camera.Position += dir * speed * 5;
+        } else {
+            if (MoveDir == Vector2.Zero) {
+                // TODO: Proper falling physics.
+                if (!IsFalling) {
+                    _collider.Velocity = Vector3.Zero;
+                }
+            } else {
+                var forward = Vector3.Transform(Vector3.UnitZ, Camera.Rotation);
+                forward.Y = 0;
+                var right = Vector3.Cross(forward, Vector3.UnitY);
+                var dir = Vector3.Normalize(forward) * MoveDir.Y + Vector3.Normalize(right) * -MoveDir.X;
+                _collider.Velocity = dir * speed * Game.TICK_RATE;
+            }
+
+            var castLength = HEIGHT_OFF_GROUND + STEP_DOWN_HEIGHT;
+            var onGround = _physics.RayCast<ClosestRayHitHandler>(_collider.Pose.Position, -Vector3.UnitY,
+                castLength, x => x != _collider)?.Pos;
+
+            _scene.AddEntity(new DebugLine(_scene, TimeSpan.FromSeconds(5),
+                    _collider.Pose.Position - Vector3.UnitY * (0.5f * COLLIDER_TOTAL_HEIGHT),
+                    _collider.Pose.Position - Vector3.UnitY * castLength) {
+                Color = onGround != null ? new(0, 1, 0) : new(1, 0, 0),
+            });
+
+            // TODO: We probably want to take into account the normal here (don't go up sleep too steep).
+            if (onGround != null && (!IsFalling || Vector3.DistanceSquared(_collider.Pose.Position, onGround.Value) <= HEIGHT_OFF_GROUND * HEIGHT_OFF_GROUND)) {
+                _collider.Pose = _collider.Pose with { Position = onGround.Value + Vector3.UnitY * HEIGHT_OFF_GROUND };
+                IsFalling = false;
+            } else {
+                IsFalling = true;
+                // TODO: We need to properly unsubscribe the collider from regular pose integration, even though we're handling
+                // the velocity completely manually, the integration still has a slight effect.
+                _collider.Velocity = _collider.Velocity with { Linear = _collider.Velocity.Linear - Vector3.UnitY * delta };
+            }
+            Camera.Position = _collider.Pose.Position + Vector3.UnitY * CAMERA_OFFSET;
+        }
     }
 }

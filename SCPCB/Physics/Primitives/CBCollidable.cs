@@ -4,7 +4,7 @@ using SCPCB.Utility;
 
 namespace SCPCB.Physics.Primitives;
 
-public abstract class CBCollidable : Disposable {
+public abstract class CBCollidable : Disposable, IEquatable<CollidableReference> {
     protected readonly PhysicsResources _physics;
 
     private static readonly MethodInfo _setProperty = typeof(PhysicsResources).GetMethod(nameof(PhysicsResources.SetProperty))!;
@@ -40,4 +40,11 @@ public abstract class CBCollidable : Disposable {
     }
 
     protected abstract CollidableReference GetCollidableReference();
+
+    public static bool operator ==(CBCollidable a, CollidableReference b) => a.Equals(b);
+    public static bool operator !=(CBCollidable a, CollidableReference b) => !(a == b);
+    public static bool operator ==(CollidableReference a, CBCollidable b) => b == a;
+    public static bool operator !=(CollidableReference a, CBCollidable b) => b != a;
+
+    public abstract bool Equals(CollidableReference other);
 }

@@ -63,4 +63,7 @@ public class CBBody : CBCollidable {
     }
 
     protected override CollidableReference GetCollidableReference() => new(CollidableMobility.Dynamic, _reference.Handle);
+
+    public override bool Equals(CollidableReference other)
+        => other.Mobility != CollidableMobility.Static && other.BodyHandle == _reference.Handle;
 }

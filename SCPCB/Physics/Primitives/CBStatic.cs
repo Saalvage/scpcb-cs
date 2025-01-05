@@ -24,4 +24,7 @@ public class CBStatic : CBCollidable {
     }
 
     protected override CollidableReference GetCollidableReference() => new(_handle);
+
+    public override bool Equals(CollidableReference other)
+        => other.Mobility == CollidableMobility.Static && other.StaticHandle == _handle;
 }

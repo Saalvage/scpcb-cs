@@ -44,6 +44,8 @@ public class PhysicsResources : Disposable, ITickable {
             prop = new(Simulation);
             _collidableProperties.Add(typeof(T), prop);
         }
+        // Allocate is unfortunate naming, it just makes sure we're not having a buffer overrun
+        // because not every collidable will have a visibility property.
         prop.Allocate(handle) = val;
     }
 

@@ -263,6 +263,9 @@ public class MainScene : Scene3D {
                 var cast = Physics.RayCastVisible(from, to);
                 line.Color = cast is not null ? new(1, 0, 0) : new(0, 1, 0);
                 AddEntity(line);
+                if (cast.HasValue) {
+                    AddEntity(new DebugLine(Graphics, cast.Value.Pos, cast.Value.Pos + cast.Value.Normal * 0.5f));
+                }
                 break;
             }
             case Key.F2: {
@@ -300,6 +303,9 @@ public class MainScene : Scene3D {
                 } else {
                     SetOpenMenu(_hud.Inventory);
                 }
+                break;
+            case Key.N:
+                _player.Noclip = !_player.Noclip;
                 break;
             case Key.M:
                 var pos = _player.Camera.Position;
