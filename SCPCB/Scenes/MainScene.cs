@@ -22,6 +22,7 @@ using SCPCB.Physics.Primitives;
 using SCPCB.PlayerController;
 using SCPCB.Serialization;
 using SCPCB.Utility;
+using ShaderGen;
 using Veldrid;
 using Veldrid.Sdl2;
 using Helpers = SCPCB.Utility.Helpers;
@@ -91,12 +92,6 @@ public class MainScene : Scene3D {
         var ui = new UIManager(Graphics, _input);
         AddEntity(ui);
 
-        var uiElem = new TextureElement(Graphics, Graphics.TextureCache.GetTexture(Color.MidnightBlue));
-        uiElem.Alignment = Alignment.TopRight;
-        uiElem.Position = new(-10, 0);
-        uiElem.PixelSize = new(500, 50);
-        ui.Root.AddChild(uiElem);
-
         var uiElem2 = new TextureElement(Graphics, _renderTexture);
         uiElem2.Alignment = Alignment.BottomRight;
         //uiElem2.PixelSize *= 0.1f;
@@ -133,9 +128,6 @@ public class MainScene : Scene3D {
 
         _hud = new(_player, ui);
         AddEntity(_hud);
-
-        // TODO: Remove, necessary for now because item creation looks for the physics object in the scene.
-        DealWithEntityBuffers();
 
         var reg = new ItemRegistry(Graphics, this);
         reg.RegisterItemsFromFile("Assets/Items/items.txt");
@@ -220,9 +212,10 @@ public class MainScene : Scene3D {
                     FPS: {_game.Fps}
                     
                     Position: {FormatVec(_player.Camera.Position)}
-                    Rotation: {ToDeg(_player.Yaw):F3}° ({RadToDir(_player.Yaw)}) / {ToDeg(_player.Pitch):F3}°
-                    {""/* I don't think there's any value in directional velocities */}
-                    Velocity: {_player.Velocity.Length():F3}
+                    Rotation: ({ToDeg(_player.Yaw):F3}° ({RadToDir(_player.Yaw)}), {ToDeg(_player.Pitch):F3}°)
+                    Velocity: {(_player.Noclip
+                        ? $"{_player.Velocity.Length():F3}"
+                        : $"({_player.Velocity.XZ().Length():F3}, {_player.Velocity.Y:F3})")}
                     
                     Stamina: {_player.Stamina:F3}
                     BlinkTimer: {_player.BlinkTimer:F3}

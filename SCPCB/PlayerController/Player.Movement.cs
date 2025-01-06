@@ -140,7 +140,7 @@ public partial class Player {
 
             var castLength = HEIGHT_OFF_GROUND + STEP_DOWN_HEIGHT;
             var onGround = _physics.RayCast<ClosestRayHitHandler>(_collider.Pose.Position, -Vector3.UnitY,
-                castLength, x => x != _collider)?.Pos;
+                castLength, x => x.Mobility == CollidableMobility.Static)?.Pos;
 
             _scene.AddEntity(new DebugLine(_scene, TimeSpan.FromSeconds(5),
                     _collider.Pose.Position - Vector3.UnitY * (0.5f * COLLIDER_TOTAL_HEIGHT),
@@ -150,7 +150,19 @@ public partial class Player {
 
             // TODO: We probably want to take into account the normal here (don't go up sleep too steep).
             if (onGround != null && (!IsFalling || Vector3.DistanceSquared(_collider.Pose.Position, onGround.Value) <= HEIGHT_OFF_GROUND * HEIGHT_OFF_GROUND)) {
-                _collider.Pose = _collider.Pose with { Position = onGround.Value + Vector3.UnitY * HEIGHT_OFF_GROUND };
+                var targetPos = onGround.Value + Vector3.UnitY * HEIGHT_OFF_GROUND;
+                // We differentiate because we want to prevent two things:
+                if (IsFalling) {
+                    // 1. When the floating is handled via the velocity then there is always at least one frame
+                    // where the collider falls "below" the designated height, causing a visual jitter.
+                    _collider.Pose = _collider.Pose with { Position = targetPos };
+                    _collider.Velocity = _collider.Velocity with { Linear = _collider.Velocity.Linear with { Y = 0 } };
+                } else {
+                    // 2. We generally handle floating via the velocity, because this
+                    // prevents the player from being clipped into the ceiling when stepping.
+                    _collider.Velocity = _collider.Velocity with { Linear = _collider.Velocity.Linear + Game.TICK_RATE * (targetPos - _collider.Pose.Position) };
+                }
+
                 IsFalling = false;
             } else {
                 IsFalling = true;
