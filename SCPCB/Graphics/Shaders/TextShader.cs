@@ -31,4 +31,6 @@ public partial class TextShader : IAutoShader<TextShader.VertexConstants, Empty,
     public Vector4 FS(FPositionTexture input) {
         return new(1, 1, 1, Sample(SurfaceTexture, Sampler, input.TextureCoord).X);
     }
+
+    public static ShaderParameters DefaultParameters => UIShader.DefaultParameters;
 }

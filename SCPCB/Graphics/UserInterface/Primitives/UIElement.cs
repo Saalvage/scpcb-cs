@@ -54,6 +54,8 @@ public class UIElement : IUIElement {
     public Alignment Alignment { get; set; }
     public bool IsVisible { get; set; } = true;
 
+    public bool ConstrainContentsToSize { get; set; }
+
     public UIElement() {
         Children = new ReadOnlyDuoList<IUIElement>(_publicChildren, _internalChildren);
     }
@@ -66,9 +68,9 @@ public class UIElement : IUIElement {
     private Vector2 CalculateAbsolutePosition(IUIElement parent, Vector2 parentPos) {
         var direction = new Vector2(
             x: Alignment.Horizontality switch {
-                Alignment.Horizontal.Left => 1,
+                Alignment.Horizontal.Left => -1,
                 Alignment.Horizontal.Center => 0,
-                Alignment.Horizontal.Right => -1,
+                Alignment.Horizontal.Right => 1,
             },
             y: Alignment.Verticality switch {
                 Alignment.Vertical.Bottom => 1,
@@ -77,11 +79,11 @@ public class UIElement : IUIElement {
             }
         );
 
-        var distanceToEdge = -parent.PixelSize / 2 + PixelSize / 2;
+        var distanceToEdge = parent.PixelSize / 2 - PixelSize / 2;
         parentPos += direction * distanceToEdge;
 
         parentPos.X += Position.X;
-        parentPos.Y -= Position.Y; // Positive Y = down.
+        parentPos.Y += Position.Y;
 
         return parentPos;
     }
@@ -106,9 +108,18 @@ public class UIElement : IUIElement {
         }
 
         var absPos = CalculateAbsolutePosition(parent, drawPos);
+        // Defending against modification of this within the draw method of this or its children.
+        var constraining = ConstrainContentsToSize;
+        if (constraining) {
+            var topLeft = absPos - PixelSize / 2;
+            target.PushScissor((uint)MathF.Max(0, topLeft.X), (uint)MathF.Max(0, topLeft.Y), (uint)PixelSize.X, (uint)PixelSize.Y);
+        }
         DrawInternal(target, absPos, drawZ);
         foreach (var child in Children) {
             child.Draw(target, this, absPos, drawZ + Z);
+        }
+        if (constraining) {
+            target.PopScissor();
         }
     }
 

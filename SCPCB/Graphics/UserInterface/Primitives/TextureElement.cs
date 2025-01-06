@@ -48,9 +48,9 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
 
     public static ICBMesh<UIShader.Vertex> CreateSharedMesh(GraphicsResources gfxRes)
         => new CBMesh<UIShader.Vertex>(gfxRes.GraphicsDevice, [
-            new(new(-0.5f, 0.5f)),
-            new(new(0.5f, 0.5f)),
             new(new(-0.5f, -0.5f)),
             new(new(0.5f, -0.5f)),
+            new(new(-0.5f, 0.5f)),
+            new(new(0.5f, 0.5f)),
         ], [2, 1, 0, 1, 2, 3]);
 }

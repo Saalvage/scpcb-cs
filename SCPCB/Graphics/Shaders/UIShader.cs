@@ -45,4 +45,8 @@ public partial class UIShader : IAutoShader<UIShader.VertexConstants, UIShader.F
         var color = Sample(SurfaceTexture, Sampler, input.TextureCoord);
         return color * FragmentBlock.Color;
     }
+
+    public static ShaderParameters DefaultParameters { get; } = ShaderParameters.Default with {
+        RasterizerState = ShaderParameters.Default.RasterizerState with { ScissorTestEnabled = true, DepthClipEnabled = false },
+    };
 }

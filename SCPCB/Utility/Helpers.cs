@@ -188,4 +188,11 @@ public static class Helpers {
             _ => Color.FromArgb(255, v, p, q),
         };
     }
+
+    public static Matrix4x4 CreateUIProjectionMatrix(int width, int height, int zNear = -100, int zFar = 100) => new Matrix4x4(
+        1, 0, 0, 0,
+        0, -1, 0, 0,
+        0, 0, 1, 0,
+        -width / 2f, height / 2f, 0, 1
+    ) * Matrix4x4.CreateOrthographic(width, height, zNear, zFar);
 }

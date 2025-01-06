@@ -106,16 +106,30 @@ public class MainScene : Scene3D {
             Alignment = Alignment.BottomRight,
         });
 
-        ui.Root.AddChild(new InputBox(Graphics, ui, _input, _font));
+        IUIElement curr = ui.Root;
+        foreach (var i in Enumerable.Range(0, 10)) {
+            var child = new TextureElement(Graphics, Graphics.TextureCache.GetTexture(Helpers.ColorFromHSV(i * 36, 1, 1))) {
+                PixelSize = new((10 - i) * 10),
+                Alignment = (i % 4) switch {
+                    0 => Alignment.TopRight,
+                    1 => Alignment.BottomRight,
+                    2 => Alignment.BottomLeft,
+                    3 => Alignment.TopLeft,
+                },
+            };
+            curr.AddChild(child);
+            curr = child;
+        }
+
+        ui.Root.AddChild(new InputBox(Graphics, ui, _input, _font) { ConstrainContentsToSize = true });
 
         _str = new(Graphics, _font) {
             Text = "T\nBla bla y_\n^",
-            Alignment = Alignment.TopLeft,
             Position = new(5),
             Scale = new(0.8f),
             Z = 1,
         };
-        ui.Root.Children[3].AddChild(_str);
+        ui.Root.AddChild(_str);
 
         _hud = new(_player, ui);
         AddEntity(_hud);
@@ -133,8 +147,8 @@ public class MainScene : Scene3D {
             Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f));
 
         Graphics.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
-            Matrix4x4.CreateOrthographic(Graphics.Window.Width, Graphics.Window.Height, -100, 100));
-        
+            Helpers.CreateUIProjectionMatrix(Graphics.Window.Width, Graphics.Window.Height));
+
         Sdl2Native.SDL_SetRelativeMouseMode(true);
 
         var modelShader = Graphics.ShaderCache.GetShader<ModelShader, VPositionTexture>();
@@ -166,7 +180,7 @@ public class MainScene : Scene3D {
                 var info = map[x, y];
                 if (info != null) {
                     var room = _rooms[info.Room.Mesh].Instantiate(new(x * 20.5f, 0, y * 20.5f),
-                        Quaternion.CreateFromYawPitchRoll(info.Direction.ToRadians() + MathF.PI, 0, 0));
+                        Quaternion.CreateFromYawPitchRoll(-info.Direction.ToRadians() + MathF.PI, 0, 0));
                     AddEntity(room);
                 }
             }

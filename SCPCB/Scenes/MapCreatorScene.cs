@@ -5,6 +5,7 @@ using SCPCB.Graphics.UserInterface;
 using SCPCB.Graphics.UserInterface.Composites;
 using SCPCB.Graphics.UserInterface.Utility;
 using SCPCB.Map;
+using SCPCB.Utility;
 
 namespace SCPCB.Scenes;
 
@@ -79,7 +80,7 @@ public class MapCreatorScene : BaseScene {
             Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)Graphics.Window.Width / Graphics.Window.Height, 0.1f, 100f));
 
         Graphics.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
-            Matrix4x4.CreateOrthographic(Graphics.Window.Width, Graphics.Window.Height, -100, 100));
+            Helpers.CreateUIProjectionMatrix(Graphics.Window.Width, Graphics.Window.Height));
 
         foreach (var i in Enumerable.Range(0, 5)) {
             foreach (var j in Enumerable.Range(0, 10)) {

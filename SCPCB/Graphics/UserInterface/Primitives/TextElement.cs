@@ -64,22 +64,25 @@ public class TextElement : UIElement {
                     prevLineEnding = Text[i];
                     width = MathF.Max(width, offset.X);
                     offset.X = 0;
-                    offset.Y -= _font.VerticalAdvance;
+                    offset.Y += _font.VerticalAdvance;
                 }
                 continue;
             } else {
                 prevLineEnding = null;
             }
 
-            var baseOffset = glyphInfo.Offset + offset - new Vector2(0f, glyphInfo.Dimensions.Y);
+            var baseOffset = new Vector2(glyphInfo.Offset.X, -glyphInfo.Offset.Y) + offset;
             baseOffset *= Scale;
             var scaledGlyphDimensions = Scale * glyphInfo.Dimensions;
             var chunk = dataChunks[glyphInfo.Atlas];
             var spanIndex = chunk.CurrentIndex++;
-            vertices[spanIndex * 4 + 0] = new(baseOffset, (glyphInfo.UvPosition + new Vector2(0, glyphInfo.Dimensions.Y)) / Font.ATLAS_SIZE);
-            vertices[spanIndex * 4 + 1] = new(baseOffset + new Vector2(scaledGlyphDimensions.X, 0), (glyphInfo.UvPosition + glyphInfo.Dimensions) / Font.ATLAS_SIZE);
-            vertices[spanIndex * 4 + 2] = new(baseOffset + new Vector2(0, scaledGlyphDimensions.Y), glyphInfo.UvPosition / Font.ATLAS_SIZE);
-            vertices[spanIndex * 4 + 3] = new(baseOffset + scaledGlyphDimensions, (glyphInfo.UvPosition + new Vector2(glyphInfo.Dimensions.X, 0)) / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 0] = new(baseOffset, glyphInfo.UvPosition / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 1] = new(baseOffset + new Vector2(0, scaledGlyphDimensions.Y),
+                (glyphInfo.UvPosition + new Vector2(0, glyphInfo.Dimensions.Y)) / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 2] = new(baseOffset + new Vector2(scaledGlyphDimensions.X, 0),
+                (glyphInfo.UvPosition + new Vector2(glyphInfo.Dimensions.X, 0)) / Font.ATLAS_SIZE);
+            vertices[spanIndex * 4 + 3] = new(baseOffset + scaledGlyphDimensions,
+                (glyphInfo.UvPosition + glyphInfo.Dimensions) / Font.ATLAS_SIZE);
 
             var localIndex = spanIndex - chunk.Begin;
             indices[spanIndex * 6 + 0] = (uint)localIndex * 4 + 0;
@@ -101,7 +104,7 @@ public class TextElement : UIElement {
                 indices[(6 * x.Begin)..(6 * x.End)]));
         }
 
-        _dimensionsInternal = new(width, -offset.Y + _font.Height);
+        _dimensionsInternal = new(width, offset.Y + _font.Height);
 
         _dirtyMesh = false;
     }
@@ -142,9 +145,8 @@ public class TextElement : UIElement {
         var constants = _shader.Constants!;
 
         var halfDimension = _dimensions * 0.5f;
-        halfDimension.Y *= -1;
 
-        constants.SetValue<IPositionConstantMember, Vector3>(new(position + Scale * (new Vector2(0f, -_font.Height) - halfDimension), z + Z));
+        constants.SetValue<IPositionConstantMember, Vector3>(new(position + Scale * (new Vector2(0f, _font.Height) - halfDimension), z + Z));
         foreach (var (tex, mesh) in _meshes) {
             var mat = _gfxRes.MaterialCache.GetMaterial<TextShader, TextShader.Vertex>([tex], [_gfxRes.ClampAnisoSampler]);
             target.Render<TextShader.Vertex>(new(mesh, mat));
