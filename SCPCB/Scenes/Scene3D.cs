@@ -18,7 +18,7 @@ public class Scene3D : BaseScene {
     }
 
     public override void Render(IRenderTarget target, float interp) {
-        Graphics.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(Camera.ViewMatrix);
+        Graphics.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(Camera.GetViewMatrix(interp));
         Graphics.ShaderCache.SetGlobal<IViewPositionConstantMember, Vector3>(Camera.Position);
 
         base.Render(target, interp);

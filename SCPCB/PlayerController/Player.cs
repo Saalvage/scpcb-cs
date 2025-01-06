@@ -13,7 +13,7 @@ public partial class Player : IUpdatable, ITickable {
     public float Yaw { get; private set; }
     public float Pitch { get; private set; }
 
-    public ICamera Camera { get; } = new PerspectiveCamera();
+    public PerspectiveCamera Camera { get; } = new();
 
     public float BlinkTimer { get; private set; } = 20f;
 

@@ -46,7 +46,7 @@ public class ModelImageGenerator : IConstantProvider<IWorldMatrixConstantMember,
             }
         }
 
-        _gfxRes.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(_cam.ViewMatrix);
+        _gfxRes.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(_cam.GetViewMatrix(1));
         _gfxRes.ShaderCache.SetGlobal<IViewPositionConstantMember, Vector3>(_cam.Position);
 
         _texture.Start();

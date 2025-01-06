@@ -95,6 +95,7 @@ public partial class Player {
     }
 
     private void UpdateMovement(float delta) {
+        Camera.UpdatePosition();
         var fpsFactor = delta * Helpers.DELTA_TO_FPS_FACTOR_FACTOR;
 
         Debug.Assert(MoveDir.LengthSquared() <= 1f);
