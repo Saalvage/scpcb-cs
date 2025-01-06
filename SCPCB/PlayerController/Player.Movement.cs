@@ -33,11 +33,14 @@ public partial class Player {
 
     public bool IsFalling { get; private set; }
     public bool IsSprinting { get; set; } = false;
-    public bool HasInfiniteStamina { get; set; } = true;
     public float BaseSpeed { get; } = 2;
 
     public Vector2 MoveDir { get; set; } = Vector2.Zero;
 
+    private Vector3 _noclipVelocity;
+    public Vector3 Velocity => Noclip ? _noclipVelocity : _collider.Velocity.Linear;
+
+    public bool HasInfiniteStamina { get; set; } = true;
     public float Stamina { get; private set; } = 20f;
     public float MaxStamina { get; } = 100f;
 
@@ -118,7 +121,9 @@ public partial class Player {
 
         if (Noclip) {
             var dir = Vector3.Transform(new(MoveDir.X, 0, MoveDir.Y), Camera.Rotation);
-            Camera.Position += dir * speed * 5;
+            var vel = dir * speed * 5;
+            _noclipVelocity = vel * Game.TICK_RATE;
+            Camera.Position += vel;
         } else {
             if (MoveDir == Vector2.Zero) {
                 // TODO: Proper falling physics.

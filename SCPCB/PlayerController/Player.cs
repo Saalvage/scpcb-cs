@@ -10,8 +10,8 @@ public partial class Player : IUpdatable, ITickable {
     private readonly IScene _scene;
     private readonly PhysicsResources _physics;
 
-    private float _yaw;
-    private float _pitch;
+    public float Yaw { get; private set; }
+    public float Pitch { get; private set; }
 
     public ICamera Camera { get; } = new PerspectiveCamera();
 
@@ -24,9 +24,9 @@ public partial class Player : IUpdatable, ITickable {
     }  
 
     public void HandleMouse(Vector2 delta) {
-        _yaw -= delta.X;
-        _pitch += delta.Y;
-        Camera.Rotation = Quaternion.CreateFromYawPitchRoll(_yaw, _pitch, 0f);
+        Yaw = (Yaw - delta.X) % (2 * MathF.PI);
+        Pitch = (Pitch + delta.Y) % (2 * MathF.PI);
+        Camera.Rotation = Quaternion.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
     }
 
     public void Tick() {

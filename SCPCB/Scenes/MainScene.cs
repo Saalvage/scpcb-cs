@@ -102,17 +102,20 @@ public class MainScene : Scene3D {
         //uiElem2.PixelSize *= 0.1f;
         ui.Root.AddChild(uiElem2);
 
-        _str = new(Graphics, _font);
-        _str.Text = "T\nBla bla y_\n^";
-        _str.Alignment = Alignment.TopLeft;
-        _str.Scale *= 0.8f;
-        ui.Root.Children[0].AddChild(_str);
-
         ui.Root.AddChild(new Button(Graphics, ui, "Hello", 0, 0, 0) {
             Alignment = Alignment.BottomRight,
         });
 
         ui.Root.AddChild(new InputBox(Graphics, ui, _input, _font));
+
+        _str = new(Graphics, _font) {
+            Text = "T\nBla bla y_\n^",
+            Alignment = Alignment.TopLeft,
+            Position = new(5),
+            Scale = new(0.8f),
+            Z = 1,
+        };
+        ui.Root.Children[3].AddChild(_str);
 
         _hud = new(_player, ui);
         AddEntity(_hud);
@@ -199,7 +202,26 @@ public class MainScene : Scene3D {
             AttachDebugBorders();
         }
 
-        _str.Text = _game.Fps.ToString();
+        _str.Text = $"""
+                    FPS: {_game.Fps}
+                    
+                    Position: {FormatVec(_player.Camera.Position)}
+                    Rotation: {ToDeg(_player.Yaw):F3}° ({RadToDir(_player.Yaw)}) / {ToDeg(_player.Pitch):F3}°
+                    {""/* I don't think there's any value in directional velocities */}
+                    Velocity: {_player.Velocity.Length():F3}
+                    
+                    Stamina: {_player.Stamina:F3}
+                    BlinkTimer: {_player.BlinkTimer:F3}
+                    """;
+
+        float ToDeg(float rad) => (rad / (2 * MathF.PI) * 360 + 360) % 360;
+        string RadToDir(float rad) => ToDeg(rad + 0.25f * MathF.PI) switch {
+            < 90 => "South",
+            < 180 => "West",
+            < 270 => "North",
+            _ => "East",
+        };
+        string FormatVec(Vector3 vec) => $"({vec.X:F3}, {vec.Y:F3}, {vec.Z:F3})";
 
         base.Update(delta);
     }
