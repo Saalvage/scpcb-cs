@@ -16,21 +16,33 @@ public static class Helpers {
 
     public readonly record struct TypeInfo(VertexElementFormat Format, string Name);
 
-    private static TypeInfo TypeToFormat(Type type) {
+    private static VertexElementFormat TypeToFormat(Type type) {
         if (type == typeof(float)) {
-            return new(VertexElementFormat.Float1, "float");
+            return VertexElementFormat.Float1;
         } else if (type == typeof(Vector2)) {
-            return new(VertexElementFormat.Float2, "vec2");
+            return VertexElementFormat.Float2;
         } else if (type == typeof(Vector3)) {
-            return new(VertexElementFormat.Float3, "vec3");
+            return VertexElementFormat.Float3;
         } else if (type == typeof(Vector4)) {
-            return new(VertexElementFormat.Float4, "vec4");
-        } else if (type == typeof(int)) {
-            return new(VertexElementFormat.Int1, "int");
-        } else if (type == typeof(uint)) {
-            return new(VertexElementFormat.UInt1, "uint");
+            return VertexElementFormat.Float4;
         } else if (type == typeof(RgbaFloat)) {
-            return new(VertexElementFormat.Float4, "vec4");
+            return VertexElementFormat.Float4;
+        } else if (type == typeof(int)) {
+            return VertexElementFormat.Int1;
+        } else if (type == typeof(Int2)) {
+            return VertexElementFormat.Int2;
+        } else if (type == typeof(Int2)) {
+            return VertexElementFormat.Int3;
+        } else if (type == typeof(Int3)) {
+            return VertexElementFormat.Int4;
+        } else if (type == typeof(uint)) {
+            return VertexElementFormat.UInt1;
+        } else if (type == typeof(UInt2)) {
+            return VertexElementFormat.UInt2;
+        } else if (type == typeof(UInt3)) {
+            return VertexElementFormat.UInt3;
+        } else if (type == typeof(UInt4)) {
+            return VertexElementFormat.UInt4;
         }
 
         throw new NotImplementedException();
@@ -53,7 +65,7 @@ public static class Helpers {
             throw new InvalidOperationException("Size of struct does not equal sum of properties");
         }
         return new(properties
-            .Select(x => new VertexElementDescription(x.Member.Name, TypeToFormat(x.Type).Format, MemberToSemantic(x.Member)))
+            .Select(x => new VertexElementDescription(x.Member.Name, TypeToFormat(x.Type), MemberToSemantic(x.Member)))
             // If this continues causing issues, look into implementing the offset
             .ToArray());
     }
