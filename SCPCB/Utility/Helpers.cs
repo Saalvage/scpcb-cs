@@ -31,9 +31,9 @@ public static class Helpers {
             return VertexElementFormat.Int1;
         } else if (type == typeof(Int2)) {
             return VertexElementFormat.Int2;
-        } else if (type == typeof(Int2)) {
-            return VertexElementFormat.Int3;
         } else if (type == typeof(Int3)) {
+            return VertexElementFormat.Int3;
+        } else if (type == typeof(Int4)) {
             return VertexElementFormat.Int4;
         } else if (type == typeof(uint)) {
             return VertexElementFormat.UInt1;
