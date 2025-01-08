@@ -35,7 +35,7 @@ public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, T
         GetMembersOfType<SamplerResource>().ToArray(),
         shaderParameterOverrides,
         spirVRequired) {
-        Log.Information("Loading shader {type}", typeof(TShader));
+        Log.Information("Loading shader {Type}", typeof(TShader));
     }
 
     protected override ShaderParameters GetDefaultParameters() => TShader.DefaultParameters;
@@ -45,7 +45,7 @@ public class GeneratedShader<TShader, TVertex, TVertConstants, TFragConstants, T
             .Single(x => x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == paramType);
 
     private static string? GetBlockName<TMember>()
-        => typeof(TMember) == typeof(Empty) ? null : GetMembersOfType<TMember>().SingleOrDefault();
+        => typeof(TMember) == typeof(Empty) ? null : GetMembersOfType<TMember>().Single();
 
     private static IEnumerable<string> GetMembersOfType<TMember>()
         => typeof(TShader)

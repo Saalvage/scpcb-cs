@@ -13,7 +13,7 @@ public class ModelCache(GraphicsResources gfxRes, PhysicsResources physics, IMod
         public Vector3 MiddleOffset { get; }
 
         public CacheEntry(IModelLoader converter, GraphicsResources gfxRes, PhysicsResources physics, string file) {
-            Log.Information("Loading model {file} via {converter}", file, converter);
+            Log.Information("Loading model {File} via {Converter}", file, converter);
             (Models, Collision, MiddleOffset) = converter.LoadMeshes(gfxRes.GraphicsDevice, physics, file);
         }
 
