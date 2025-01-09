@@ -1,9 +1,14 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Numerics;
+using System.Security.Cryptography;
+using Assimp;
 using BepuPhysics.Collidables;
 using SCPCB.Entities;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
+using SCPCB.Graphics.Animation;
+using SCPCB.Graphics.Assimp;
 using SCPCB.Graphics.Caches;
 using SCPCB.Graphics.ModelCollections;
 using SCPCB.Graphics.Primitives;
@@ -25,7 +30,11 @@ using SCPCB.Utility;
 using ShaderGen;
 using Veldrid;
 using Veldrid.Sdl2;
+using static SCPCB.Graphics.Caches.ModelCache;
+using Bone = Assimp.Bone;
 using Helpers = SCPCB.Utility.Helpers;
+using Mesh = BepuPhysics.Collidables.Mesh;
+using ModelCollection = SCPCB.Graphics.ModelCollections.ModelCollection;
 
 namespace SCPCB.Scenes;
 
@@ -61,6 +70,9 @@ public class MainScene : Scene3D {
     private readonly Dictionary<string, IRoomData> _rooms;
 
     private Vector3? _measuringTape;
+
+    private CBAnimation _animationn;
+    private ModelCollection[] _models;
 
     public MainScene(Game game, PlacedRoomInfo?[,]? map = null) : base(game.GraphicsResources) {
         _game = game;
@@ -131,7 +143,7 @@ public class MainScene : Scene3D {
 
         var reg = new ItemRegistry(Graphics, this);
         reg.RegisterItemsFromFile("Assets/Items/items.txt");
-        var itemmm = reg.CreateItem(new(_player.Camera.Position, Quaternion.Identity), "doc173");
+        var itemmm = reg.CreateItem(new(_player.Camera.Position, Quaternion.Identity, new(0.1f)), "doc173");
         AddEntity(itemmm);
         _player.PickItem(itemmm);
 
@@ -179,15 +191,35 @@ public class MainScene : Scene3D {
         }
 
         _cacheEntry = Physics.ModelCache.GetModel("Assets/173_2.b3d");
-        _scp173 = _cacheEntry.Models.Instantiate().OfType<ICBModel<VPositionTexture>>().First();
-        _hull = _cacheEntry.Collision;
+        _scp173 = _cacheEntry.Models.Instantiate().OfType<ICBModel<VPositionTexture>>().Single();
+        _hull = _cacheEntry.Collision.CreateScaledCopy(new(0.1f));
+
+        var (template, animations) = new AssimpAnimatedModelLoader<AnimatedModelShader, AnimatedModelShader.Vertex, GraphicsResources>(Graphics)
+            .LoadAnimatedMeshes(Graphics, "Assets/mental.b3d");
+        _animationn = animations.Single().Value;
+
+        _models = Enumerable.Range(0, 100).Select(i => new ModelCollection([template.Instantiate().Single()]) { WorldTransform = new(Vector3.UnitY + Vector3.UnitX * i, Quaternion.Identity, new(0.3f)) }).ToArray();
+        AddEntities(_models);
+
+        //
+        //var body = _hull.CreateDynamic(new(_player.Camera.Position + _off, _player.Camera.Rotation), 1);
+        //body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
+
+        //model.Constants.SetArrayValue<IBoneTransformsConstantMember, Matrix4x4>(Matrix4x4.CreateRotationX(2), 0);
+        //
 
         window.KeyDown += HandleKeyDown;
         window.MouseDown += HandleMouseEvent;
         window.MouseUp += HandleMouseEvent;
     }
 
+    private float _acc;
+
     public override void Update(float delta) {
+        foreach (var (a, i) in _models.Select((x, i) => (x, i))) {
+            _animationn.UpdateBones(a.Models[0].Model.Constants!, 0, _acc + i);
+        }
+        _acc += delta * 5f;
         if (!_paused) {
             if (Graphics.Window.MouseDelta != Vector2.Zero) {
                 _player.HandleMouse(Graphics.Window.MouseDelta * 0.01f);
@@ -275,7 +307,7 @@ public class MainScene : Scene3D {
                         1 => _otherMat,
                         2 => _logoMat,
                     }, _scp173.Mesh),
-                ]));
+                ]) { WorldTransform = new(body.Pose.Position, body.Pose.Orientation, new(0.1f)) });
                 break;
             }
             case Key.Escape:

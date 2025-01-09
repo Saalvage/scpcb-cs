@@ -31,6 +31,7 @@ public interface ICBModel<TVertConstants, TFragConstants> : ICBModel
     IConstantHolder? ICBModel.Constants => Constants;
 }
 
+// TODO: We should assert that the constants have the correct layout.
 public record CBModel<TVertex>(IConstantHolder? Constants, ICBMaterial<TVertex> Material, ICBMesh<TVertex> Mesh)
         : ICBModel<TVertex> where TVertex : unmanaged {
     public List<IConstantProvider> ConstantProviders { get; } = [];

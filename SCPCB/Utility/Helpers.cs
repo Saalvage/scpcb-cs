@@ -14,8 +14,6 @@ public static class Helpers {
     /// <para>Our delta is in total seconds, FPSFactor is in seconds * 70 (for whatever reason).</para>
     public const float DELTA_TO_FPS_FACTOR_FACTOR = 70f;
 
-    public readonly record struct TypeInfo(VertexElementFormat Format, string Name);
-
     private static VertexElementFormat TypeToFormat(Type type) {
         if (type == typeof(float)) {
             return VertexElementFormat.Float1;
@@ -207,4 +205,8 @@ public static class Helpers {
         0, 0, 1, 0,
         -width / 2f, height / 2f, 0, 1
     ) * Matrix4x4.CreateOrthographic(width, height, zNear, zFar);
+
+    public static uint RoundUpToMultiple(uint value, uint multipleOf) {
+        return (value + multipleOf - 1) / multipleOf * multipleOf;
+    }
 }

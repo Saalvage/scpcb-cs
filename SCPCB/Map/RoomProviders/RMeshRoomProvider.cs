@@ -262,8 +262,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                         var yaw = reader.ReadSingle() / 180 * MathF.PI - MathF.PI; // Rotate 180° because x-flip.
                         var roll = reader.ReadSingle() / 180 * MathF.PI;
 
-                        // TODO: Remove the * 10f scaling.
-                        var scale = reader.ReadVector3() * 10f * ROOM_SCALE;
+                        var scale = reader.ReadVector3() * ROOM_SCALE;
 
                         if (file != "") {
                             data = new MapEntityData<Prop>(globals);

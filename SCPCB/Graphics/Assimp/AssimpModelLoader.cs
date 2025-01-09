@@ -44,7 +44,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
         SerilogLogger.Instance.Attach();
     }
 
-    public MeshMaterial<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh, ICBMaterial<TVertex> mat, Vector3 center) {
+    public ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh) {
         if (mesh.TextureCoordinateChannelCount > AiDefines.AI_MAX_NUMBER_OF_TEXTURECOORDS) {
             throw new ArgumentException("Abnormal amount of texture coordinate channels!", nameof(mesh));
         }
@@ -67,7 +67,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
             }
 
             var sv = new AssimpVertex {
-                Position = mesh.Vertices[i] / 10 - center, // TODO: Better way to handle this :(
+                Position = mesh.Vertices[i],
                 TexCoords = textureCoords,
                 VertexColors = vertexColors,
                 Normal = mesh.HasNormals ? mesh.Normals[i] : Vector3.Zero,
@@ -76,26 +76,40 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
             };
             verts[i] = ConvertVertex(sv);
         }
+        PostMutateVertices(mesh, verts);
 
-        return new(new CBMesh<TVertex>(gfx, verts, mesh.GetUnsignedIndices().ToArray()), mat);
+        return new CBMesh<TVertex>(gfx, verts, mesh.GetUnsignedIndices().ToArray());
     }
 
-    public ICBShape<ConvexHull> ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 center) {
+    /// <summary>
+    /// Allows a derived class to mutate the vertices after being loaded and before being turned into a mesh.
+    /// <remarks>
+    /// Intended use case if for e.g. attaching associated bone IDs and weights to vertices which are stored in the bones themselves.
+    /// </remarks>
+    /// </summary>
+    protected virtual void PostMutateVertices(Mesh mesh, TVertex[] vertices) { }
+
+    public virtual ICBShape<ConvexHull> ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 center) {
         ConvexHullHelper.CreateShape(meshes
             .SelectMany(x => x.Vertices)
-            .Select(x => x / 10)
+            .Select(x => x)
             .ToArray(), physics.BufferPool, out center, out var hull);
         return new CBShape<ConvexHull>(physics, hull);
     }
 
-    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision, Vector3 CenterOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+    protected Scene LoadScene(string file) {
         using var assimp = new AssimpContext();
         SerilogLogger.Instance.ModelFile = file;
-        var fileDir = Path.GetDirectoryName(file);
-        var scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
+        return assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
+    }
+
+    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision, Vector3 CenterOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+        var scene = LoadScene(file);
         var hull = ConvertToConvexHull(physics, scene.Meshes, out var center);
+        var fileDir = Path.GetDirectoryName(file);
         var mats = scene.Materials.Select(x => ConvertMaterial(x, fileDir)).ToArray();
-        return (scene.Meshes.Select(x => (IMeshMaterial<TVertex>)ConvertMesh(gfx, x, mats[x.MaterialIndex], center)).ToArray(), hull, center);
+        return (scene.Meshes.Select(x => (IMeshMaterial<TVertex>)new MeshMaterial<TVertex>(ConvertMesh(gfx, x),
+            mats[x.MaterialIndex])).ToArray(), hull, center);
     }
 
     protected abstract TVertex ConvertVertex(AssimpVertex vert);
@@ -108,7 +122,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
 /// <typeparam name="TShader"></typeparam>
 /// <typeparam name="TVertex"></typeparam>
 /// <typeparam name="TPlugin"></typeparam>
-public sealed class AutomaticAssimpModelLoader<TShader, TVertex, TPlugin> : AssimpModelLoader<TVertex>
+public class AutomaticAssimpModelLoader<TShader, TVertex, TPlugin> : AssimpModelLoader<TVertex>
         where TShader : IAssimpMaterialConvertible<TVertex, TPlugin>
         where TVertex : unmanaged, IAssimpVertexConvertible<TVertex> {
     private readonly TPlugin _plugin;

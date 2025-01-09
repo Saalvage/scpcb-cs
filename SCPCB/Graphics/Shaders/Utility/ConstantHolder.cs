@@ -10,6 +10,7 @@ namespace SCPCB.Graphics.Shaders.Utility;
 public interface IConstantHolder : IDisposable {
     bool HasConstant<T>() where T : IConstantMember<T>;
     void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal>;
+    void SetArrayValue<T, TVal>(TVal val, int index) where T : IConstantArrayMember<TVal> where TVal : unmanaged, IEquatable<TVal>;
     void UpdateAndSetBuffers(CommandList commands, uint index);
 }
 
@@ -82,19 +83,11 @@ public partial class ConstantHolder<TVertConstants, TFragConstants> : Disposable
         _set = gfx.ResourceFactory.CreateResourceSet(new(layout, consts.ToArray()));
 
         DeviceBuffer CreateBuffer<T>() where T : unmanaged {
-            var propertySize = typeof(T).GetProperties().Sum(x => Marshal.SizeOf(x.PropertyType));
-            if (propertySize != 0 && propertySize != sizeof(T)) { // TODO: Deal with 0
-                throw new InvalidOperationException("Size of struct does not equal sum of properties");
-            }
-            return gfx.ResourceFactory.CreateBuffer(new(RoundTo32Bytes(propertySize), BufferUsage.UniformBuffer));
-
-            static uint RoundTo32Bytes(int num) {
-                uint run = 32;
-                while (run < num) {
-                    run += 32;
-                }
-                return run;
-            }
+            // TODO: We used to assert that the size is equal to all the sizes of all properties,
+            // I think that was done as a sanity check to prevent unexepected incompatibilities between CPU and GPU.
+            // Might make sense to reimplement, but will have to consider fixed size arrays.
+            return gfx.ResourceFactory.CreateBuffer(new(Helpers.RoundUpToMultiple((uint)sizeof(T), 32),
+                BufferUsage.UniformBuffer));
         }
     }
 
@@ -148,6 +141,21 @@ public partial class ConstantHolder<TVertConstants, TFragConstants> : Disposable
         if (_fragmentBoxed is T tFrag) {
             if (!tFrag.Value.Equals(val)) {
                 tFrag.Value = val;
+                _isDirty = true;
+            }
+        }
+    }
+
+    public void SetArrayValue<T, TVal>(TVal val, int index) where T : IConstantArrayMember<TVal> where TVal : unmanaged, IEquatable<TVal> {
+        if (_vertexBoxed is T tVert) {
+            if (!tVert.Values[index].Equals(val)) {
+                tVert.Values[index] = val;
+                _isDirty = true;
+            }
+        }
+        if (_fragmentBoxed is T tFrag) {
+            if (!tFrag.Values[index].Equals(val)) {
+                tFrag.Values[index] = val;
                 _isDirty = true;
             }
         }
