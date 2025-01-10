@@ -8,18 +8,18 @@ public interface ICBMesh : IDisposable {
     void ApplyGeometry(CommandList commands);
     void Draw(CommandList commands);
 
-    ICBModel CreateModel(ICBMaterial mat, IConstantHolder? constants);
+    IMeshInstance CreateModel(ICBMaterial mat, IConstantHolder? constants);
 }
 
 public interface ICBMesh<TVertex> : ICBMesh where TVertex : unmanaged {
-    ICBModel ICBMesh.CreateModel(ICBMaterial mat, IConstantHolder? constants) {
+    IMeshInstance ICBMesh.CreateModel(ICBMaterial mat, IConstantHolder? constants) {
         if (mat is not ICBMaterial<TVertex> vMat) {
             throw new ArgumentException($"Material must have vertex type {typeof(TVertex)}", nameof(mat));
         }
         return CreateModel(vMat, constants);
     }
 
-    ICBModel<TVertex> CreateModel(ICBMaterial<TVertex> mat, IConstantHolder? constants);
+    IMeshInstance<TVertex> CreateModel(ICBMaterial<TVertex> mat, IConstantHolder? constants);
 }
 
 public class CBMesh<TVertex> : Disposable, ICBMesh<TVertex> where TVertex : unmanaged {
@@ -45,8 +45,8 @@ public class CBMesh<TVertex> : Disposable, ICBMesh<TVertex> where TVertex : unma
         commands.DrawIndexed(_indexCount, 1, 0, 0, 0);
     }
 
-    public ICBModel<TVertex> CreateModel(ICBMaterial<TVertex> mat, IConstantHolder constants)
-        => new CBModel<TVertex>(constants, mat, this);
+    public IMeshInstance<TVertex> CreateModel(ICBMaterial<TVertex> mat, IConstantHolder constants)
+        => new MeshInstance<TVertex>(constants, mat, this);
 
     protected override void DisposeImpl() {
         _vertexBuffer.Dispose();

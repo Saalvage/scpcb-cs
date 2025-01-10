@@ -51,16 +51,14 @@ public class RoomData : Disposable, IRoomData {
     }
 }
 
-public interface IRoomInstance : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, I3DModelHolder, IEntityHolder { }
+public interface IRoomInstance : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, ISortableMeshInstanceHolder, IEntityHolder;
 
 public class RoomInstance : Disposable, IRoomInstance {
-    private record Model3D(Vector3 Position, ICBModel Model, bool IsOpaque) : I3DModel;
-
-    IEnumerable<I3DModel> I3DModelHolder.Models => Models;
-    public I3DModel[] Models { get; }
+    IEnumerable<ISortableMeshInstance> ISortableMeshInstanceHolder.Models => Models;
+    public IReadOnlyList<ISortableMeshInstance> Models { get; }
 
     IEnumerable<IEntity> IEntityHolder.Entities => Entites;
-    public IMapEntity[] Entites { get; }
+    public IReadOnlyList<IMapEntity> Entites { get; }
 
     private readonly Matrix4x4 _transform;
     private readonly RoomData _data; // Keep alive.
@@ -75,15 +73,15 @@ public class RoomInstance : Disposable, IRoomInstance {
         // TODO: Support different shaders here.
         var constants = meshes[0].Material.Shader.TryCreateInstanceConstants();
 
-        Models = meshes.Select(x => (I3DModel)new Model3D(Vector3.Transform(x.PositionInRoom, rotation) + offset,
-                x.Geometry.CreateModel(x.Material, constants), x.IsOpaque))
+        Models = meshes.Select(ISortableMeshInstance (x) => new SortableMeshInstance(x.Geometry.CreateModel(x.Material, constants),
+                Vector3.Transform(x.PositionInRoom, rotation) + offset, x.IsOpaque))
             .ToArray();
 
         Entites = mapEntities;
 
         // TODO: This illustrates the shittyness of the current design.
         foreach (var m in Models) {
-            m.Model.ConstantProviders.Add(this);
+            m.MeshInstance.ConstantProviders.Add(this);
         }
 
         _visibleColl = visibleCollShape?.CreateStatic(new(offset, rotation));

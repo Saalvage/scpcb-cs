@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using SCPCB.Graphics;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders;
 using SCPCB.Graphics.Shaders.ConstantMembers;
@@ -8,7 +9,7 @@ using Veldrid;
 namespace SCPCB.Scenes;
 
 public class VideoScene : BaseScene {
-    private readonly ICBModel _model;
+    private readonly IMeshInstance _model;
     private readonly bool _vsyncOld;
 
     private readonly Game _game;
@@ -20,7 +21,7 @@ public class VideoScene : BaseScene {
         video.Finished += MoveToMain;
 
         AddEntity(video);
-        _model = new CBModel<UIShader.Vertex>(null, Graphics.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>(
+        _model = new MeshInstance<UIShader.Vertex>(null, Graphics.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>(
                 [video.Texture], [Graphics.GraphicsDevice.Aniso4xSampler]),
             new CBMesh<UIShader.Vertex>(Graphics.GraphicsDevice, [
                     new(new(1, -1)),

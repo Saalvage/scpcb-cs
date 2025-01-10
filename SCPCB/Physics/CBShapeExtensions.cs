@@ -8,39 +8,60 @@ namespace SCPCB.Physics;
 
 public static class CBShapeExtensions {
     public static CBBody CreateDynamic(this ICBShape shape, RigidPose pose, BodyInertia inertia, BodyActivityDescription activity)
-        => new(shape.Physics, shape, BodyDescription.CreateDynamic(pose, inertia, new(shape.ShapeIndex), activity));
+        => new(shape, BodyDescription.CreateDynamic(pose, inertia, new(shape.ShapeIndex), activity));
 
     public static CBBody CreateKinematic(this ICBShape shape, RigidPose pose, BodyActivityDescription activity)
-        => new(shape.Physics, shape, BodyDescription.CreateKinematic(pose, new(shape.ShapeIndex), activity));
+        => new(shape, BodyDescription.CreateKinematic(pose, new(shape.ShapeIndex), activity));
 
     public static CBStatic CreateStatic(this ICBShape shape, RigidPose pose)
-        => new(shape.Physics, shape, new(pose, shape.ShapeIndex));
+        => new(shape, new(pose, shape.ShapeIndex));
 
-    public static CBBody CreateDynamic<T>(this ICBShape<T> shape, RigidPose pose, float mass)
-            where T : unmanaged, IConvexShape
-        => new(shape.Physics, shape,
+    public static CBBody CreateDynamic(this ICBShape shape, RigidPose pose, float mass)
+        => new(shape,
             new() {
                 Pose = pose,
-                Activity = BodyDescription.GetDefaultActivity(shape.Shape),
+                Activity = shape.GetDefaultActivity(),
                 Collidable = shape.ShapeIndex,
-                LocalInertia = shape.Shape.ComputeInertia(mass),
+                LocalInertia = shape.ComputeInertia(mass),
             });
 
-    public static CBBody CreateKinematic<T>(this ICBShape<T> shape, RigidPose pose)
-            where T : unmanaged, IConvexShape
-        => new(shape.Physics, shape, new() {
+    public static CBBody CreateKinematic(this ICBShape shape, RigidPose pose)
+        => new(shape, new() {
             Pose = pose,
-            Activity = BodyDescription.GetDefaultActivity(shape.Shape),
+            Activity = shape.GetDefaultActivity(),
             Collidable = shape.ShapeIndex,
         });
 
-    public static ICBShape<ConvexHull> CreateScaledCopy(this ICBShape<ConvexHull> shape, Vector3 scale) {
+    public static ICBShape CreateScaledCopy(this ICBShape shape, Vector3 scale) {
         Matrix3x3.CreateScale(scale, out var transform);
         return shape.CreateTransformedCopy(transform);
     }
 
-    public static ICBShape<ConvexHull> CreateTransformedCopy(this ICBShape<ConvexHull> shape, in Matrix3x3 transform) {
-        ConvexHullHelper.CreateTransformedCopy(shape.Shape, transform, shape.Physics.BufferPool, out var scaledHull);
-        return new CBShape<ConvexHull>(shape.Physics, scaledHull);
+    public static BodyActivityDescription GetDefaultActivity(this ICBShape shape) {
+        switch (shape) {
+            case ICBShape<ConvexHull> ch:
+                return BodyDescription.GetDefaultActivity(ch.Shape);
+            default:
+                throw new NotSupportedException($"A default activity for {shape.GetType()} is not currently supported!");
+        }
+    }
+
+    public static BodyInertia ComputeInertia(this ICBShape shape, float mass) {
+        switch (shape) {
+            case ICBShape<ConvexHull> ch:
+                return ch.Shape.ComputeInertia(mass);
+            default:
+                throw new NotSupportedException($"Computing inertia for {shape.GetType()} is not currently supported!");
+        }
+    }
+
+    public static ICBShape CreateTransformedCopy(this ICBShape shape, in Matrix3x3 transform) {
+        switch (shape) {
+            case ICBShape<ConvexHull> ch:
+                ConvexHullHelper.CreateTransformedCopy(ch.Shape, transform, shape.Physics.BufferPool, out var scaledHull);
+                return new CBShape<ConvexHull>(shape.Physics, scaledHull);
+            default:
+                throw new NotSupportedException($"Creating a transformed copy for {shape.GetType()} is not currently supported!");
+        }
     }
 }

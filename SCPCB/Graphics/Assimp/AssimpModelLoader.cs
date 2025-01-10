@@ -2,6 +2,7 @@
 using Assimp;
 using Assimp.Unmanaged;
 using BepuPhysics.Collidables;
+using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Physics;
 using SCPCB.Physics.Primitives;
@@ -12,7 +13,7 @@ using Mesh = Assimp.Mesh;
 namespace SCPCB.Graphics.Assimp;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
-public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where TVertex : unmanaged {
+public abstract class AssimpModelLoader<TVertex> : IModelLoader where TVertex : unmanaged {
     // I'm not sure if this can be implemented any better, it seems like the C loggers have no access to explicit severity.
     private class SerilogLogger : LogStream {
         public static SerilogLogger Instance { get; } = new();
@@ -103,13 +104,23 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader<TVertex> where T
         return assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
     }
 
-    public (IMeshMaterial<TVertex>[] Models, ICBShape<ConvexHull> Collision, Vector3 CenterOffset) LoadMeshes(GraphicsDevice gfx, PhysicsResources physics, string file) {
+    public OwningModelTemplate LoadMeshes(GraphicsDevice gfx, string file) {
+        var scene = LoadScene(file);
+        var fileDir = Path.GetDirectoryName(file);
+        var mats = scene.Materials.Select(x => ConvertMaterial(x, fileDir)).ToArray();
+        return new(scene.Meshes.Select(
+            IMeshMaterial (x) => new MeshMaterial<TVertex>(ConvertMesh(gfx, x),
+                mats[x.MaterialIndex])).ToArray());
+    }
+
+    public OwningPhysicsModelTemplate LoadMeshesWithCollision(GraphicsDevice gfx, PhysicsResources physics, string file) {
         var scene = LoadScene(file);
         var hull = ConvertToConvexHull(physics, scene.Meshes, out var center);
         var fileDir = Path.GetDirectoryName(file);
         var mats = scene.Materials.Select(x => ConvertMaterial(x, fileDir)).ToArray();
-        return (scene.Meshes.Select(x => (IMeshMaterial<TVertex>)new MeshMaterial<TVertex>(ConvertMesh(gfx, x),
-            mats[x.MaterialIndex])).ToArray(), hull, center);
+        return new(scene.Meshes.Select(
+            IMeshMaterial (x) => new MeshMaterial<TVertex>(ConvertMesh(gfx, x),
+                mats[x.MaterialIndex])).ToArray(), hull, center);
     }
 
     protected abstract TVertex ConvertVertex(AssimpVertex vert);

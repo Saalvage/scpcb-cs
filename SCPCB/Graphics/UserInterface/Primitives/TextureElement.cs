@@ -9,7 +9,7 @@ using SCPCB.Graphics.Textures;
 namespace SCPCB.Graphics.UserInterface.Primitives;
 
 public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIShader.Vertex>, IColorizableElement {
-    private readonly CBModel<UIShader.Vertex> _model;
+    private readonly MeshInstance<UIShader.Vertex> _meshInstance;
 
     public ICBTexture Texture { get; }
 
@@ -27,7 +27,7 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
     }
 
     public TextureElement(GraphicsResources gfxRes, ICBTexture texture, bool tile = false) {
-        _model = new(null,
+        _meshInstance = new(null,
             gfxRes.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>([texture], [tile ? gfxRes.WrapAnisoSampler : gfxRes.ClampAnisoSampler]),
             gfxRes.MeshCache.GetMesh<TextureElement, UIShader.Vertex>());
         Texture = texture;
@@ -36,14 +36,14 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
     }
 
     protected override void DrawInternal(IRenderTarget target, Vector2 position, float z) {
-        _model.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z + z));
-        _model.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
-        _model.Material.Shader.Constants!.SetValue<IColorAlphaConstantMember, Vector4>(new Vector4(Color.R, Color.G, Color.B, Color.A) / 255f);
+        _meshInstance.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z + z));
+        _meshInstance.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
+        _meshInstance.Material.Shader.Constants!.SetValue<IColorAlphaConstantMember, Vector4>(new Vector4(Color.R, Color.G, Color.B, Color.A) / 255f);
         var uvPositionEnd = UvOffset + UvSize;
-        _model.Material.Shader.Constants!.SetValue<ITexCoordsConstantMember, Vector4>(new(UvOffset.X, uvPositionEnd.X,
+        _meshInstance.Material.Shader.Constants!.SetValue<ITexCoordsConstantMember, Vector4>(new(UvOffset.X, uvPositionEnd.X,
             UvOffset.Y, uvPositionEnd.Y));
-        _model.Material.Shader.Constants!.SetValue<IRotation2DConstantMember, Vector2>(_rotationSinCos);
-        _model.Render(target, 0f);
+        _meshInstance.Material.Shader.Constants!.SetValue<IRotation2DConstantMember, Vector2>(_rotationSinCos);
+        _meshInstance.Render(target, 0f);
     }
 
     public static ICBMesh<UIShader.Vertex> CreateSharedMesh(GraphicsResources gfxRes)

@@ -1,39 +1,38 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 using SCPCB.Entities;
-using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Textures;
 using SCPCB.Scenes;
 
 namespace SCPCB.Graphics;
 
-public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
-    private readonly List<I3DModel> _opaque = [];
-    private readonly List<I3DModel> _transparent = [];
+public class SortedRenderer : EntityListener, IPrerenderable, IRenderable {
+    private readonly List<ISortableMeshInstance> _opaque = [];
+    private readonly List<ISortableMeshInstance> _transparent = [];
 
     private readonly Func<float, Vector3> _getPos;
 
-    public ModelSorter(IScene scene, Func<float, Vector3> getPos) : base(scene) {
-        _getPos = getPos;
+    public SortedRenderer(IScene scene, Func<float, Vector3> getPos) : base(scene) {
+        _getPos = getPos; // TODO: This doesn't use interpolation.
     }
 
-    public void Add(I3DModel model) {
+    public void Add(ISortableMeshInstance sortable) {
         // We can't/don't sort it into the transparent objects because we don't want to ask for the pos here.
-        (model.IsOpaque ? _opaque : _transparent).Add(model);
+        (sortable.IsOpaque ? _opaque : _transparent).Add(sortable);
     }
 
-    public void AddRange(IEnumerable<I3DModel> models) {
+    public void AddRange(IEnumerable<ISortableMeshInstance> models) {
         foreach (var model in models) {
             Add(model);
         }
     }
 
-    public void Remove(I3DModel model) {
-        _opaque.Remove(model);
-        _transparent.Remove(model);
+    public void Remove(ISortableMeshInstance sortable) {
+        _opaque.Remove(sortable);
+        _transparent.Remove(sortable);
     }
 
-    public void RemoveRange(IEnumerable<I3DModel> models) {
+    public void RemoveRange(IEnumerable<ISortableMeshInstance> models) {
         foreach (var m in models) {
             Remove(m);
         }
@@ -41,10 +40,10 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
 
     protected override void OnAddEntity(IEntity e) {
         switch (e) {
-            case I3DModelHolder p:
+            case ISortableMeshInstanceHolder p:
                 AddRange(p.Models);
                 break;
-            case I3DModel m:
+            case ISortableMeshInstance m:
                 Add(m);
                 break;
         }
@@ -52,10 +51,10 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
 
     protected override void OnRemoveEntity(IEntity e) {
         switch (e) {
-            case I3DModelHolder p:
+            case ISortableMeshInstanceHolder p:
                 RemoveRange(p.Models);
                 break;
-            case I3DModel m:
+            case ISortableMeshInstance m:
                 Remove(m);
                 break;
         }
@@ -73,12 +72,12 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
             }
 
             // Bubblesort, since we call this more than abundantly often and don't need the order.
-            if (i > 0 && Compare(_opaque[i - 1].Model, _opaque[i].Model) < 0) {
+            if (i > 0 && Compare(_opaque[i - 1].MeshInstance, _opaque[i].MeshInstance) < 0) {
                 (_opaque[i - 1], _opaque[i]) = (_opaque[i], _opaque[i - 1]);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-            static int Compare(ICBModel a, ICBModel b) {
+            static int Compare(IMeshInstance a, IMeshInstance b) {
                 var ret = a.Material.Shader.GetHashCode().CompareTo(b.Material.Shader.GetHashCode());
                 if (ret != 0) { return ret; }
                 ret = a.Material.GetHashCode().CompareTo(b.Material.GetHashCode());
@@ -115,11 +114,11 @@ public class ModelSorter : EntityListener, IPrerenderable, IRenderable {
 
     public void Render(IRenderTarget target, float interp) {
         foreach (var o in _opaque) {
-            o.Model.Render(target, interp);
+            o.MeshInstance.Render(target, interp);
         }
 
         foreach (var model in _transparent) {
-            model.Model.Render(target, interp);
+            model.MeshInstance.Render(target, interp);
         }
     }
 

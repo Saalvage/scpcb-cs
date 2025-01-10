@@ -89,7 +89,7 @@ public partial class Player {
         bodyDesc.Activity.SleepThreshold = float.NegativeInfinity;
         // Never rotate.
         bodyDesc.LocalInertia.InverseInertiaTensor = default;
-        var ret = new CBBody(physics, new CBShape<Capsule>(physics, shape), bodyDesc);
+        var ret = new CBBody(new CBShape<Capsule>(physics, shape), bodyDesc);
         ret.SetProperty<Visibility, bool>(true);
         return ret;
     }
@@ -143,7 +143,7 @@ public partial class Player {
             var onGround = _physics.RayCast<ClosestRayHitHandler>(_collider.Pose.Position, -Vector3.UnitY,
                 castLength, x => x.Mobility == CollidableMobility.Static)?.Pos;
 
-            _scene.AddEntity(new DebugLine(_scene, TimeSpan.FromSeconds(5),
+            _scene.AddEntity(new DebugLine(_scene.Graphics, TimeSpan.FromSeconds(5),
                     _collider.Pose.Position - Vector3.UnitY * (0.5f * COLLIDER_TOTAL_HEIGHT),
                     _collider.Pose.Position - Vector3.UnitY * castLength) {
                 Color = onGround != null ? new(0, 1, 0) : new(1, 0, 0),

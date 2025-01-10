@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders.ConstantMembers;
 using SCPCB.Utility;

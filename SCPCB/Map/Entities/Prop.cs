@@ -1,12 +1,10 @@
 ﻿using System.Numerics;
 using BepuPhysics;
-using BepuPhysics.Collidables;
 using SCPCB.Entities;
 using SCPCB.Graphics;
-using SCPCB.Graphics.Caches;
-using SCPCB.Graphics.ModelCollections;
+using SCPCB.Graphics.Models;
+using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Physics;
-using SCPCB.Physics.Primitives;
 using SCPCB.Scenes;
 using SCPCB.Serialization;
 using SCPCB.Utility;
@@ -17,61 +15,43 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     private record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic) : SerializableData {
         protected override ISerializableEntity DeserializeImpl(GraphicsResources gfxRes, IScene scene, IReferenceResolver refResolver) {
             var prop = new Prop(scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic);
-            if (prop.Models is PhysicsModelCollection pmc) {
+            if (prop.Model is DynamicPhysicsModel pmc) {
                 pmc.Body.Velocity = Velocity;
             }
             return prop;
         }
     }
 
-    private readonly ICBShape<ConvexHull> _hull;
-    
-    public CBStatic? Static { get; }
-    public CBBody? Body { get; }
-
     private readonly string _file;
-    
-    // TODO: Keep alive, indicative of a design issue.
-    private readonly ModelCache.CacheEntry _cacheEntry;
 
-    public ModelCollection Models { get; }
+    public PhysicsModel Model { get; }
 
-    public Prop(PhysicsResources physics, string file, Transform transform, bool isStatic = false) {
+    public Prop(PhysicsResources physics, string file, Transform transform, bool isStatic = true) {
         _file = file;
-
-        _cacheEntry = physics.ModelCache.GetModel(file);
-        var meshes = _cacheEntry.Models.Instantiate().ToArray();
-        var hull = _cacheEntry.Collision;
-        transform.Position += Vector3.Transform(_cacheEntry.MiddleOffset * transform.Scale, transform.Rotation);
-
-        _hull = hull.CreateScaledCopy(transform.Scale);
+        var template = physics.ModelCache.GetModel(file).CreateDerivative();
+        template = template with { Shape = template.Shape.CreateScaledCopy(transform.Scale) };
+        transform.Position += Vector3.Transform(template.OffsetFromCenter * transform.Scale, transform.Rotation);
         if (isStatic) {
-            Static = _hull.CreateStatic(new(transform.Position, transform.Rotation));
-            Models = new(meshes) {
-                WorldTransform = transform,
-            };
+            Model = template.InstantiatePhysicsStatic(new(transform.Position, transform.Rotation));
         } else {
-            Body = _hull.CreateDynamic(new(transform.Position, transform.Rotation), 1f);
-            var pmc = new PhysicsModelCollection(physics, Body, meshes);
-            pmc.Teleport(transform);
-            Models = pmc;
+            // TODO: Nicer extension methods for instantiation.
+            Model = template.InstantiatePhysicsDynamic(template.Shape.ComputeInertia(1), template.Shape.GetDefaultActivity());
         }
+        Model.WorldTransform = transform;
     }
 
     public IEnumerable<IEntity> Entities {
         get {
-            yield return Models;
+            yield return Model;
         }
     }
 
     protected override void DisposeImpl() {
-        Static?.Dispose();
-        Body?.Dispose();
-        _hull.Dispose();
+        Model.Dispose();
     }
 
     public SerializableData SerializeImpl() {
-        var pmc = Models as PhysicsModelCollection;
-        return new PropData(_file, Models.WorldTransform, pmc?.Body.Velocity ?? default, pmc == null);
+        var dpm = Model as DynamicPhysicsModel;
+        return new PropData(_file, Model.WorldTransform, dpm?.Body.Velocity ?? default, dpm == null);
     }
 }

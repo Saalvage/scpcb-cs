@@ -1,10 +1,11 @@
-﻿using SCPCB.Graphics.Shaders.Utility;
+﻿using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders.Utility;
 using SCPCB.Graphics.Textures;
 
-namespace SCPCB.Graphics.Primitives;
+namespace SCPCB.Graphics;
 
 // TODO: Consider making this mutable?
-public interface ICBModel {
+public interface IMeshInstance {
     IConstantHolder? Constants { get; }
 
     ICBMaterial Material { get; }
@@ -17,25 +18,34 @@ public interface ICBModel {
     void Render(IRenderTarget target, float interp);
 }
 
-public interface ICBModel<TVertex> : ICBModel where TVertex : unmanaged {
+public interface IMeshInstance<TVertex> : IMeshInstance where TVertex : unmanaged {
     new ICBMaterial<TVertex> Material { get; }
-    ICBMaterial ICBModel.Material => Material;
+    ICBMaterial IMeshInstance.Material => Material;
 
     new ICBMesh<TVertex> Mesh { get; }
-    ICBMesh ICBModel.Mesh => Mesh;
+    ICBMesh IMeshInstance.Mesh => Mesh;
 }
 
-public interface ICBModel<TVertConstants, TFragConstants> : ICBModel
+public interface IMeshInstance<TVertConstants, TFragConstants> : IMeshInstance
         where TVertConstants : unmanaged where TFragConstants : unmanaged {
     new IConstantHolder<TVertConstants, TFragConstants>? Constants { get; }
-    IConstantHolder? ICBModel.Constants => Constants;
+    IConstantHolder? IMeshInstance.Constants => Constants;
 }
 
 // TODO: We should assert that the constants have the correct layout.
-public record CBModel<TVertex>(IConstantHolder? Constants, ICBMaterial<TVertex> Material, ICBMesh<TVertex> Mesh)
-        : ICBModel<TVertex> where TVertex : unmanaged {
+public class MeshInstance<TVertex> : IMeshInstance<TVertex> where TVertex : unmanaged {
+    public IConstantHolder? Constants { get; }
+    public ICBMaterial<TVertex> Material { get; }
+    public ICBMesh<TVertex> Mesh { get; }
+
     public List<IConstantProvider> ConstantProviders { get; } = [];
     public bool IsVisible { get; set; } = true;
+
+    public MeshInstance(IConstantHolder? constants, ICBMaterial<TVertex> material, ICBMesh<TVertex> mesh) {
+        Constants = constants;
+        Material = material;
+        Mesh = mesh;
+    }
 
     public void Render(IRenderTarget target, float interp) {
         if (!IsVisible) {

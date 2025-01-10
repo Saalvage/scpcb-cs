@@ -11,25 +11,19 @@ using Veldrid;
 
 namespace SCPCB.Graphics;
 
-public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, IConstantProvider<IColorAlphaConstantMember, Vector4>,
-        ISharedMeshProvider<Billboard, VPositionTexture> {
-    Vector3 I3DEntity.Position => Transform.Position;
-    public Transform Transform { get; set; } = new();
+public class Billboard : I3DEntity, ISortableMeshInstance, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>,
+    IConstantProvider<IColorAlphaConstantMember, Vector4>, ISharedMeshProvider<Billboard, VPositionTexture> {
+    public Transform WorldTransform { get; set; } = new();
 
     public Vector4 Color { get; set; } = Vector4.One;
 
-    public ICBModel Model { get; }
+    public IMeshInstance MeshInstance { get; }
 
     public bool IsOpaque => false;
 
-    /// <summary>
-    /// Do not call this directly, use a <see cref="BillboardManager"/> instead.
-    /// </summary>
-    /// <param name="mesh"></param>
-    /// <param name="mat"></param>
     public Billboard(ICBMesh<VPositionTexture> mesh, ICBMaterial<VPositionTexture> mat) {
-        Model = new CBModel<VPositionTexture>(mat.Shader.TryCreateInstanceConstants(), mat, mesh);
-        Model.ConstantProviders.Add(this);
+        MeshInstance = new MeshInstance<VPositionTexture>(mat.Shader.TryCreateInstanceConstants(), mat, mesh);
+        MeshInstance.ConstantProviders.Add(this);
     }
 
     public static Billboard Create(GraphicsResources gfxRes, ICBTexture texture,
@@ -49,7 +43,7 @@ public class Billboard : I3DModel, IConstantProvider<IWorldMatrixConstantMember,
     }
 
     public Matrix4x4 GetValue(float interp)
-        => Transform.GetMatrix();
+        => WorldTransform.GetMatrix();
 
     Vector4 IConstantProvider<IColorAlphaConstantMember, Vector4>.GetValue(float interp) => Color;
 

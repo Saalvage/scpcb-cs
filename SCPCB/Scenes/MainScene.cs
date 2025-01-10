@@ -1,16 +1,11 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Numerics;
-using System.Security.Cryptography;
-using Assimp;
-using BepuPhysics.Collidables;
 using SCPCB.Entities;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Animation;
-using SCPCB.Graphics.Assimp;
-using SCPCB.Graphics.Caches;
-using SCPCB.Graphics.ModelCollections;
+using SCPCB.Graphics.Models;
+using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders;
 using SCPCB.Graphics.Shaders.ConstantMembers;
@@ -23,35 +18,28 @@ using SCPCB.Graphics.UserInterface.Primitives;
 using SCPCB.Graphics.UserInterface.Utility;
 using SCPCB.Map;
 using SCPCB.Physics;
-using SCPCB.Physics.Primitives;
 using SCPCB.PlayerController;
 using SCPCB.Serialization;
 using SCPCB.Utility;
 using ShaderGen;
 using Veldrid;
 using Veldrid.Sdl2;
-using static SCPCB.Graphics.Caches.ModelCache;
-using Bone = Assimp.Bone;
 using Helpers = SCPCB.Utility.Helpers;
-using Mesh = BepuPhysics.Collidables.Mesh;
-using ModelCollection = SCPCB.Graphics.ModelCollections.ModelCollection;
 
 namespace SCPCB.Scenes;
 
 public class MainScene : Scene3D {
     private readonly Game _game;
     private readonly InputManager _input;
-    
+
     private readonly Player _player;
 
-    private readonly ICBShape<ConvexHull> _hull;
     private readonly ICBMaterial<VPositionTexture> _renderMat;
     private readonly ICBMaterial<VPositionTexture> _otherMat;
     private readonly ICBMaterial<VPositionTexture> _logoMat;
-    private readonly ICBModel<VPositionTexture> _scp173;
 
     private readonly RenderTexture _renderTexture;
-    private readonly ModelCache.CacheEntry _cacheEntry;
+    private readonly PhysicsModelTemplate _template;
 
     private readonly HUD _hud;
 
@@ -72,7 +60,7 @@ public class MainScene : Scene3D {
     private Vector3? _measuringTape;
 
     private CBAnimation _animationn;
-    private ModelCollection[] _models;
+    private Model[] _models;
 
     public MainScene(Game game, PlacedRoomInfo?[,]? map = null) : base(game.GraphicsResources) {
         _game = game;
@@ -169,7 +157,7 @@ public class MainScene : Scene3D {
         _renderMat = Graphics.MaterialCache.GetMaterial(modelShader, [_renderTexture], [gfx.PointSampler]);
 
         var billboard = Billboard.Create(Graphics, _renderTexture);
-        billboard.Transform = billboard.Transform with {
+        billboard.WorldTransform = billboard.WorldTransform with {
             Position = new(2, 2, -0.1f),
         };
         AddEntity(billboard);
@@ -190,15 +178,14 @@ public class MainScene : Scene3D {
             }
         }
 
-        _cacheEntry = Physics.ModelCache.GetModel("Assets/173_2.b3d");
-        _scp173 = _cacheEntry.Models.Instantiate().OfType<ICBModel<VPositionTexture>>().Single();
-        _hull = _cacheEntry.Collision.CreateScaledCopy(new(0.1f));
+        _template = Physics.ModelCache.GetModel("Assets/173_2.b3d").CreateDerivative();
+        _template = _template with { Shape = _template.Shape.CreateScaledCopy(new(0.1f)) };
 
         var (template, animations) = new AssimpAnimatedModelLoader<AnimatedModelShader, AnimatedModelShader.Vertex, GraphicsResources>(Graphics)
             .LoadAnimatedMeshes(Graphics, "Assets/mental.b3d");
         _animationn = animations.Single().Value;
 
-        _models = Enumerable.Range(0, 100).Select(i => new ModelCollection([template.Instantiate().Single()]) { WorldTransform = new(Vector3.UnitY + Vector3.UnitX * i, Quaternion.Identity, new(0.3f)) }).ToArray();
+        _models = Enumerable.Range(0, 100).Select(i => new Model(new ModelTemplate(template.Meshes.Cast<IMeshMaterial>().ToArray())) { WorldTransform = new(Vector3.UnitY + Vector3.UnitX * i, Quaternion.Identity, new(0.3f)) }).ToArray();
         AddEntities(_models);
 
         //
@@ -217,7 +204,7 @@ public class MainScene : Scene3D {
 
     public override void Update(float delta) {
         foreach (var (a, i) in _models.Select((x, i) => (x, i))) {
-            _animationn.UpdateBones(a.Models[0].Model.Constants!, 0, _acc + i);
+            _animationn.UpdateBones(a.Models[0].MeshInstance.Constants!, 0, _acc + i);
         }
         _acc += delta * 5f;
         if (!_paused) {
@@ -298,16 +285,17 @@ public class MainScene : Scene3D {
     private void HandleKeyDown(KeyEvent e) {
         switch (e.Key) {
             case Key.Space: {
-                var body = _hull.CreateDynamic(new(_player.Camera.Position, _player.Camera.Rotation), 1);
-                body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
-                AddEntity(new PhysicsModelCollection(Physics, body, [
-                    new CBModel<VPositionTexture>(
-                    Graphics.ShaderCache.GetShader<ModelShader, VPositionTexture>().TryCreateInstanceConstants(), Random.Shared.Next(3) switch {
-                        0 => _renderMat,
-                        1 => _otherMat,
-                        2 => _logoMat,
-                    }, _scp173.Mesh),
-                ]) { WorldTransform = new(body.Pose.Position, body.Pose.Orientation, new(0.1f)) });
+                var entity = (_template with { Meshes = _template.Meshes.Select(x
+                        => new MeshMaterial<VPositionTexture>((ICBMesh<VPositionTexture>)x.Mesh, Random.Shared.Next(3) switch {
+                            0 => _renderMat,
+                            1 => _otherMat,
+                            2 => _logoMat,
+                        })).Cast<IMeshMaterial>().ToArray() })
+                    .InstantiatePhysicsDynamic(_template.Shape.ComputeInertia(1),
+                        _template.Shape.GetDefaultActivity());
+                entity.WorldTransform = new(_player.Camera.Position, _player.Camera.Rotation, new(0.1f));
+                entity.Body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
+                AddEntity(entity);
                 break;
             }
             case Key.Escape:
@@ -373,7 +361,7 @@ public class MainScene : Scene3D {
                 if (_measuringTape.HasValue) {
                     var from = _measuringTape.Value;
                     Log.Information("Measured distance from {From} to {To}: {Distance}", from, pos, Vector3.Distance(from, pos));
-                    AddEntity(new DebugLine(this, TimeSpan.FromSeconds(5), from, pos) { Color = new(1, 1, 0) });
+                    AddEntity(new DebugLine(Graphics, TimeSpan.FromSeconds(5), from, pos) { Color = new(1, 1, 0) });
                     _measuringTape = null;
                 } else {
                     Log.Information("Start measuring from {From}", pos);

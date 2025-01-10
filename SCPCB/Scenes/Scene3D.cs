@@ -14,7 +14,7 @@ public class Scene3D : BaseScene {
     public Scene3D(GraphicsResources gfxRes) : base(gfxRes) {
         Physics = new(Graphics); 
 
-        AddEntity(new ModelSorter(this, interp => Camera.Position));
+        AddEntity(new SortedRenderer(this, interp => Camera.Position));
     }
 
     public override void Render(IRenderTarget target, float interp) {
