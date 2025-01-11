@@ -1,50 +1,36 @@
 ﻿using SCPCB.Graphics.Assimp;
 using System.Diagnostics;
 using System.Numerics;
-using BepuPhysics.Collidables;
 using SCPCB.Graphics.Shaders.Vertices;
-using SCPCB.Physics;
-using SCPCB.Physics.Primitives;
+using Veldrid;
 using Mesh = Assimp.Mesh;
 
 namespace SCPCB.Graphics.Animation;
 
-public class AssimpAnimatedModelLoader<TShader, TVertex, TPlugin> : AutomaticAssimpModelLoader<TShader, TVertex, TPlugin>
+public class AssimpAnimatedModelLoader<TShader, TVertex, TPlugin> : AutomaticAssimpModelLoader<TShader, TVertex, TPlugin>, IAnimatedModelLoader
     where TShader : IAssimpMaterialConvertible<TVertex, TPlugin>
     where TVertex : unmanaged, IAnimatedVertex, IAssimpVertexConvertible<TVertex> {
 
-    // TODO: Doing this stateful like this SUCKS!
-    private Dictionary<string, BoneInfo> _currBones;
+    private readonly Dictionary<string, BoneInfo> _boneInfos = [];
 
-    public AssimpAnimatedModelLoader(TPlugin plugin) : base(plugin) { }
+    public AssimpAnimatedModelLoader(TPlugin plugin, string file) : base(plugin, file) { }
 
-    public (CBAnimatedModelTemplate<TVertex>, Dictionary<string, CBAnimation>) LoadAnimatedMeshes(GraphicsResources gfxRes, string file) {
-        var scene = LoadScene(file);
-        var fileDir = Path.GetDirectoryName(file);
-        var boneInfos = new Dictionary<string, BoneInfo>[scene.MeshCount];
-        var meshMaterials = Enumerable.Range(0, scene.MeshCount).Select(MakeMeshMaterial).ToArray();
-        var animationInfo = new CBAnimatedModelTemplate<TVertex>(boneInfos, scene.RootNode, meshMaterials);
-        var animations = scene.Animations.ToDictionary(x => x.Name, x => new CBAnimation(animationInfo, x));
-        return (animationInfo, animations);
-
-        MeshMaterial<TVertex> MakeMeshMaterial(int index) {
-            var mesh = scene.Meshes[index];
-            _currBones = boneInfos[index] = new();
-            return new(ConvertMesh(gfxRes.GraphicsDevice, mesh),
-                ConvertMaterial(scene.Materials[mesh.MaterialIndex], fileDir));
-        }
-    }
-
-    // We don't want a convex hull for animated meshes since it would be of little use.
-    // TODO: Look into potentially generating compound convex hulls for empties which could be animated with the mesh.
-    public override ICBShape<ConvexHull>? ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 center) {
-        center = Vector3.Zero;
-        return null;
-    }
-
-    protected override void PostMutateVertices(Mesh mesh, TVertex[] vertices) {
-        foreach (var (bone, boneIndex) in mesh.Bones.Select((x, i) => (x, i))) {
-            _currBones.Add(bone.Name, new(boneIndex, Matrix4x4.Transpose(bone.OffsetMatrix)));
+    protected override (TVertex[], uint[]) ConvertMesh(Mesh mesh) {
+        var (vertices, indices) = base.ConvertMesh(mesh);
+        foreach (var bone in mesh.Bones) {
+            // TODO: We're putting all bones of the scene in one dictionary.
+            // It would be possible to have one dictionary per mesh, with only the bones affected by that mesh.
+            // I'm unsure which is more performant, with one dictionary the meshes may share one constant holder,
+            // but they have to allocate space for bones they might not possess, which might also push them over the bone limit.
+            // The decision to go with one dictionary has been made out of the practical reason that
+            // all meshes receive the same constant holder in the current implementation and there
+            // is no way to differentiate between meshes when applying constant buffers.
+            // P.S.: An additional issue with the used approach might be bones with duplicate names.
+            if (!_boneInfos.TryGetValue(bone.Name, out var info)) {
+                info = new(_boneInfos.Count, Matrix4x4.Transpose(bone.OffsetMatrix));
+                _boneInfos.Add(bone.Name, info);
+            }
+            var boneIndex = info.Id;
             foreach (var weight in bone.VertexWeights) {
                 int i;
                 for (i = 0; i < 4; i++) {
@@ -62,5 +48,13 @@ public class AssimpAnimatedModelLoader<TShader, TVertex, TPlugin> : AutomaticAss
                 Debug.Assert(i < 4, "Too many weights for one bone!");
             }
         }
+        return (vertices, indices);
+    }
+
+    public OwningAnimatedModelTemplate LoadAnimatedModel(GraphicsDevice gfx) {
+        var meshes = ExtractMeshes(gfx);
+        var animationInfo = new ModelAnimationInfo(_boneInfos, Scene.RootNode);
+        var animations = Scene.Animations.ToDictionary(x => x.Name, x => new CBAnimation(animationInfo, x));
+        return new(animationInfo, animations, new(meshes));
     }
 }

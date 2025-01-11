@@ -4,7 +4,6 @@ using SCPCB.Entities;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Animation;
-using SCPCB.Graphics.Models;
 using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders;
@@ -58,9 +57,6 @@ public class MainScene : Scene3D {
     private readonly Dictionary<string, IRoomData> _rooms;
 
     private Vector3? _measuringTape;
-
-    private CBAnimation _animationn;
-    private Model[] _models;
 
     public MainScene(Game game, PlacedRoomInfo?[,]? map = null) : base(game.GraphicsResources) {
         _game = game;
@@ -181,32 +177,24 @@ public class MainScene : Scene3D {
         _template = Physics.ModelCache.GetModel("Assets/173_2.b3d").CreateDerivative();
         _template = _template with { Shape = _template.Shape.CreateScaledCopy(new(0.1f)) };
 
-        var (template, animations) = new AssimpAnimatedModelLoader<AnimatedModelShader, AnimatedModelShader.Vertex, GraphicsResources>(Graphics)
-            .LoadAnimatedMeshes(Graphics, "Assets/mental.b3d");
-        _animationn = animations.Single().Value;
-
-        _models = Enumerable.Range(0, 100).Select(i => new Model(new ModelTemplate(template.Meshes.Cast<IMeshMaterial>().ToArray())) { WorldTransform = new(Vector3.UnitY + Vector3.UnitX * i, Quaternion.Identity, new(0.3f)) }).ToArray();
-        AddEntities(_models);
-
-        //
-        //var body = _hull.CreateDynamic(new(_player.Camera.Position + _off, _player.Camera.Rotation), 1);
-        //body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
-
-        //model.Constants.SetArrayValue<IBoneTransformsConstantMember, Matrix4x4>(Matrix4x4.CreateRotationX(2), 0);
-        //
+        var template = new AssimpAnimatedModelLoader<AnimatedModelShader, AnimatedModelShader.Vertex, GraphicsResources>(Graphics,
+                "Assets/mental.b3d")
+            .LoadAnimatedModel(Graphics.GraphicsDevice);
+        var anim = template.Animations.Single().Value;
+        
+        AddEntities(Enumerable.Range(0, 3).Select(i => new AnimatedModel(template) {
+            WorldTransform = new(Vector3.UnitY + Vector3.UnitX * (i + 4), Quaternion.Identity, new(0.3f)),
+            Animation = anim,
+            Speed = 5,
+            Time = i,
+        }));
 
         window.KeyDown += HandleKeyDown;
         window.MouseDown += HandleMouseEvent;
         window.MouseUp += HandleMouseEvent;
     }
 
-    private float _acc;
-
     public override void Update(float delta) {
-        foreach (var (a, i) in _models.Select((x, i) => (x, i))) {
-            _animationn.UpdateBones(a.Models[0].MeshInstance.Constants!, 0, _acc + i);
-        }
-        _acc += delta * 5f;
         if (!_paused) {
             if (Graphics.Window.MouseDelta != Vector2.Zero) {
                 _player.HandleMouse(Graphics.Window.MouseDelta * 0.01f);

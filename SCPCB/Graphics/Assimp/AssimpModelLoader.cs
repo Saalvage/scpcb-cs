@@ -2,7 +2,6 @@
 using Assimp;
 using Assimp.Unmanaged;
 using BepuPhysics.Collidables;
-using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Physics;
 using SCPCB.Physics.Primitives;
@@ -45,7 +44,35 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader where TVertex : 
         SerilogLogger.Instance.Attach();
     }
 
-    public ICBMesh<TVertex> ConvertMesh(GraphicsDevice gfx, Mesh mesh) {
+    public Scene Scene { get; }
+    public string FileDir { get; }
+
+    protected AssimpModelLoader(string file) {
+        FileDir = Path.GetDirectoryName(file);
+        using var assimp = new AssimpContext();
+        SerilogLogger.Instance.ModelFile = file;
+        Scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
+    }
+
+    public IReadOnlyList<IMeshMaterial> ExtractMeshes(GraphicsDevice gfx) {
+        var mats = Scene.Materials.Select(x => ConvertMaterial(x, FileDir)).ToArray();
+        return Scene.Meshes.Select(
+            IMeshMaterial (x) => {
+                var (vertices, indices) = ConvertMesh(x);
+                return new MeshMaterial<TVertex>(new CBMesh<TVertex>(gfx, vertices, indices),
+                    mats[x.MaterialIndex]);
+            }).ToArray();
+    }
+
+    public (ICBShape, Vector3 OffsetFromCenter) ExtractCollisionShape(PhysicsResources physics) {
+        ConvexHullHelper.CreateShape(Scene.Meshes
+            .SelectMany(x => x.Vertices)
+            .Select(x => x)
+            .ToArray(), physics.BufferPool, out var center, out var hull);
+        return (new CBShape<ConvexHull>(physics, hull), center);
+    }
+
+    protected virtual (TVertex[], uint[]) ConvertMesh(Mesh mesh) {
         if (mesh.TextureCoordinateChannelCount > AiDefines.AI_MAX_NUMBER_OF_TEXTURECOORDS) {
             throw new ArgumentException("Abnormal amount of texture coordinate channels!", nameof(mesh));
         }
@@ -77,50 +104,8 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader where TVertex : 
             };
             verts[i] = ConvertVertex(sv);
         }
-        PostMutateVertices(mesh, verts);
 
-        return new CBMesh<TVertex>(gfx, verts, mesh.GetUnsignedIndices().ToArray());
-    }
-
-    /// <summary>
-    /// Allows a derived class to mutate the vertices after being loaded and before being turned into a mesh.
-    /// <remarks>
-    /// Intended use case if for e.g. attaching associated bone IDs and weights to vertices which are stored in the bones themselves.
-    /// </remarks>
-    /// </summary>
-    protected virtual void PostMutateVertices(Mesh mesh, TVertex[] vertices) { }
-
-    public virtual ICBShape<ConvexHull> ConvertToConvexHull(PhysicsResources physics, IEnumerable<Mesh> meshes, out Vector3 center) {
-        ConvexHullHelper.CreateShape(meshes
-            .SelectMany(x => x.Vertices)
-            .Select(x => x)
-            .ToArray(), physics.BufferPool, out center, out var hull);
-        return new CBShape<ConvexHull>(physics, hull);
-    }
-
-    protected Scene LoadScene(string file) {
-        using var assimp = new AssimpContext();
-        SerilogLogger.Instance.ModelFile = file;
-        return assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
-    }
-
-    public OwningModelTemplate LoadMeshes(GraphicsDevice gfx, string file) {
-        var scene = LoadScene(file);
-        var fileDir = Path.GetDirectoryName(file);
-        var mats = scene.Materials.Select(x => ConvertMaterial(x, fileDir)).ToArray();
-        return new(scene.Meshes.Select(
-            IMeshMaterial (x) => new MeshMaterial<TVertex>(ConvertMesh(gfx, x),
-                mats[x.MaterialIndex])).ToArray());
-    }
-
-    public OwningPhysicsModelTemplate LoadMeshesWithCollision(GraphicsDevice gfx, PhysicsResources physics, string file) {
-        var scene = LoadScene(file);
-        var hull = ConvertToConvexHull(physics, scene.Meshes, out var center);
-        var fileDir = Path.GetDirectoryName(file);
-        var mats = scene.Materials.Select(x => ConvertMaterial(x, fileDir)).ToArray();
-        return new(scene.Meshes.Select(
-            IMeshMaterial (x) => new MeshMaterial<TVertex>(ConvertMesh(gfx, x),
-                mats[x.MaterialIndex])).ToArray(), hull, center);
+        return (verts, mesh.GetUnsignedIndices().ToArray());
     }
 
     protected abstract TVertex ConvertVertex(AssimpVertex vert);
@@ -138,7 +123,7 @@ public class AutomaticAssimpModelLoader<TShader, TVertex, TPlugin> : AssimpModel
         where TVertex : unmanaged, IAssimpVertexConvertible<TVertex> {
     private readonly TPlugin _plugin;
 
-    public AutomaticAssimpModelLoader(TPlugin plugin) {
+    public AutomaticAssimpModelLoader(TPlugin plugin, string file) : base(file) {
         _plugin = plugin;
     }
 
@@ -157,7 +142,8 @@ public sealed class PluginAssimpModelLoader<TVertex> : AssimpModelLoader<TVertex
     private readonly VertexConverter _vertexConverter;
     private readonly Func<Material, string, ICBMaterial<TVertex>> _materialConverter;
 
-    public PluginAssimpModelLoader(VertexConverter vertexConverter, Func<Material, string, ICBMaterial<TVertex>> materialConverter) {
+    public PluginAssimpModelLoader(VertexConverter vertexConverter, Func<Material, string, ICBMaterial<TVertex>> materialConverter, string file)
+        : base(file) {
         _vertexConverter = vertexConverter;
         _materialConverter = materialConverter;
     }

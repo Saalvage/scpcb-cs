@@ -49,7 +49,7 @@ public class ModelImageGenerator {
         _texture.Start();
 
         _model.WorldTransform = Transform;
-        foreach (var model in _model.Models) {
+        foreach (var model in _model.Sortables) {
             model.MeshInstance.Render(_texture, 0f);
         }
         _texture.End();

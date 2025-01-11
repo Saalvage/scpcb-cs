@@ -20,8 +20,8 @@ public class Model : Disposable, ISortableMeshInstanceHolder, IConstantProvider<
         }
     }
 
-    IEnumerable<ISortableMeshInstance> ISortableMeshInstanceHolder.Models => Models;
-    public IReadOnlyList<ISortableMeshInstance> Models { get; }
+    IEnumerable<ISortableMeshInstance> ISortableMeshInstanceHolder.Models => Sortables;
+    public IReadOnlyList<ISortableMeshInstance> Sortables { get; }
 
     // Keep alive.
     private readonly IModelTemplate _template;
@@ -30,8 +30,8 @@ public class Model : Disposable, ISortableMeshInstanceHolder, IConstantProvider<
 
     public Model(IModelTemplate template) {
         _template = template;
-        Models = template.Meshes.Instantiate().Select(x => new ModelMeshInstance(this, x)).ToArray();
-        foreach (var mesh in Models.DistinctBy(x => x.MeshInstance.ConstantProviders)) {
+        Sortables = template.Meshes.Instantiate().Select(x => new ModelMeshInstance(this, x)).ToArray();
+        foreach (var mesh in Sortables.DistinctBy(x => x.MeshInstance.ConstantProviders)) {
             mesh.MeshInstance.ConstantProviders.Add(this);
         }
     }
@@ -39,7 +39,7 @@ public class Model : Disposable, ISortableMeshInstanceHolder, IConstantProvider<
     public virtual Matrix4x4 GetValue(float interp) => WorldTransform.GetMatrix();
 
     protected override void DisposeImpl() {
-        foreach (var mi in Models) {
+        foreach (var mi in Sortables) {
             mi.MeshInstance.Constants?.Dispose();
         }
     }

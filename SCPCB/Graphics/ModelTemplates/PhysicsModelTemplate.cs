@@ -25,7 +25,7 @@ public class OwningPhysicsModelTemplate : OwningModelTemplate, IPhysicsModelTemp
         OffsetFromCenter = offset;
     }
 
-    public PhysicsModelTemplate CreateDerivative() => new DependantPhysicsModelTemplate(this);
+    public new PhysicsModelTemplate CreateDerivative() => new DependantPhysicsModelTemplate(this);
 
     protected override void DisposeImpl() {
         Shape.Dispose();

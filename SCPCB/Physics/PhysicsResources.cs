@@ -28,7 +28,8 @@ public class PhysicsResources : Disposable, ITickable {
     public event Action AfterUpdate;
 
     public PhysicsResources(GraphicsResources gfxRes) {
-        ModelCache = new(gfxRes, this, new AutomaticAssimpModelLoader<ModelShader, VPositionTexture, GraphicsResources>(gfxRes));
+        ModelCache = new(gfxRes, this,
+            file => new AutomaticAssimpModelLoader<ModelShader, VPositionTexture, GraphicsResources>(gfxRes, file));
 
         Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), new(4, 2));
 

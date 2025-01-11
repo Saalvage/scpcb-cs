@@ -9,7 +9,8 @@ namespace SCPCB.Graphics.Shaders.Utility;
 public interface IConstantHolder : IDisposable {
     bool HasConstant<T>() where T : IConstantMember<T>;
     void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal>;
-    void SetArrayValue<T, TVal>(TVal val, int index) where T : IConstantArrayMember<TVal> where TVal : unmanaged, IEquatable<TVal>;
+    void SetArrayValue<T, TVal>(int index, TVal val) where T : IConstantArrayMember<T, TVal>
+        where TVal : unmanaged, IEquatable<TVal>;
     void UpdateAndSetBuffers(CommandList commands, uint index);
 }
 
@@ -145,7 +146,7 @@ public partial class ConstantHolder<TVertConstants, TFragConstants> : Disposable
         }
     }
 
-    public void SetArrayValue<T, TVal>(TVal val, int index) where T : IConstantArrayMember<TVal> where TVal : unmanaged, IEquatable<TVal> {
+    public void SetArrayValue<T, TVal>(int index, TVal val) where T : IConstantArrayMember<T, TVal> where TVal : unmanaged, IEquatable<TVal> {
         if (_vertexBoxed is T tVert) {
             if (!tVert.Values[index].Equals(val)) {
                 tVert.Values[index] = val;
