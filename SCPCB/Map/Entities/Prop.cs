@@ -14,7 +14,7 @@ namespace SCPCB.Map.Entities;
 public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
     private record PropData(string File, Transform Transform, BodyVelocity Velocity, bool IsStatic) : SerializableData {
         protected override ISerializableEntity DeserializeImpl(GraphicsResources gfxRes, IScene scene, IReferenceResolver refResolver) {
-            var prop = new Prop(scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic);
+            var prop = new Prop(scene.GetEntitiesOfType<PhysicsResources>().Single(), File, Transform, IsStatic, false);
             if (prop.Model is DynamicPhysicsModel pmc) {
                 pmc.Body.Velocity = Velocity;
             }
@@ -26,11 +26,16 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
 
     public PhysicsModel Model { get; }
 
-    public Prop(PhysicsResources physics, string file, Transform transform, bool isStatic = true) {
+    public Prop(PhysicsResources physics, string file, Transform transform, bool isStatic = true,
+        bool needsPositionAdjustment = true) {
         _file = file;
         var template = physics.ModelCache.GetModel(file).CreateDerivative();
         template = template with { Shape = template.Shape.CreateScaledCopy(transform.Scale) };
-        transform.Position += Vector3.Transform(template.OffsetFromCenter * transform.Scale, transform.Rotation);
+        if (needsPositionAdjustment) {
+            // The object origin in B3D is at the bottom.
+            template.Shape.ComputeBounds(transform.Rotation, out var min, out var max);
+            transform.Position += new Vector3(0, -min.Y, 0);
+        }
         if (isStatic) {
             Model = template.InstantiatePhysicsStatic(new(transform.Position, transform.Rotation));
         } else {

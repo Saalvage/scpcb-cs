@@ -37,6 +37,7 @@ public static class CBShapeExtensions {
         return shape.CreateTransformedCopy(transform);
     }
 
+    // TODO: I think these designs sucks, it's literally an INTERFACE.
     public static BodyActivityDescription GetDefaultActivity(this ICBShape shape) {
         switch (shape) {
             case ICBShape<ConvexHull> ch:
@@ -62,6 +63,16 @@ public static class CBShapeExtensions {
                 return new CBShape<ConvexHull>(shape.Physics, scaledHull);
             default:
                 throw new NotSupportedException($"Creating a transformed copy for {shape.GetType()} is not currently supported!");
+        }
+    }
+
+    public static void ComputeBounds(this ICBShape shape, Quaternion rotation, out Vector3 min, out Vector3 max) {
+        switch (shape) {
+            case ICBShape<ConvexHull> ch:
+                ch.Shape.ComputeBounds(rotation, out min, out max);
+                break;
+            default:
+                throw new NotSupportedException($"Computing bounds for {shape.GetType()} is not currently supported!");
         }
     }
 }

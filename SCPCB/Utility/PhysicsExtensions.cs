@@ -1,4 +1,5 @@
-﻿using BepuPhysics.Collidables;
+﻿using System.Diagnostics;
+using BepuPhysics.Collidables;
 using BepuPhysics.Trees;
 using BepuPhysics;
 using System.Numerics;
@@ -49,10 +50,9 @@ public struct ClosestRayHitHandler : ICustomizableRayHitHandler<ClosestRayHitHan
     public bool AllowTest(CollidableReference collidable, int childIndex) => AllowTest(collidable);
 
     public void OnRayHit(in RayData ray, ref float maximumT, float t, Vector3 normal, CollidableReference collidable, int childIndex) {
-        if (!Result.HasValue || t < maximumT) {
-            Result = new(collidable, ray.Origin + ray.Direction * t, normal);
-            maximumT = t;
-        }
+        Debug.Assert(t <= maximumT);
+        Result = new(collidable, ray.Origin + ray.Direction * t, normal);
+        maximumT = t;
     }
 }
 
