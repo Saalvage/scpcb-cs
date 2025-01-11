@@ -47,7 +47,7 @@ public class Billboard : I3DEntity, ISortableMeshInstance, IConstantProvider<IWo
 
     Vector4 IConstantProvider<IColorAlphaConstantMember, Vector4>.GetValue(float interp) => Color;
 
-    public void ApplyTo(IEnumerable<IConstantHolder?> holders, float interp) {
+    public void ApplyTo(ReadOnlySpan<IConstantHolder?> holders, float interp) {
         ((IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>)this).ApplyToInternal(holders, interp);
         ((IConstantProvider<IColorAlphaConstantMember, Vector4>)this).ApplyToInternal(holders, interp);
     }

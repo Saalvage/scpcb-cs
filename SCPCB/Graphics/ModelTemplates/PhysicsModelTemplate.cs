@@ -3,11 +3,11 @@ using SCPCB.Physics.Primitives;
 
 namespace SCPCB.Graphics.ModelTemplates;
 
-public interface IPhysicsModelTemplate : ICBModelTemplate {
+public interface IPhysicsModelTemplate : IModelTemplate {
     ICBShape Shape { get; }
     Vector3 OffsetFromCenter { get; }
 
-    ModelTemplate ICBModelTemplate.CreateDerivative() => CreateDerivative();
+    ModelTemplate IModelTemplate.CreateDerivative() => CreateDerivative();
     new PhysicsModelTemplate CreateDerivative();
 }
 

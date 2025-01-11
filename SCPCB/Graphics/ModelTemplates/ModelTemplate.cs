@@ -6,18 +6,18 @@ namespace SCPCB.Graphics.ModelTemplates;
 // The main issue is that we have one template which holds all its resources (returned from the model loader),
 // and we want to have others that derive from it. The issue is keeping the original template alive when
 // using derivatives.
-public interface ICBModelTemplate {
+public interface IModelTemplate {
     IReadOnlyList<IMeshMaterial> Meshes { get; }
     ModelTemplate CreateDerivative();
 }
 
 // Necessary to instantiate models from non-owned resources that don't derive from a model template.
 // Mustn't be instantiated from an owning model template.
-public record ModelTemplate(IReadOnlyList<IMeshMaterial> Meshes) : ICBModelTemplate {
+public record ModelTemplate(IReadOnlyList<IMeshMaterial> Meshes) : IModelTemplate {
     public ModelTemplate CreateDerivative() => this;
 }
 
-public class OwningModelTemplate : Disposable, ICBModelTemplate {
+public class OwningModelTemplate : Disposable, IModelTemplate {
     public IReadOnlyList<IMeshMaterial> Meshes { get; }
 
     public OwningModelTemplate(IReadOnlyList<IMeshMaterial> meshes) {
@@ -33,6 +33,6 @@ public class OwningModelTemplate : Disposable, ICBModelTemplate {
     }
 }
 
-public record DependantModelTemplate(ICBModelTemplate Dependent, IReadOnlyList<IMeshMaterial> Meshes) : ModelTemplate(Meshes) {
-    public DependantModelTemplate(ICBModelTemplate dependent) : this(dependent, dependent.Meshes) { }
+public record DependantModelTemplate(IModelTemplate Dependent, IReadOnlyList<IMeshMaterial> Meshes) : ModelTemplate(Meshes) {
+    public DependantModelTemplate(IModelTemplate dependent) : this(dependent, dependent.Meshes) { }
 }

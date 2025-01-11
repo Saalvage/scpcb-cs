@@ -5,7 +5,7 @@ using SCPCB.Physics;
 namespace SCPCB.Graphics.ModelTemplates;
 
 public static class ModelTemplateExtensions {
-    public static Model Instantiate(this ICBModelTemplate template) => new(template);
+    public static Model Instantiate(this IModelTemplate template) => new(template);
 
     public static PhysicsModel InstantiatePhysicsStatic(this IPhysicsModelTemplate template, RigidPose pose)
         => new(template, template.Shape.CreateStatic(pose));

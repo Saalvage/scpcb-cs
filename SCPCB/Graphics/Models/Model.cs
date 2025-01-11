@@ -24,11 +24,11 @@ public class Model : Disposable, ISortableMeshInstanceHolder, IConstantProvider<
     public IReadOnlyList<ISortableMeshInstance> Models { get; }
 
     // Keep alive.
-    private readonly ICBModelTemplate _template;
+    private readonly IModelTemplate _template;
 
     public virtual Transform WorldTransform { get; set; }
 
-    public Model(ICBModelTemplate template) {
+    public Model(IModelTemplate template) {
         _template = template;
         Models = template.Meshes.Instantiate().Select(x => new ModelMeshInstance(this, x)).ToArray();
         foreach (var mesh in Models.DistinctBy(x => x.MeshInstance.ConstantProviders)) {

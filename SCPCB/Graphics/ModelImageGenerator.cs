@@ -21,7 +21,7 @@ public class ModelImageGenerator {
     private string _prevMeshFile;
     public string MeshFile { get; set; }
 
-    private ICBModelTemplate _template;
+    private IModelTemplate _template;
     private Model _model;
 
     private readonly PerspectiveCamera _cam = new() { Position = new(0, 0, -5) };
