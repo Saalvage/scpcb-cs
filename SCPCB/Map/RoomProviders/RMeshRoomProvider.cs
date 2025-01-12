@@ -144,6 +144,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 var vertices = GetBufferedSpan(vertexCount, invisVertexStackBuffer, ref invisVertexHeapBuffer);
                 for (var j = 0; j < vertexCount; j++) {
                     vertices[j] = reader.ReadVector3() * ROOM_SCALE;
+                    vertices[j].X = -vertices[j].X;
                 }
                 
                 var triCount = reader.ReadInt32();
