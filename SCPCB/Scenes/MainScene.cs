@@ -175,7 +175,6 @@ public class MainScene : Scene3D {
         }
 
         _template = Physics.ModelCache.GetModel("Assets/173_2.b3d").CreateDerivative();
-        _template = _template with { Shape = _template.Shape.CreateScaledCopy(new(0.1f)) };
 
         var template = new AssimpAnimatedModelLoader<AnimatedModelShader, AnimatedModelShader.Vertex, GraphicsResources>(Graphics,
                 "Assets/mental.b3d")
@@ -279,8 +278,7 @@ public class MainScene : Scene3D {
                             1 => _otherMat,
                             2 => _logoMat,
                         })).Cast<IMeshMaterial>().ToArray() })
-                    .InstantiatePhysicsDynamic(_template.Shape.ComputeInertia(1),
-                        _template.Shape.GetDefaultActivity());
+                    .InstantiatePhysicsDynamic(1);
                 entity.WorldTransform = new(_player.Camera.Position, _player.Camera.Rotation, new(0.1f));
                 entity.Body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
                 AddEntity(entity);
