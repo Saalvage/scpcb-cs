@@ -10,13 +10,13 @@ public class CBStatic : CBCollidable {
     public override RigidPose Pose {
         get => IsAttached ? _reference.Pose : _desc.Pose;
         set {
+            // The pose is as the type suggests, static.
+            _desc.Pose = value;
             if (IsAttached) {
                 _reference.Pose = value;
-                _reference.UpdateBounds();
-                // TODO: We shouldn't need to set the shape here.
-                _reference.SetShape(_desc.Shape);
-            } else {
-                _desc.Pose = value;
+                // _reference.UpdateBounds();
+                // TODO: It should be enough to update the bounds here..
+                _reference.ApplyDescription(_desc);
             }
         }
     }
@@ -46,9 +46,6 @@ public class CBStatic : CBCollidable {
     }
 
     protected override void DetachImpl() {
-        _desc = _desc with {
-            Pose = _reference.Pose,
-        };
         Physics.Simulation.Statics.Remove(_reference.Handle);
         _reference = default;
     }
