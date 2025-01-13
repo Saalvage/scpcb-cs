@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using BepuPhysics.Collidables;
-using BepuPhysics;
 using SCPCB.Physics;
 using SCPCB.Physics.Primitives;
 using SCPCB.Utility;
@@ -83,13 +82,12 @@ public partial class Player {
 
     private CBBody CreateCollider(PhysicsResources physics) {
         var shape = new Capsule(COLLIDER_RADIUS, COLLIDER_LENGTH);
-        var bodyDesc = BodyDescription.CreateConvexDynamic(new(Vector3.UnitY * 1.5f + Vector3.UnitX), 1,
-            physics.Simulation.Shapes, shape);
+        var ret = new CBShape<Capsule>(physics, shape).CreateDynamic(1);
+        ret.Pose = new(Vector3.UnitY * 1.5f + Vector3.UnitX);
         // Never sleep.
-        bodyDesc.Activity.SleepThreshold = float.NegativeInfinity;
+        ret.MaySleep = false;
         // Never rotate.
-        bodyDesc.LocalInertia.InverseInertiaTensor = default;
-        var ret = new CBBody(new CBShape<Capsule>(physics, shape), bodyDesc);
+        ret.Inertia = ret.Inertia with { InverseInertiaTensor = default };
         ret.SetProperty<Visibility, bool>(true);
         return ret;
     }

@@ -30,17 +30,16 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
         bool needsPositionAdjustment = true) {
         _file = file;
         var template = physics.ModelCache.GetModel(file).CreateDerivative();
-        template = template with { Shape = template.Shape.CreateScaledCopy(transform.Scale) };
         if (needsPositionAdjustment) {
             // The object origin in B3D is at the bottom.
             template.Shape.ComputeBounds(transform.Rotation, out var min, out var max);
-            transform.Position += new Vector3(0, -min.Y, 0);
+            // TODO: This is still not entirely correct.
+            transform.Position += new Vector3(0, -min.Y * transform.Scale.Y, 0);
         }
         if (isStatic) {
-            Model = template.InstantiatePhysicsStatic(new(transform.Position, transform.Rotation));
+            Model = template.InstantiatePhysicsStatic();
         } else {
-            // TODO: Nicer extension methods for instantiation.
-            Model = template.InstantiatePhysicsDynamic(template.Shape.ComputeInertia(1), template.Shape.GetDefaultActivity());
+            Model = template.InstantiatePhysicsDynamic(1);
         }
         Model.WorldTransform = transform;
     }

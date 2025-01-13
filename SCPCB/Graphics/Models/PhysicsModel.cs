@@ -8,7 +8,7 @@ using SCPCB.Scenes;
 namespace SCPCB.Graphics.Models;
 
 public class PhysicsModel : Model, IEntity {
-    protected Vector3 _scale;
+    protected Vector3 _scale = Vector3.One;
     protected Vector3 _offset;
 
     public CBCollidable Collidable { get; }
@@ -16,6 +16,10 @@ public class PhysicsModel : Model, IEntity {
     public override Transform WorldTransform {
         get => Collidable.Pose.ToTransform() with { Scale = _scale };
         set {
+            if (_scale != value.Scale) {
+                Collidable.Shape = Collidable.Shape.GetScaledClone(value.Scale / _scale);
+            }
+
             Collidable.Pose = new(value.Position, value.Rotation);
             _scale = value.Scale;
         }

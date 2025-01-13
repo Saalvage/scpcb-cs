@@ -8,7 +8,18 @@ namespace SCPCB.Physics.Primitives;
 public abstract class CBCollidable : Disposable, IEquatable<CollidableReference> {
     public PhysicsResources Physics { get; }
 
-    public ICBShape Shape { get; }
+    private ICBShape _shape;
+    public ICBShape Shape {
+        get => _shape;
+        set {
+            if (_shape == value) {
+                return;
+            }
+
+            _shape = value;
+            UpdateShape(value);
+        }
+    }
 
     private static readonly MethodInfo _setProperty = typeof(PhysicsResources).GetMethod(nameof(PhysicsResources.SetProperty))!;
 
@@ -20,12 +31,14 @@ public abstract class CBCollidable : Disposable, IEquatable<CollidableReference>
 
     protected CBCollidable(PhysicsResources physics, ICBShape shape) {
         Physics = physics;
-        Shape = shape;
+        _shape = shape;
     }
 
     protected override void DisposeImpl() {
         Detach();
     }
+
+    protected abstract void UpdateShape(ICBShape newShape);
 
     public void Attach() {
         if (IsAttached) {

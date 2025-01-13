@@ -4,18 +4,41 @@ using BepuPhysics.Collidables;
 namespace SCPCB.Physics.Primitives;
 
 public class CBStatic : CBCollidable {
+    private StaticDescription _desc;
     private StaticReference _reference;
 
-    private StaticDescription _desc;
-
     public override RigidPose Pose {
-        get => _reference.Pose;
-        set => _reference.Pose = value;
+        get => IsAttached ? _reference.Pose : _desc.Pose;
+        set {
+            if (IsAttached) {
+                _reference.Pose = value;
+                _reference.UpdateBounds();
+                // TODO: We shouldn't need to set the shape here.
+                _reference.SetShape(_desc.Shape);
+            } else {
+                _desc.Pose = value;
+            }
+        }
     }
 
-    public CBStatic(ICBShape shape, in StaticDescription desc) : base(shape.Physics, shape) {
-        _desc = desc;
+    public CBStatic(ICBShape shape) : this(shape, RigidPose.Identity) { }
+
+    public CBStatic(ICBShape shape, RigidPose pose) : this(shape, pose, ContinuousDetection.Discrete) { }
+
+    public CBStatic(ICBShape shape, RigidPose pose, ContinuousDetection continuity) : base(shape.Physics, shape) {
+        _desc = new() {
+            Continuity = continuity,
+            Pose = pose,
+            Shape = shape.ShapeIndex,
+        };
         Attach();
+    }
+
+    protected override void UpdateShape(ICBShape newShape) {
+        _desc.Shape = newShape.ShapeIndex;
+        if (IsAttached) {
+            _reference.SetShape(newShape.ShapeIndex);
+        }
     }
 
     protected override void AttachImpl() {
