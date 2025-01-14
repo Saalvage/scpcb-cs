@@ -186,6 +186,7 @@ public class MainScene : Scene3D {
             Animation = anim,
             Speed = 5,
             Time = i,
+            Looping = true,
         }));
 
         window.KeyDown += HandleKeyDown;
@@ -269,6 +270,8 @@ public class MainScene : Scene3D {
 
     private static string? _serialized;
 
+    private DynamicPhysicsModel? _last173;
+
     private void HandleKeyDown(KeyEvent e) {
         switch (e.Key) {
             case Key.Space: {
@@ -282,8 +285,25 @@ public class MainScene : Scene3D {
                 entity.WorldTransform = new(_player.Camera.Position, _player.Camera.Rotation, new(0.1f));
                 entity.Body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
                 AddEntity(entity);
+                _last173 = entity;
                 break;
             }
+            case Key.Number1:
+                if (_last173 == null) {
+                    break;
+                }
+                _last173.WorldTransform = _last173.WorldTransform with {
+                    Scale = _last173.WorldTransform.Scale * 1.1f,
+                };
+                break;
+            case Key.Number2:
+                if (_last173 == null) {
+                    break;
+                }
+                _last173.WorldTransform = _last173.WorldTransform with {
+                    Position = _last173.WorldTransform.Position + Vector3.UnitY * 20,
+                };
+                break;
             case Key.Escape:
                 if (_openMenu != null) {
                     SetOpenMenu(null);
