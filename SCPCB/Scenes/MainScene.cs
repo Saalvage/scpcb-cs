@@ -4,6 +4,7 @@ using SCPCB.Entities;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Animation;
+using SCPCB.Graphics.Models;
 using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders;
