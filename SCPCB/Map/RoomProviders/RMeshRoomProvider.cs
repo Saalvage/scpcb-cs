@@ -84,7 +84,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 textures[0] ??= gfxRes.TextureCache.GetTexture(Color.White);
                 textures[1] ??= gfxRes.MissingTexture;
 
-                var mat = gfxRes.MaterialCache.GetMaterial(shader, textures!, [gfxRes.GraphicsDevice.Aniso4xSampler]);
+                var mat = gfxRes.MaterialCache.GetMaterial<RMeshShader, RMeshShader.Vertex>(textures!, [gfxRes.GraphicsDevice.Aniso4xSampler]);
 
                 var vertexCount = reader.ReadInt32();
                 var vertices = GetBufferedSpan(vertexCount, vertexStackBuffer, ref vertexHeapBuffer);
@@ -126,10 +126,11 @@ public partial class RMeshRoomProvider : IRoomProvider {
                 if (isOpaque) {
                     // Good enough (I hope), opaque objects won't need it anyways (I hope).
                     var pos = vertices[(int)indices[0]].Position;
-                    meshes.Add(new(new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, vertices, indices), mat, pos, isOpaque));
+                    meshes.Add(RoomData.MeshInfo.Create(new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice, 
+                        vertices, indices), mat, pos, isOpaque));
                 } else {
                     meshes.AddRange(Helpers.SeparateVerticesIntoContinuousMeshes<RMeshShader.Vertex>(vertices, indices, x => x.Position)
-                        .Select(x => new RoomData.MeshInfo(new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice,
+                        .Select(x => RoomData.MeshInfo.Create(new CBMesh<RMeshShader.Vertex>(gfxRes.GraphicsDevice,
                             x.Vertices, x.Indices), mat, x.Position, isOpaque)));
                 }
             }

@@ -22,9 +22,19 @@ public class MaterialCache : BaseCache<int, ICBMaterial> {
         }
         return hashCode.ToHashCode();
     }
-    
+
+    public ICBMaterial GetMaterial(ICBShader shader)
+        => GetMaterial(shader, [], []);
+
+    public ICBMaterial<TVertex> GetMaterial<TShader, TVertex>()
+        where TShader : IAutoShader
+        => GetMaterial<TShader, TVertex>([], []);
+
+    public ICBMaterial<TVertex> GetMaterial<TVertex>(ICBShader<TVertex> shader)
+        => GetMaterial(shader, [], []);
+
     public ICBMaterial<TVertex> GetMaterial<TShader, TVertex>(IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers)
-            where TShader : IAutoShader
+        where TShader : IAutoShader
         => GetMaterial(_shaderCache.GetShader<TShader, TVertex>(), textures, samplers);
 
     public ICBMaterial<TVertex> GetMaterial<TVertex>(ICBShader<TVertex> shader, IEnumerable<ICBTexture> textures, IEnumerable<Sampler> samplers)

@@ -41,7 +41,7 @@ public class SortedRenderer : EntityListener, IPrerenderable, IRenderable {
     protected override void OnAddEntity(IEntity e) {
         switch (e) {
             case ISortableMeshInstanceHolder p:
-                AddRange(p.Models);
+                AddRange(p.Instances);
                 break;
             case ISortableMeshInstance m:
                 Add(m);
@@ -52,7 +52,7 @@ public class SortedRenderer : EntityListener, IPrerenderable, IRenderable {
     protected override void OnRemoveEntity(IEntity e) {
         switch (e) {
             case ISortableMeshInstanceHolder p:
-                RemoveRange(p.Models);
+                RemoveRange(p.Instances);
                 break;
             case ISortableMeshInstance m:
                 Remove(m);

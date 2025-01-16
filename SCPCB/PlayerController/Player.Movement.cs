@@ -5,7 +5,7 @@ using SCPCB.Physics;
 using SCPCB.Physics.Primitives;
 using SCPCB.Utility;
 using Helpers = SCPCB.Utility.Helpers;
-using SCPCB.Graphics;
+using SCPCB.Graphics.DebugUtilities;
 
 namespace SCPCB.PlayerController;
 

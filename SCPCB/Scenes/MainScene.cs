@@ -1,9 +1,11 @@
 ﻿using System.Drawing;
 using System.Numerics;
+using BepuPhysics.Collidables;
 using SCPCB.Entities;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Animation;
+using SCPCB.Graphics.DebugUtilities;
 using SCPCB.Graphics.Models;
 using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Graphics.Primitives;
@@ -18,6 +20,7 @@ using SCPCB.Graphics.UserInterface.Primitives;
 using SCPCB.Graphics.UserInterface.Utility;
 using SCPCB.Map;
 using SCPCB.Physics;
+using SCPCB.Physics.Primitives;
 using SCPCB.PlayerController;
 using SCPCB.Serialization;
 using SCPCB.Utility;
@@ -272,6 +275,7 @@ public class MainScene : Scene3D {
     private static string? _serialized;
 
     private DynamicPhysicsModel? _last173;
+    private IReadOnlyList<Model>? _invisCollModels;
 
     private void HandleKeyDown(KeyEvent e) {
         switch (e.Key) {
@@ -304,6 +308,41 @@ public class MainScene : Scene3D {
                 _last173.WorldTransform = _last173.WorldTransform with {
                     Position = _last173.WorldTransform.Position + Vector3.UnitY * 20,
                 };
+                break;
+            case Key.KeypadPlus:
+                var dic = new Dictionary<ICBShape, ModelTemplate>();
+                AddEntities(GetEntitiesOfType<PhysicsModel>()
+                    .Select(x => (Model: x, Template: CreateTemplate(x.Collidable.Shape)))
+                    .Where(x => x.Item2 != null)
+                    .Select(x => new DebugPhysicsModelFollower(x.Template!, x.Model)));
+
+                AddEntities(_invisCollModels = GetEntitiesOfType<RoomInstance>()
+                    .Where(x => x.InvisibleCollision != null)
+                    // It'd be really weird if these weren't a mesh.
+                    .Select(x => new Model(CreateTemplate(x.InvisibleCollision!.Shape)!) {
+                        WorldTransform = x.Transform,
+                    }).ToArray());
+
+                ModelTemplate? CreateTemplate(ICBShape shape) {
+                    if (!dic.TryGetValue(shape, out var template)) {
+                        var mesh = shape switch {
+                            ICBShape<Mesh> m => m.CreateDebugMesh(Graphics.GraphicsDevice),
+                            ICBShape<ConvexHull> ch => ch.CreateDebugMesh(Graphics.GraphicsDevice),
+                            _ => null,
+                        };
+                        if (mesh == null) {
+                            return null;
+                        }
+                        template = new([new MeshMaterial<VPositionNormal>(mesh,
+                            Graphics.MaterialCache.GetMaterial<FlatShader, VPositionNormal>())]);
+                        dic.Add(shape, template);
+                    }
+                    return template;
+                }
+                break;
+            case Key.KeypadMinus:
+                RemoveEntities(GetEntitiesOfType<DebugPhysicsModelFollower>());
+                RemoveEntities(_invisCollModels ?? []);
                 break;
             case Key.Escape:
                 if (_openMenu != null) {

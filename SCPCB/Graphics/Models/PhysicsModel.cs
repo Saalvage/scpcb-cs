@@ -1,4 +1,5 @@
-﻿using SCPCB.Physics.Primitives;
+﻿using System.Diagnostics;
+using SCPCB.Physics.Primitives;
 using SCPCB.Utility;
 using System.Numerics;
 using SCPCB.Entities;
@@ -25,9 +26,9 @@ public class PhysicsModel : Model, IEntity {
         }
     }
 
-    // TODO: It seems redundant to pass both the collidable and the template..
     public PhysicsModel(IPhysicsModelTemplate template, CBCollidable collidable)
         : base(template) {
+        Debug.Assert(template.Shape == collidable.Shape);
         Collidable = collidable;
         _offset = -template.OffsetFromCenter;
     }

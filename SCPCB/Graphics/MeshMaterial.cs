@@ -20,6 +20,7 @@ public interface IMeshMaterial<TVertex> : IMeshMaterial where TVertex : unmanage
     void Deconstruct(out ICBMesh<TVertex> mesh, out ICBMaterial<TVertex> material) => (mesh, material) = (Mesh, Material);
 }
 
+// The sole purpose of this struct is to statically assure that meshes are combined with a material matching its vertex type.
 public record struct MeshMaterial<TVertex>(ICBMesh<TVertex> Mesh, ICBMaterial<TVertex> Material)
     : IMeshMaterial<TVertex> where TVertex : unmanaged;
 
@@ -36,7 +37,7 @@ public static class MeshMaterialExtensions {
             var constants = dic.TryGetValue(mat.Shader, out var val) ? val
                 : dic[mat.Shader] = mat.Shader.TryCreateInstanceConstants();
 
-            yield return mesh.CreateModel(mat, constants);
+            yield return mesh.Instantiate(mat, constants);
         }
     }
 }

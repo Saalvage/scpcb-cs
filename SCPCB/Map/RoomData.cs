@@ -18,8 +18,8 @@ public interface IRoomData : IDisposable {
 
 public class RoomData : Disposable, IRoomData {
     private readonly MeshInfo[] _meshes;
-    private readonly CBShape<Mesh>? _visibleCollIndex;
-    private readonly CBShape<Mesh>? _invisibleCollIndex;
+    private readonly CBShape<Mesh>? _visibleCollision;
+    private readonly CBShape<Mesh>? _invisibleCollision;
     private readonly IMapEntityData[] _mapEntities;
 
     private readonly GraphicsResources _gfxRes;
@@ -30,22 +30,26 @@ public class RoomData : Disposable, IRoomData {
         _gfxRes = gfxRes;
         _physics = physics;
         _meshes = meshes;
-        _visibleCollIndex = visibleCollision.HasValue ? new CBShape<Mesh>(physics, visibleCollision.Value) : null;
-        _invisibleCollIndex = invisibleCollision.HasValue ? new CBShape<Mesh>(physics, invisibleCollision.Value) : null;
+        _visibleCollision = visibleCollision.HasValue ? new CBShape<Mesh>(physics, visibleCollision.Value) : null;
+        _invisibleCollision = invisibleCollision.HasValue ? new CBShape<Mesh>(physics, invisibleCollision.Value) : null;
         _mapEntities = mapEntities;
     }
 
-    public readonly record struct MeshInfo(ICBMesh Geometry, ICBMaterial Material, Vector3 PositionInRoom, bool IsOpaque);
+    public readonly record struct MeshInfo(IMeshMaterial Mesh, Vector3 PositionInRoom, bool IsOpaque) {
+        public static MeshInfo Create<TVertex>(ICBMesh<TVertex> mesh, ICBMaterial<TVertex> mat, Vector3 pos, bool isOpaque)
+            where TVertex : unmanaged
+            => new(new MeshMaterial<TVertex>(mesh, mat), pos, isOpaque);
+    }
 
     public IRoomInstance Instantiate(Vector3 offset, Quaternion rotation)
-        => new RoomInstance(_physics, this, _meshes, _visibleCollIndex, _invisibleCollIndex, offset, rotation, _mapEntities
+        => new RoomInstance(this, _meshes, _visibleCollision, _invisibleCollision, offset, rotation, _mapEntities
             .Select(x => x.Instantiate(_gfxRes, _physics, new(offset, rotation))).ToArray());
 
     protected override void DisposeImpl() {
-        _visibleCollIndex?.Dispose();
-        _invisibleCollIndex?.Dispose();
+        _visibleCollision?.Dispose();
+        _invisibleCollision?.Dispose();
         foreach (var mesh in _meshes) {
-            mesh.Geometry.Dispose();
+            mesh.Mesh.Mesh.Dispose();
             // Materials are cached.
         }
     }
@@ -54,47 +58,51 @@ public class RoomData : Disposable, IRoomData {
 public interface IRoomInstance : IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>, ISortableMeshInstanceHolder, IEntityHolder;
 
 public class RoomInstance : Disposable, IRoomInstance {
-    IEnumerable<ISortableMeshInstance> ISortableMeshInstanceHolder.Models => Models;
-    public IReadOnlyList<ISortableMeshInstance> Models { get; }
+    IEnumerable<ISortableMeshInstance> ISortableMeshInstanceHolder.Instances => Instances;
+    public IReadOnlyList<ISortableMeshInstance> Instances { get; }
 
-    IEnumerable<IEntity> IEntityHolder.Entities => Entites;
-    public IReadOnlyList<IMapEntity> Entites { get; }
+    IEnumerable<IEntity> IEntityHolder.Entities => Entities;
+    public IReadOnlyList<IMapEntity> Entities { get; }
 
     private readonly Matrix4x4 _transform;
     private readonly RoomData _data; // Keep alive.
 
     private readonly CBStatic? _visibleColl;
-    private readonly CBStatic? _invisibleColl;
+    // TODO: We only expose this to allow for visualizing it for debugging.
+    public CBStatic? InvisibleCollision { get; }
 
-    public RoomInstance(PhysicsResources physics, RoomData data, RoomData.MeshInfo[] meshes, ICBShape<Mesh>? visibleCollShape, ICBShape<Mesh>? invisibleCollShape,
-            Vector3 offset, Quaternion rotation, IMapEntity[] mapEntities) {
+    public Transform Transform { get; }
+
+    public RoomInstance(RoomData data, RoomData.MeshInfo[] meshes, ICBShape<Mesh>? visibleCollShape, ICBShape<Mesh>? invisibleCollShape,
+        Vector3 offset, Quaternion rotation, IMapEntity[] mapEntities) {
         _data = data;
 
-        // TODO: Support different shaders here.
-        var constants = meshes[0].Material.Shader.TryCreateInstanceConstants();
+        Transform = new(offset, rotation);
 
-        Models = meshes.Select(ISortableMeshInstance (x) => new SortableMeshInstance(x.Geometry.CreateModel(x.Material, constants),
-                Vector3.Transform(x.PositionInRoom, rotation) + offset, x.IsOpaque))
+        Instances = meshes
+            .Zip(meshes.Select(x => x.Mesh).Instantiate())
+            .Select(ISortableMeshInstance (x) => new SortableMeshInstance(x.Second,
+                Vector3.Transform(x.First.PositionInRoom, rotation) + offset, x.First.IsOpaque))
             .ToArray();
 
-        Entites = mapEntities;
+        Entities = mapEntities;
 
         // TODO: This illustrates the shittyness of the current design.
-        foreach (var m in Models) {
+        foreach (var m in Instances) {
             m.MeshInstance.ConstantProviders.Add(this);
         }
 
         _visibleColl = visibleCollShape?.CreateStatic(new(offset, rotation));
-        _invisibleColl = invisibleCollShape?.CreateStatic(new(offset, rotation));
-        _invisibleColl?.SetProperty<Visibility, bool>(true);
+        InvisibleCollision = invisibleCollShape?.CreateStatic(new(offset, rotation));
+        InvisibleCollision?.SetProperty<Visibility, bool>(true);
 
         _transform = Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(offset);
     }
-    
+
     public Matrix4x4 GetValue(float interp) => _transform;
 
     protected override void DisposeImpl() {
         _visibleColl?.Dispose();
-        _invisibleColl?.Dispose();
+        InvisibleCollision?.Dispose();
     }
 }

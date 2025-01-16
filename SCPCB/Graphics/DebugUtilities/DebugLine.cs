@@ -9,7 +9,7 @@ using SCPCB.Graphics.Textures;
 using SCPCB.Scenes;
 using SCPCB.Utility;
 
-namespace SCPCB.Graphics;
+namespace SCPCB.Graphics.DebugUtilities;
 
 public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<IColorConstantMember, Vector3> {
     private IScene? _scene;
@@ -23,7 +23,7 @@ public class DebugLine : Disposable, IRenderable, IUpdatable, IConstantProvider<
 
     public DebugLine(GraphicsResources gfxRes, TimeSpan? disappearsAfter, params Vector3[] points) {
         var shader = gfxRes.ShaderCache.GetShader<LineShader, VPosition>();
-        var mat = gfxRes.MaterialCache.GetMaterial(shader, [], []);
+        var mat = gfxRes.MaterialCache.GetMaterial(shader);
         var mesh = new CBMesh<VPosition>(gfxRes.GraphicsDevice, points
             .Select(x => new VPosition { Position = x })
             .ToArray(), points.Select((_, i) => (uint)i).ToArray());

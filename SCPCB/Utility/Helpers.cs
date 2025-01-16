@@ -209,4 +209,6 @@ public static class Helpers {
     public static uint RoundUpToMultiple(uint value, uint multipleOf) {
         return (value + multipleOf - 1) / multipleOf * multipleOf;
     }
+
+    public static Vector3 ComputeNormal(Vector3 a, Vector3 b, Vector3 c) => Vector3.Normalize(Vector3.Cross(b - a, c - a));
 }
