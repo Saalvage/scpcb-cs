@@ -35,7 +35,9 @@ public abstract class CBCollidable : Disposable, IEquatable<CollidableReference>
     }
 
     protected override void DisposeImpl() {
-        Detach();
+        if (!Physics.IsDisposed) {
+            Detach();
+        }
     }
 
     protected abstract void UpdateShape(ICBShape newShape);

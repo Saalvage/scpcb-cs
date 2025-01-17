@@ -71,6 +71,8 @@ public class CBShape<T> : Disposable, ICBShape<T> where T : unmanaged, IShape {
     }
 
     protected override void DisposeImpl() {
-        Physics.Simulation.Shapes.RecursivelyRemoveAndDispose(ShapeIndex, Physics.Simulation.BufferPool);
+        if (!Physics.IsDisposed) {
+            Physics.Simulation.Shapes.RecursivelyRemoveAndDispose(ShapeIndex, Physics.Simulation.BufferPool);
+        }
     }
 }

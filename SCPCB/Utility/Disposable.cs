@@ -1,15 +1,22 @@
-﻿namespace SCPCB.Utility; 
+﻿using System.Diagnostics;
+
+namespace SCPCB.Utility; 
 
 public abstract class Disposable : IDisposable {
-    private bool _disposed = false;
+    public bool IsDisposed { get; private set; } = false;
+
+#if DEBUG
+    // Allows for tracing creation of incorrectly disposed objects.
+    private readonly StackTrace _stackTrace = new(true);
+#endif
 
     ~Disposable() {
         Dispose();
     }
 
     public void Dispose() {
-        if (_disposed) { return; }
-        _disposed = true;
+        if (IsDisposed) { return; }
+        IsDisposed = true;
         GC.SuppressFinalize(this);
         DisposeImpl();
     }
