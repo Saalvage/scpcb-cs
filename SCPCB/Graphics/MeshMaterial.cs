@@ -12,10 +12,10 @@ public interface IMeshMaterial {
 
 public interface IMeshMaterial<TVertex> : IMeshMaterial where TVertex : unmanaged {
     ICBMesh IMeshMaterial.Mesh => Mesh;
-    ICBMesh<TVertex> Mesh { get; }
+    new ICBMesh<TVertex> Mesh { get; }
     
     ICBMaterial IMeshMaterial.Material => Material;
-    ICBMaterial<TVertex> Material { get; }
+    new ICBMaterial<TVertex> Material { get; }
 
     void Deconstruct(out ICBMesh<TVertex> mesh, out ICBMaterial<TVertex> material) => (mesh, material) = (Mesh, Material);
 }

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SCPCB.Utility; 
 
-public class WeakDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TValue : class {
+public class WeakDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TValue : class where TKey : notnull {
     private readonly Dictionary<TKey, WeakReference<TValue>> _dict = [];
 
     private void CleanUp() {

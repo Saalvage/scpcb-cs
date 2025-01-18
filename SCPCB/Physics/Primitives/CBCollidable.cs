@@ -97,10 +97,5 @@ public abstract class CBCollidable : Disposable, IEquatable<CollidableReference>
 
     protected abstract CollidableReference GetCollidableReference();
 
-    public static bool operator ==(CBCollidable a, CollidableReference b) => a.Equals(b);
-    public static bool operator !=(CBCollidable a, CollidableReference b) => !(a == b);
-    public static bool operator ==(CollidableReference a, CBCollidable b) => b == a;
-    public static bool operator !=(CollidableReference a, CBCollidable b) => b != a;
-
     public abstract bool Equals(CollidableReference other);
 }

@@ -24,11 +24,11 @@ public class VideoScene : BaseScene {
         _model = new MeshInstance<UIShader.Vertex>(null, Graphics.MaterialCache.GetMaterial<UIShader, UIShader.Vertex>(
                 [video.Texture], [Graphics.GraphicsDevice.Aniso4xSampler]),
             new CBMesh<UIShader.Vertex>(Graphics.GraphicsDevice, [
-                    new(new(1, -1)),
-                    new(new(-1, -1)),
-                    new(new(1, 1)),
-                    new(new(-1, 1)),
-                ], [2, 1, 0, 3, 1, 2]));
+                new(new(1, -1)),
+                new(new(-1, -1)),
+                new(new(1, 1)),
+                new(new(-1, 1)),
+            ], [2, 1, 0, 3, 1, 2]));
 
         Graphics.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
             Matrix4x4.CreateOrthographic(2, 2, -100f, 100f));
@@ -67,7 +67,7 @@ public class VideoScene : BaseScene {
     private void MoveToMain() {
         if (!_moved) {
             _moved = true;
-            _game.Scene = new MainScene(_game);
+            _game.Scene = new MapCreatorScene(_game);
         }
     }
 

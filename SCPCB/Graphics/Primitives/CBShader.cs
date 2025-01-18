@@ -90,21 +90,11 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
         }
 
         private long GetTexturesHashCode()
-            => Textures.Count switch {
-                0 => 0,
-                1 => Textures[0].View.GetHashCode(),
-                2 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode()),
-                3 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode()),
-                4 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode()),
-                5 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode()),
-                6 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode(), Textures[5].View.GetHashCode()),
-                7 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode(), Textures[5].View.GetHashCode(), Textures[6].View.GetHashCode()),
-                8 => HashCode.Combine(Textures[0].View.GetHashCode(), Textures[1].View.GetHashCode(), Textures[2].View.GetHashCode(), Textures[3].View.GetHashCode(), Textures[4].View.GetHashCode(), Textures[5].View.GetHashCode(), Textures[6].View.GetHashCode(), Textures[7].View.GetHashCode()),
-            };
+            => Textures.Select(x => x.GetHashCode()).Aggregate(0, HashCode.Combine);
 
         private ResourceSet CreateSet()
             => _gfx.ResourceFactory.CreateResourceSet(new(_layout, _textures
-                .Select(t => (BindableResource)t.View)
+                .Select(BindableResource (t) => t.View)
                 .Concat(_samplers)
                 .ToArray()));
 

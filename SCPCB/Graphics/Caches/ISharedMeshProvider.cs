@@ -8,5 +8,5 @@ public interface ISharedMeshProvider<TSelf> where TSelf : ISharedMeshProvider<TS
 
 public interface ISharedMeshProvider<TSelf, TVertex> : ISharedMeshProvider<TSelf> where TVertex : unmanaged where TSelf : ISharedMeshProvider<TSelf, TVertex> {
     static ICBMesh ISharedMeshProvider<TSelf>.CreateSharedMesh(GraphicsResources gfxRes) => TSelf.CreateSharedMesh(gfxRes);
-    static abstract ICBMesh<TVertex> CreateSharedMesh(GraphicsResources gfxRes);
+    new static abstract ICBMesh<TVertex> CreateSharedMesh(GraphicsResources gfxRes);
 }

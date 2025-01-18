@@ -26,7 +26,7 @@ public class Video : Disposable, IUpdatable {
 
     public TimeSpan Position { get => _media.Video.Position; set => ResetTo(value); }
 
-    public event Action Finished;
+    public event Action? Finished;
 
     // TODO: Do we really need this to be its own class?
     // Modify CBTexture to allow for the same behavior?

@@ -35,7 +35,7 @@ public class Light : IMapEntity, IEntityHolder, IPrerenderable {
 
     public void OnAdd(IScene scene) {
         Debug.Assert(scene is Scene3D);
-        _scene = ((Scene3D)scene);
+        _scene = (Scene3D)scene;
     }
 
     public void Prerender(float interp) {

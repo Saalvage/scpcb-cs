@@ -27,7 +27,7 @@ public class Font : Disposable {
     public const uint ATLAS_SIZE = 2048;
 
     public Font(GraphicsResources gfxRes, FreeTypeLibrary lib, string path, int size) {
-        Log.Information("Loading font {path}", path);
+        Log.Information("Loading font {Path}", path);
 
         FT_New_Face(lib.Native, path, 0, out _faceNative);
         _gfxRes = gfxRes;

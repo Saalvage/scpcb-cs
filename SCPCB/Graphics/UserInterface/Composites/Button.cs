@@ -11,7 +11,7 @@ public class Button : InteractableUIElement<Label> {
 
     private readonly TextureElement _hover;
 
-    public event Action OnClicked;
+    public event Action? OnClicked;
 
     public Button(GraphicsResources gfxRes, UIManager ui, string text, float outerXOff, float innerXOff, float yOff, int textSize = 64)
             : base(new(gfxRes, ui, outerXOff, innerXOff, yOff, textSize)) {

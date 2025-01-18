@@ -24,8 +24,8 @@ public class PhysicsResources : Disposable, ITickable {
 
     private readonly ThreadDispatcher _threadDispatcher;
 
-    public event Action BeforeUpdate;
-    public event Action AfterUpdate;
+    public event Action? BeforeUpdate;
+    public event Action? AfterUpdate;
 
     public PhysicsResources(GraphicsResources gfxRes) {
         ModelCache = new(gfxRes, this,

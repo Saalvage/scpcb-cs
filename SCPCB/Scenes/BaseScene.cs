@@ -6,7 +6,7 @@ using SCPCB.Utility;
 
 namespace SCPCB.Scenes;
 
-public class BaseScene : Disposable, IScene {
+public abstract class BaseScene : Disposable, IScene {
     public GraphicsResources Graphics { get; }
 
     // This fucking sucks, all because BinarySearch is not an extension method for some reason??
@@ -30,10 +30,10 @@ public class BaseScene : Disposable, IScene {
 
     public IEnumerable<IEntity> Entities => _entities;
 
-    public event Action<IEntity> OnAddEntity;
-    public event Action<IEntity> OnRemoveEntity;
+    public event Action<IEntity>? OnAddEntity;
+    public event Action<IEntity>? OnRemoveEntity;
 
-    public BaseScene(GraphicsResources gfxRes) {
+    protected BaseScene(GraphicsResources gfxRes) {
         Graphics = gfxRes;
     }
 

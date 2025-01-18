@@ -52,7 +52,7 @@ public class TextInput : InteractableUIElement<TextElement> {
 
     // TODO: This only returning the text BEFORE change is unintuitive.
     // Would also be neat to be able to prevent changes.
-    public event Action<string> OnTextChanged;
+    public event Action<string>? OnTextChanged;
 
     public TextInput(GraphicsResources gfxRes, InputManager input, Font font) : base(new(gfxRes, font)) {
         _input = input;

@@ -2,7 +2,7 @@
 
 namespace SCPCB.Graphics.Caches; 
 
-public abstract class BaseCache<TKey, TVal> : Disposable where TVal : class, IDisposable {
+public abstract class BaseCache<TKey, TVal> : Disposable where TVal : class, IDisposable where TKey : notnull {
     protected WeakDictionary<TKey, TVal> _dic = [];
 
     protected override void DisposeImpl() {

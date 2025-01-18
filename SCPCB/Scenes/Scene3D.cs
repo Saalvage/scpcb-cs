@@ -6,12 +6,12 @@ using SCPCB.Physics;
 
 namespace SCPCB.Scenes;
 
-public class Scene3D : BaseScene {
+public abstract class Scene3D : BaseScene {
     public ICamera Camera { get; protected set; }
 
     public PhysicsResources Physics { get; }
 
-    public Scene3D(GraphicsResources gfxRes) : base(gfxRes) {
+    protected Scene3D(GraphicsResources gfxRes) : base(gfxRes) {
         Physics = new(Graphics); 
 
         AddEntity(new SortedRenderer(this, interp => Camera.Position));

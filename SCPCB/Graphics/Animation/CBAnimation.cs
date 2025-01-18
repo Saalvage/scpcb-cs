@@ -46,7 +46,7 @@ public class CBAnimation {
         // 1. Linearize node hierarchy and replace recursion with iteration.
         // 2. Apply to multiple constant holders in one traversal.
         ApplyTransforms(_animInfo.RootNode, Matrix4x4.Identity, holders);
-        void ApplyTransforms(Node node, Matrix4x4 globalTransform, ReadOnlySpan<IConstantHolder> holders) {
+        void ApplyTransforms(Node node, Matrix4x4 globalTransform, ReadOnlySpan<IConstantHolder?> holders) {
             var local = Matrix4x4.Transpose(node.Transform);
             if (_channels.TryGetValue(node.Name, out var bone)) {
                 local = bone.GetMatrix(time);

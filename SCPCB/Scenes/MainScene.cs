@@ -62,7 +62,7 @@ public class MainScene : Scene3D {
 
     private Vector3? _measuringTape;
 
-    public MainScene(Game game, PlacedRoomInfo?[,]? map = null) : base(game.GraphicsResources) {
+    public MainScene(Game game, PlacedRoomInfo?[,] map) : base(game.GraphicsResources) {
         _game = game;
         _input = game.InputManager;
 
@@ -129,7 +129,7 @@ public class MainScene : Scene3D {
         _hud = new(_player, ui);
         AddEntity(_hud);
 
-        var reg = new ItemRegistry(Graphics, this);
+        var reg = new ItemRegistry(this);
         reg.RegisterItemsFromFile("Assets/Items/items.txt");
         var itemmm = reg.CreateItem(new(_player.Camera.Position, Quaternion.Identity, new(0.1f)), "doc173");
         AddEntity(itemmm);

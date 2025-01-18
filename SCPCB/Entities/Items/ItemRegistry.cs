@@ -6,7 +6,7 @@ using SCPCB.Utility;
 
 namespace SCPCB.Entities.Items;
 
-public class ItemRegistry(GraphicsResources gfxRes, IScene scene) {
+public class ItemRegistry(IScene scene) {
     private readonly Dictionary<string, Func<Transform, IItem>> _templates = [];
 
     public void RegisterItem(string name, Func<Transform, IItem> template) {

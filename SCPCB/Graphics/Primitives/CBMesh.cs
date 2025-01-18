@@ -45,7 +45,7 @@ public class CBMesh<TVertex> : Disposable, ICBMesh<TVertex> where TVertex : unma
         commands.DrawIndexed(_indexCount, 1, 0, 0, 0);
     }
 
-    public IMeshInstance<TVertex> Instantiate(ICBMaterial<TVertex> mat, IConstantHolder constants)
+    public IMeshInstance<TVertex> Instantiate(ICBMaterial<TVertex> mat, IConstantHolder? constants)
         => new MeshInstance<TVertex>(constants, mat, this);
 
     protected override void DisposeImpl() {
