@@ -220,7 +220,7 @@ public class MainScene : Scene3D {
         }
 
         _str.Text = $"""
-                    FPS: {_game.Fps}
+                    FPS: {_game.FPS}
                     
                     Position: {FormatVec(_player.Camera.Position)}
                     Rotation: ({ToDeg(_player.Yaw):F3}° ({RadToDir(_player.Yaw)}), {ToDeg(_player.Pitch):F3}°)

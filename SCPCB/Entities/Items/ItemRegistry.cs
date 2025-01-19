@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
-using SCPCB.Graphics;
 using SCPCB.Scenes;
 using SCPCB.Utility;
 

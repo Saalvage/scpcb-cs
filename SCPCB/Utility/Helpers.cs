@@ -2,6 +2,8 @@
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using SCPCB.Map;
 using ShaderGen;
 using Veldrid;
 
@@ -211,4 +213,21 @@ public static class Helpers {
     }
 
     public static Vector3 ComputeNormal(Vector3 a, Vector3 b, Vector3 c) => Vector3.Normalize(Vector3.Cross(b - a, c - a));
+
+    public static PlacedRoomInfo[,] GenerateDebugRooms() {
+        var rooms = JsonSerializer.Deserialize<RoomInfo[]>(File.ReadAllText("Assets/Rooms/rooms.json"));
+        var grid = new PlacedRoomInfo[5, 10];
+
+        foreach (var i in Enumerable.Range(0, 5)) {
+            foreach (var j in Enumerable.Range(0, 10)) {
+                var roomName =
+                    i == 0 || i == 4 || j == 0 || j == 9 ? "room008" :
+                    i == 2 || j == 5 ? "coffin" : "4tunnels";
+                grid[i, j] = new(rooms.First(x => x.Name == roomName), (Direction)((i + j) % 4));
+            }
+        }
+        grid[0, 0] = new(rooms.First(x => x.Name == "test"), Direction.Up);
+
+        return grid;
+    }
 }

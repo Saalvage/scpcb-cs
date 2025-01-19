@@ -19,7 +19,7 @@ public class Game : Disposable {
         }
     }
 
-    public int Fps { get; private set; }
+    public int FPS { get; private set; }
 
     public Game(int width, int height) {
         var config = new LoggerConfiguration()
@@ -34,7 +34,7 @@ public class Game : Disposable {
         GraphicsResources = new(width, height);
         InputManager = new(GraphicsResources.Window);
 
-        _scene = new MapCreatorScene(this); //false ? new VideoScene(this, "Assets/Splash_UTG.mp4") : new MainScene(this);
+        _scene = new MainScene(this, Helpers.GenerateDebugRooms());
         _scene.OnEnter();
     }
 
@@ -84,7 +84,7 @@ public class Game : Disposable {
                 fps++;
                 if (now > countingTo) {
                     countingTo = countingTo.AddSeconds(1);
-                    Fps = fps;
+                    FPS = fps;
                     fps = 0;
                 }
             }

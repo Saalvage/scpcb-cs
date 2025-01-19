@@ -28,5 +28,10 @@
     "Name": "coffin",
     "Shape": "_1",
     "Mesh": "coffin/coffin_opt.rmesh"
+  },
+  {
+    "Name": "test",
+    "Shape": "_4",
+    "Mesh": "test_movement/test.rmesh"
   }
 ]

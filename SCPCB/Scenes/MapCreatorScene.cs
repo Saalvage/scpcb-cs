@@ -82,15 +82,6 @@ public class MapCreatorScene : BaseScene {
         Graphics.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
             Helpers.CreateUIProjectionMatrix(Graphics.Window.Width, Graphics.Window.Height));
 
-        foreach (var i in Enumerable.Range(0, 5)) {
-            foreach (var j in Enumerable.Range(0, 10)) {
-                var roomName =
-                    i == 0 || i == 4 || j == 0 || j == 9 ? "room008" :
-                    i == 2 || j == 5 ? "coffin" : "4tunnels";
-                grid[i, j] = new(rooms.First(x => x.Name == roomName), (Direction)((i + j) % 4));
-            }
-        }
-
         void GenerateMap(string seed) {
             var map = new MapGenerator(grid.Width, grid.Height).GenerateMap(roomsDic, seed);
 
