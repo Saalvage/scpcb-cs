@@ -90,7 +90,7 @@ public class CBShader<TVertex, TVertConstants, TFragConstants, TInstanceVertCons
         }
 
         private long GetTexturesHashCode()
-            => Textures.Select(x => x.GetHashCode()).Aggregate(0, HashCode.Combine);
+            => Textures.Select(x => x.View.GetHashCode()).Aggregate(0, HashCode.Combine);
 
         private ResourceSet CreateSet()
             => _gfx.ResourceFactory.CreateResourceSet(new(_layout, _textures
