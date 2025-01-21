@@ -33,11 +33,18 @@ public class RenderTarget : Disposable, IRenderTarget {
 
     protected virtual Framebuffer Framebuffer { get; init; }
 
+    public RgbaFloat? ClearColor { get; set; } = RgbaFloat.Grey;
+    public bool ClearDepth { get; set; } = true;
+
     public virtual void Start() {
         _commands.Begin();
         _commands.SetFramebuffer(Framebuffer);
-        _commands.ClearColorTarget(0, RgbaFloat.Grey);
-        ClearDepthStencil();
+        if (ClearColor.HasValue) {
+            _commands.ClearColorTarget(0, ClearColor.Value);
+        }
+        if (ClearDepth) {
+            ClearDepthStencil();
+        }
     }
 
     public virtual void End() {

@@ -31,7 +31,7 @@ public static class MeshMaterialExtensions {
     public static IEnumerable<IMeshInstance> Instantiate(this IEnumerable<IMeshMaterial> meshMats) {
         var dic = new Dictionary<ICBShader, IConstantHolder?>();
 
-        // TODO: I still don't like how constants are handled in models..
+        // TODO: I still don't like how constants are handled in mesh instances..
         foreach (var mm in meshMats) {
             var (mesh, mat) = mm;
             var constants = dic.TryGetValue(mat.Shader, out var val) ? val

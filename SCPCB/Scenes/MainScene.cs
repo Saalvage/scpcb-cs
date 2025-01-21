@@ -41,7 +41,8 @@ public class MainScene : Scene3D {
     private readonly ICBMaterial<VPositionTexture> _otherMat;
     private readonly ICBMaterial<VPositionTexture> _logoMat;
 
-    private readonly RenderTexture _renderTexture;
+    private readonly DreamFilter _dreamFilter;
+
     private readonly PhysicsModelTemplate _template;
 
     private readonly HUD _hud;
@@ -74,8 +75,6 @@ public class MainScene : Scene3D {
         Camera = _player.Camera;
         AddEntity(_player);
 
-        _renderTexture = new(Graphics, 100, 100, true);
-
         _font = Graphics.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32);
 
         foreach (var c in Enumerable.Range(0, 1000)) {
@@ -91,11 +90,6 @@ public class MainScene : Scene3D {
 
         var ui = new UIManager(Graphics, _input);
         AddEntity(ui);
-
-        var uiElem2 = new TextureElement(Graphics, _renderTexture);
-        uiElem2.Alignment = Alignment.BottomRight;
-        //uiElem2.PixelSize *= 0.1f;
-        ui.Root.AddChild(uiElem2);
 
         ui.Root.AddChild(new Button(Graphics, ui, "Hello", 0, 0, 0) {
             Alignment = Alignment.BottomRight,
@@ -149,14 +143,21 @@ public class MainScene : Scene3D {
         _mig.IsVisible = false;
         ui.Root.AddChild(_mig);
 
+        _dreamFilter = new(Graphics, base.Render) {
+            TicksPerCycle = 3,
+            BlurFactor = 0.9f,
+            Offset = new(1),
+        };
+        AddEntity(_dreamFilter);
+
         var coolTexture = Graphics.TextureCache.GetTexture("Assets/173texture.jpg");
         _logoMat = Graphics.MaterialCache.GetMaterial(modelShader, [video.Texture], [gfx.PointSampler]);
 
         _otherMat = Graphics.MaterialCache.GetMaterial(modelShader, [coolTexture], [gfx.PointSampler]);
 
-        _renderMat = Graphics.MaterialCache.GetMaterial(modelShader, [_renderTexture], [gfx.PointSampler]);
+        _renderMat = Graphics.MaterialCache.GetMaterial(modelShader, [_dreamFilter.SceneTexture], [gfx.PointSampler]);
 
-        var billboard = Billboard.Create(Graphics, _renderTexture);
+        var billboard = Billboard.Create(Graphics, _dreamFilter.SceneTexture);
         billboard.WorldTransform = billboard.WorldTransform with {
             Position = new(2, 2, -0.1f),
         };
@@ -235,9 +236,9 @@ public class MainScene : Scene3D {
         float ToDeg(float rad) => (rad / (2 * MathF.PI) * 360 + 360) % 360;
         string RadToDir(float rad) => ToDeg(rad + 0.25f * MathF.PI) switch {
             < 90 => "South",
-            < 180 => "West",
+            < 180 => "East",
             < 270 => "North",
-            _ => "East",
+            _ => "West",
         };
         string FormatVec(Vector3 vec) => $"({vec.X:F3}, {vec.Y:F3}, {vec.Z:F3})";
 
@@ -245,24 +246,8 @@ public class MainScene : Scene3D {
     }
 
     public override void Render(IRenderTarget target, float interp) {
-        // TODO: This should offer great opportunities for optimization & parallelization!
-        // On second consideration: Most render targets will differ in e.g. view position
-        // meaning potential for optimization might not actually be there. :(
-
-        // TODO: This also messes with objects that utilize non-instance shader constants
-        // on a per-instance basis (e.g. for objects intended to be very lightweight (UI components))
-        // which is why it's been disabled for now. Either the usage of shader constants in the manner
-        // described above or the parallelism here needs to be revisited.
-
-        _renderTexture.Start();
-        //var a = Task.Run(() => {
-            base.Render(_renderTexture, interp);
-            _renderTexture.End();
-        //});
-        //var b = Task.Run(() => {
-            base.Render(target, interp);
-        //});
-        //Task.WaitAll(a, b);
+        // TODO: There should be a better hook for this which should also allow access to the base Render method.
+        _dreamFilter.RenderScene(target, interp);
     }
 
     public override void OnLeave() {
@@ -472,7 +457,6 @@ public class MainScene : Scene3D {
             r.Dispose();
         }
         _renderMat.Dispose();
-        _renderTexture.Dispose();
         base.DisposeImpl();
     }
 }

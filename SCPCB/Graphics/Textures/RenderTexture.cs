@@ -55,11 +55,11 @@ public class RenderTexture : RenderTarget, ICBTexture {
         }
     }
 
-    public override void Start() {
+    public override void End() {
+        base.End();
         if (_recursive) {
             _renderingToA = !_renderingToA;
         }
-        base.Start();
     }
 
     public bool IsStatic => !_recursive;

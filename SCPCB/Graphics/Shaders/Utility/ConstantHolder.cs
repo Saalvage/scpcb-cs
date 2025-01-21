@@ -8,6 +8,7 @@ namespace SCPCB.Graphics.Shaders.Utility;
 
 public interface IConstantHolder : IDisposable {
     bool HasConstant<T>() where T : IConstantMember<T>;
+    // TODO: This should probably provide an overload for explicitly setting a constant which asserts that it exists.
     void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal>;
     void SetArrayValue<T, TVal>(int index, TVal val) where T : IConstantArrayMember<T, TVal>
         where TVal : unmanaged, IEquatable<TVal>;
