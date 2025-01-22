@@ -99,11 +99,12 @@ public class TextInput : InteractableUIElement<TextElement> {
                 if (_caret != _caretWanderer) {
                     DeleteSelectedText();
                 } else if (_caret != 0) {
-                    _mementoManager.Submit(NextLeft(),
-                        new(Inner.Text[_caret - 1].ToString(), _caret - 1, false, _caret, _caretWanderer, false));
+                    var left = NextLeft();
+                    _mementoManager.Submit(left,
+                        new(Inner.Text[left.._caret], left, false, _caret, _caretWanderer, false));
                     var prev = Inner.Text;
-                    Inner.Text = Inner.Text[..(_caret - 1)] + Inner.Text[_caret..];
-                    _caret = _caretWanderer = NextLeft();
+                    Inner.Text = Inner.Text[..left] + Inner.Text[_caret..];
+                    _caret = _caretWanderer = left;
                     OnTextChanged?.Invoke(prev);
                 }
                 break;
