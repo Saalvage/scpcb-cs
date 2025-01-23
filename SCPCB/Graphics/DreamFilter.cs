@@ -63,7 +63,7 @@ public class DreamFilter : Disposable, ITickable {
         _renderBaseScene = renderBaseScene;
 
         _sceneTexture = new(gfxRes, (uint)gfxRes.Window.Width, (uint)gfxRes.Window.Height, true);
-        _dreamTexture = new(gfxRes, (uint)gfxRes.Window.Width, (uint)gfxRes.Window.Height, true) {
+        _dreamTexture = new(gfxRes, (uint)gfxRes.Window.Width, (uint)gfxRes.Window.Height) {
             ClearColor = null,
             ClearDepth = false,
         };

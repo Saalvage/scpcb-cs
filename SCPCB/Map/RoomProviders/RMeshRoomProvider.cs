@@ -313,6 +313,7 @@ public partial class RMeshRoomProvider : IRoomProvider {
             return new RoomData(gfxRes, physics, meshes.ToArray(), visible, invisible, entities.ToArray());
         } catch {
             physics.BufferPool.Return(ref triBuffer);
+            physics.BufferPool.Return(ref invisTriBuffer);
             throw;
         }
     }

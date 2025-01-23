@@ -145,7 +145,7 @@ public class MainScene : Scene3D {
 
         _dreamFilter = new(Graphics, base.Render) {
             TicksPerCycle = 3,
-            BlurFactor = 0.9f,
+            BlurFactor = 0f,
             Offset = new(1),
         };
         AddEntity(_dreamFilter);
