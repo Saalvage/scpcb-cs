@@ -41,6 +41,9 @@ public static class CBShapeExtensions {
             case IConvexShape cs:
                 cs.ComputeBounds(rotation, out min, out max);
                 break;
+            case Mesh mesh:
+                mesh.ComputeBounds(rotation, out min, out max);
+                break;
             default:
                 throw new NotSupportedException($"Computing bounds for {shape.GetType()} is not currently supported!");
         }
@@ -85,15 +88,16 @@ public static class CBShapeExtensions {
 
     public static ICBMesh<VPositionNormal> CreateDebugMesh(this ICBShape<Mesh> shape, GraphicsDevice gfx) {
         ref var mesh = ref shape.Shape;
+        var scale = mesh.Scale * DEBUG_MESH_SCALE_FACTOR;
 
         var verts = new VPositionNormal[mesh.Triangles.Length * 3];
         var indices = new uint[mesh.Triangles.Length * 3];
         for (uint i = 0; i < mesh.Triangles.Length; i++) {
             ref var tri = ref mesh.Triangles[i];
             var normal = Helpers.ComputeNormal(tri.C, tri.B, tri.A);
-            verts[i * 3 + 0] = new(tri.C * DEBUG_MESH_SCALE_FACTOR, normal);
-            verts[i * 3 + 1] = new(tri.B * DEBUG_MESH_SCALE_FACTOR, normal);
-            verts[i * 3 + 2] = new(tri.A * DEBUG_MESH_SCALE_FACTOR, normal);
+            verts[i * 3 + 0] = new(tri.C * scale, normal);
+            verts[i * 3 + 1] = new(tri.B * scale, normal);
+            verts[i * 3 + 2] = new(tri.A * scale, normal);
             indices[i * 3 + 0] = i * 3 + 0;
             indices[i * 3 + 1] = i * 3 + 1;
             indices[i * 3 + 2] = i * 3 + 2;

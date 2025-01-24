@@ -110,10 +110,8 @@ public class WeakDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TVal
         }
     }
 
-    /// <summary>
-    /// It is recommended not to call this because it is forced to create a new list.
-    /// </summary>
-    // Reason being that values could be collected between a removing iteration and the return.
+    // Values could be collected between a removing iteration and the return.
+    [Obsolete("Unnecessarily allocates a new list on each call, use IEnumerable.Select")]
     public ICollection<TValue> Values
         => this.Select(x => x.Value).ToList();
 }

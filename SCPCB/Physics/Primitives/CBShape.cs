@@ -61,6 +61,10 @@ public class CBShape<T> : Disposable, ICBShape<T> where T : unmanaged, IShape {
                     ConvexHullHelper.CreateTransformedCopy(ch.Shape, in mat, Physics.Simulation.BufferPool, out var scaledHull);
                     copy = new CBShape<ConvexHull>(Physics, scaledHull, _scaled, actualScale);
                     break;
+                case CBShape<Mesh> cm:
+                    // TODO: This is probably not the best way to scale.
+                    copy = new CBShape<Mesh>(Physics, Mesh.CreateWithSweepBuild(cm.Shape.Triangles, scale, Physics.BufferPool));
+                    break;
                 default:
                     throw new NotSupportedException($"Scaling a {GetType()} is not currently supported!");
             }

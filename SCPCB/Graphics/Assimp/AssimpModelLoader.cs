@@ -7,7 +7,8 @@ using SCPCB.Physics;
 using SCPCB.Physics.Primitives;
 using Serilog.Events;
 using Veldrid;
-using Mesh = Assimp.Mesh;
+using AiMesh = Assimp.Mesh;
+using Mesh = BepuPhysics.Collidables.Mesh;
 
 namespace SCPCB.Graphics.Assimp;
 
@@ -64,7 +65,7 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader where TVertex : 
             }).ToArray();
     }
 
-    public (ICBShape, Vector3 OffsetFromCenter) ExtractCollisionShape(PhysicsResources physics) {
+    public (ICBShape<ConvexHull>, Vector3 OffsetFromCenter) ExtractCollisionHull(PhysicsResources physics) {
         ConvexHullHelper.CreateShape(Scene.Meshes
             .SelectMany(x => x.Vertices)
             .Select(x => x)
@@ -72,7 +73,23 @@ public abstract class AssimpModelLoader<TVertex> : IModelLoader where TVertex : 
         return (new CBShape<ConvexHull>(physics, hull), center);
     }
 
-    protected virtual (TVertex[], uint[]) ConvertMesh(Mesh mesh) {
+    public ICBShape<Mesh> ExtractCollisionMesh(PhysicsResources physics) {
+        var triCount = Scene.Meshes.Sum(x => x.GetIndices().Count() / 3);
+        physics.BufferPool.TakeAtLeast<Triangle>(triCount, out var triBuffer);
+        foreach (var (tri, i) in Scene.Meshes.SelectMany(mesh => {
+                     var inds = mesh.GetIndices().ToArray();
+                     return inds.Zip(inds.Skip(1), inds.Skip(2))
+                         .Select((x, i) => (x, i))
+                         .Where(x => x.i % 3 == 0)
+                         .Select(x => new Triangle(mesh.Vertices[x.x.Third], mesh.Vertices[x.x.Second],
+                             mesh.Vertices[x.x.First]));
+                 }).Select((x, i) => (x, i))) {
+            triBuffer[i] = tri;
+        }
+        return new CBShape<Mesh>(physics, Mesh.CreateWithSweepBuild(triBuffer[..triCount], Vector3.One, physics.BufferPool));
+    }
+
+    protected virtual (TVertex[], uint[]) ConvertMesh(AiMesh mesh) {
         if (mesh.TextureCoordinateChannelCount > AiDefines.AI_MAX_NUMBER_OF_TEXTURECOORDS) {
             throw new ArgumentException("Abnormal amount of texture coordinate channels!", nameof(mesh));
         }
