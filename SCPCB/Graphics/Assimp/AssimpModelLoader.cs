@@ -14,42 +14,12 @@ namespace SCPCB.Graphics.Assimp;
 
 // Material that supports conversion of Assimp meshes to CB meshes.
 public abstract class AssimpModelLoader<TVertex> : IModelLoader where TVertex : unmanaged {
-    // I'm not sure if this can be implemented any better, it seems like the C loggers have no access to explicit severity.
-    private class SerilogLogger : LogStream {
-        public static SerilogLogger Instance { get; } = new();
-
-        // This breaks when models are loaded in parallel, but there's no solution to that really.
-        public string ModelFile { get; set; }
-
-        protected override void Dispose(bool disposing) {
-            Detach();
-            base.Dispose(disposing);
-        }
-
-        protected override void LogMessage(string msg, string userData) {
-            const string SPLITTER = ", ";
-            var splitterIndex = Math.Max(0, msg.IndexOf(SPLITTER));
-            var severity = msg[..splitterIndex];
-            Serilog.Log.Write(severity switch {
-                // We downgrade their severity because Assimp is yapping too much.
-                "Debug" => LogEventLevel.Verbose,
-                "Info" => LogEventLevel.Debug,
-                "Warn" => LogEventLevel.Warning,
-                "Error" => LogEventLevel.Error,
-                _ => LogEventLevel.Fatal,
-            }, "Assimp ({Model}) {AssimpLog}", ModelFile, msg[(splitterIndex+SPLITTER.Length)..].Trim());
-        }
-    }
-
-    static AssimpModelLoader() {
-        SerilogLogger.Instance.Attach();
-    }
-
     public Scene Scene { get; }
     public string FileDir { get; }
 
     protected AssimpModelLoader(string file) {
         FileDir = Path.GetDirectoryName(file);
+        Log.Information("Loading model {Model}", file);
         using var assimp = new AssimpContext();
         SerilogLogger.Instance.ModelFile = file;
         Scene = assimp.ImportFile(file, PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.FlipUVs);
