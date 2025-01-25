@@ -88,7 +88,8 @@ public partial class Player {
         ret.MaySleep = false;
         // Never rotate.
         ret.Inertia = ret.Inertia with { InverseInertiaTensor = default };
-        ret.SetProperty<Visibility, bool>(true);
+        ret.SetProperty<IsInvisibleProperty, bool>(true);
+        ret.SetProperty<HasNoFrictionProperty, bool>(true);
         return ret;
     }
 

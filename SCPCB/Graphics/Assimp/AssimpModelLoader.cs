@@ -5,7 +5,6 @@ using BepuPhysics.Collidables;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Physics;
 using SCPCB.Physics.Primitives;
-using Serilog.Events;
 using Veldrid;
 using AiMesh = Assimp.Mesh;
 using Mesh = BepuPhysics.Collidables.Mesh;

@@ -94,7 +94,7 @@ public class RoomInstance : Disposable, IRoomInstance {
 
         _visibleColl = visibleCollShape?.CreateStatic(new(offset, rotation));
         InvisibleCollision = invisibleCollShape?.CreateStatic(new(offset, rotation));
-        InvisibleCollision?.SetProperty<Visibility, bool>(true);
+        InvisibleCollision?.SetProperty<IsInvisibleProperty, bool>(true);
 
         _transform = Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(offset);
     }

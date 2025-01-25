@@ -31,7 +31,7 @@ public class PhysicsResources : Disposable, ITickable {
         ModelCache = new(gfxRes, this,
             file => new AutomaticAssimpModelLoader<ModelShader, VPositionTexture, GraphicsResources>(gfxRes, file));
 
-        Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), new(4, 2));
+        Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(this), new PoseIntegratorCallbacks(), new(4, 2));
 
         var targetThreadCount = int.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
         _threadDispatcher = new(targetThreadCount);

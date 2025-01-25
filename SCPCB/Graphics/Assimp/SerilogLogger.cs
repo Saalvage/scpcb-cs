@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Assimp;
+﻿using Assimp;
 using Serilog.Events;
 
 namespace SCPCB.Graphics.Assimp;

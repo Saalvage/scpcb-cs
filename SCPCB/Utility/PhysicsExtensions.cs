@@ -74,5 +74,5 @@ public static class PhysicsExtensions {
     }
 
     public static CollisionResult? RayCastVisible(this PhysicsResources physics, Vector3 from, Vector3 dir, float length)
-        => RayCast<AnyRayHitHandler>(physics, from, dir, length, x => !physics.GetProperty<Visibility, bool>(x));
+        => RayCast<AnyRayHitHandler>(physics, from, dir, length, x => !physics.GetProperty<IsInvisibleProperty, bool>(x));
 }
