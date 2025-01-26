@@ -14,7 +14,7 @@ using SCPCB.Graphics.Shaders.Vertices;
 namespace SCPCB.Graphics.Shaders;
 
 public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, GraphicsResources>,
-        IAutoShader<ModelShader.VertexConstants, Empty, ModelShader.InstanceVertexConstants, Empty> {
+        IAutoShader<ModelShader.VertexConstants, ModelShader.FragmentConstants, ModelShader.InstanceVertexConstants, Empty> {
 
     public struct VertexConstants : IProjectionMatrixConstantMember, IViewMatrixConstantMember {
         public Matrix4x4 ProjectionMatrix { get; set; }
@@ -23,6 +23,10 @@ public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, 
 
     public struct InstanceVertexConstants : IWorldMatrixConstantMember {
         public Matrix4x4 WorldMatrix { get; set; }
+    }
+
+    public struct FragmentConstants : IAmbientLightConstantMember {
+        public float AmbientLightLevel { get; set; }
     }
 
     [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource SurfaceTexture { get; }
@@ -40,7 +44,8 @@ public partial class ModelShader : IAssimpMaterialConvertible<VPositionTexture, 
 
     [FragmentShader]
     public Vector4 FS(FPositionTexture input) {
-        return Sample(SurfaceTexture, Sampler, input.TextureCoord);
+        var color = Sample(SurfaceTexture, Sampler, input.TextureCoord);
+        return new(color.XYZ() * new Vector3(FragmentBlock.AmbientLightLevel), color.W);
     }
 
     public static ICBMaterial<VPositionTexture> ConvertMaterial(Material mat, string fileDir, GraphicsResources gfxRes)

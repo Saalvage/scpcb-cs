@@ -22,7 +22,8 @@ public partial class Player {
                 _collider.Detach();
             } else {
                 _collider.Attach();
-                _collider.Pose = _collider.Pose with { Position = Camera.Position - Vector3.UnitY * CAMERA_OFFSET };
+                _collider.Pose = _collider.Pose with { Position = Camera.Position - Vector3.UnitY * _collInfo.CameraOffset };
+                _collider.Velocity = default;
                 // Prevent being sucked onto the ground.
                 IsFalling = true;
             }
@@ -39,6 +40,13 @@ public partial class Player {
     private Vector3 _noclipVelocity;
     public Vector3 Velocity => Noclip ? _noclipVelocity : _collider.Velocity.Linear;
 
+    /// <summary>
+    /// Center of the collider.
+    /// </summary>
+    public Vector3 Position => Noclip ? Camera.Position - new Vector3(0, _collInfo.CameraOffset, 0) : _collider.Pose.Position;
+
+    public Vector3 FeetPosition => Position - new Vector3(0, _collInfo.HeightOffGround, 0);
+
     public bool HasInfiniteStamina { get; set; } = true;
     public float Stamina { get; private set; } = 20f;
     public float MaxStamina { get; } = 100f;
@@ -50,35 +58,35 @@ public partial class Player {
     //
     //   c - Camera  x - Center of collider
     //
-    //      COLLIDER_RADIUS
+    //     ColliderRadius
     //        ├──────┤
     //           ---           ┬                   ┬
-    //          /   \          │ COLLIDER_RADIUS   │
+    //          /   \          │ ColliderRadius    │
     //         /     \         ┴                   │
     //        |   c   |        ┬  ┬                │
-    //        |       |        │  │ CAMERA_OFFSET  │ TOTAL_HEIGHT
+    //        |       |        │  │ CameraOffset   │ TotalHeight
     //        |   x   |        │  ┴                │  ┬
-    //        |       |        │ COLLIDER_LENGTH   │  │
+    //        |       |        │ ColliderLength    │  │
     //        |       |        ┴                   │  │
     //         \     /         ┬                   │  │
-    //          \   /          │ COLLIDER_RADIUS   │  │ HEIGHT_OFF_GROUND
+    //          \   /          │ ColliderRadius    │  │ HeightOffGround
     //           ---           ┴                   │  │
     //            |            ┬                   │  │
-    //            |            │ STEP_UP_HEIGHT    │  │
+    //            |            │ StepUpHeight      │  │
     //            |            ┴                   ┴  ┴
     // -----------+----------- - Ground level
     //            |            ┬
-    //            |            │ STEP_DOWN_HEIGHT
+    //            |            │ StepDownHeight
     //            |            ┴
     //
-    public const float COLLIDER_LENGTH = 1.5f;
-    public const float COLLIDER_RADIUS = 0.25f;
-    public const float COLLIDER_TOTAL_HEIGHT = COLLIDER_LENGTH + COLLIDER_RADIUS * 2;
-    public const float TOTAL_HEIGHT = 2.5f;
-    public const float STEP_UP_HEIGHT = TOTAL_HEIGHT - COLLIDER_TOTAL_HEIGHT;
-    public const float STEP_DOWN_HEIGHT = STEP_UP_HEIGHT;
-    public const float HEIGHT_OFF_GROUND = COLLIDER_TOTAL_HEIGHT / 2f + STEP_UP_HEIGHT;
-    public const float CAMERA_OFFSET = COLLIDER_LENGTH / 2f;
+    public record CollisionInfo(float ColliderLength, float ColliderRadius, float TotalHeight) {
+        public float ColliderTotalHeight => ColliderLength + ColliderRadius * 2;
+        public float StepUpHeight => TotalHeight - ColliderTotalHeight;
+        public float StepDownHeight => StepUpHeight;
+        public float HeightOffGround => ColliderTotalHeight / 2f + StepUpHeight;
+        public float CameraOffset { get; init; } = ColliderLength / 2f;
+    }
+    private CollisionInfo _collInfo;
 
     // TODO: This needs some consideration.
     // 1. Should the stepping velocity be constant? (Right now it effectively decays 1/2 per tick.)
@@ -86,8 +94,9 @@ public partial class Player {
     // 3. Should this be represented physically at all? Maybe it could be an effect purely applied to the camera.
     public float SteppingSmoothing { get; set; } = 3f;
 
-    private CBBody CreateCollider(PhysicsResources physics) {
-        var shape = new Capsule(COLLIDER_RADIUS, COLLIDER_LENGTH);
+    private CBBody CreateCollider(PhysicsResources physics, CollisionInfo info) {
+        _collInfo = info;
+        var shape = new Capsule(_collInfo.ColliderRadius, _collInfo.ColliderLength);
         var ret = new CBShape<Capsule>(physics, shape).CreateDynamic(1);
         ret.Pose = new(Vector3.UnitY * 1.5f + Vector3.UnitX);
         // Never sleep.
@@ -147,19 +156,19 @@ public partial class Player {
             // TODO: It would be preferable to cast multiple rays in a circle here and average the floor position for smoother
             // movement over steps. It would still be choppy if not combined with stepping smoothing, but we also want the "snappy"
             // stopping behavior.
-            var castLength = HEIGHT_OFF_GROUND + STEP_DOWN_HEIGHT;
+            var castLength = _collInfo.HeightOffGround + _collInfo.StepDownHeight;
             var onGround = _physics.RayCast<ClosestRayHitHandler>(_collider.Pose.Position, -Vector3.UnitY,
                 castLength, x => x.Mobility == CollidableMobility.Static)?.Pos;
 
             _scene.AddEntity(new DebugLine(_scene.Graphics, TimeSpan.FromSeconds(5),
-                    _collider.Pose.Position - Vector3.UnitY * (0.5f * COLLIDER_TOTAL_HEIGHT),
+                    _collider.Pose.Position - Vector3.UnitY * (0.5f * _collInfo.ColliderTotalHeight),
                     _collider.Pose.Position - Vector3.UnitY * castLength) {
                 Color = onGround != null ? new(0, 1, 0) : new(1, 0, 0),
             });
 
             // TODO: We probably want to take into account the normal here (don't go up sleep too steep).
-            if (onGround != null && (!IsFalling || Vector3.DistanceSquared(_collider.Pose.Position, onGround.Value) <= HEIGHT_OFF_GROUND * HEIGHT_OFF_GROUND)) {
-                var targetPos = onGround.Value + Vector3.UnitY * HEIGHT_OFF_GROUND;
+            if (onGround != null && (!IsFalling || Vector3.DistanceSquared(_collider.Pose.Position, onGround.Value) <= _collInfo.HeightOffGround * _collInfo.HeightOffGround)) {
+                var targetPos = onGround.Value + Vector3.UnitY * _collInfo.HeightOffGround;
                 // We differentiate because we want to prevent two things:
                 if (IsFalling) {
                     // 1. When the floating is handled via the velocity then there is always at least one frame
@@ -180,7 +189,7 @@ public partial class Player {
                 // the velocity completely manually, the integration still has a slight effect.
                 _collider.Velocity = _collider.Velocity with { Linear = _collider.Velocity.Linear - Vector3.UnitY * delta };
             }
-            Camera.Position = _collider.Pose.Position + Vector3.UnitY * CAMERA_OFFSET;
+            Camera.Position = _collider.Pose.Position + Vector3.UnitY * _collInfo.CameraOffset;
         }
     }
 }

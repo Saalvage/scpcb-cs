@@ -34,7 +34,7 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
         var infoFile = Path.ChangeExtension(file, "json");
         // TODO: Cache this.
         var info = (File.Exists(infoFile) ? JsonSerializer.Deserialize<Info>(File.ReadAllText(infoFile)) : null) ?? new();
-        var template = physics.ModelCache.GetModel(file, !info.UsesMesh).CreateDerivative();
+        var template = physics.ModelCache.GetModel(file, !info.UsesMesh);
         if (needsPositionAdjustment) {
             // The object origin in B3D is at the bottom.
             template.Shape.ComputeBounds(transform.Rotation, out var min, out var max);

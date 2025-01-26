@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using SCPCB.B;
 using SCPCB.Graphics;
 using SCPCB.Scenes;
 using SCPCB.Utility;
@@ -34,7 +35,8 @@ public class Game : Disposable {
         GraphicsResources = new(width, height);
         InputManager = new(GraphicsResources.Window);
 
-        _scene = new MainScene(this, Helpers.GenerateDebugRooms());
+        _scene = new BScene(this);
+        //_scene = new CBScene(this, Helpers.GenerateDebugRooms());
         _scene.OnEnter();
     }
 

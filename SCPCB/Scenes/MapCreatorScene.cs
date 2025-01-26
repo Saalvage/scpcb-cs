@@ -62,7 +62,7 @@ public class MapCreatorScene : BaseScene {
             Alignment = Alignment.BottomRight,
             Position = new(0, -150),
         };
-        start.OnClicked += () => game.Scene = new MainScene(game, grid.GetRooms());
+        start.OnClicked += () => game.Scene = new CBScene(game, grid.GetRooms());
         ui.Root.AddChild(start);
 
         var yOff = 0;

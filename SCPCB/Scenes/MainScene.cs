@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using BepuPhysics.Collidables;
-using SCPCB.Entities;
+using SCPCB.B;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Animation;
@@ -27,7 +27,6 @@ using SCPCB.Utility;
 using ShaderGen;
 using Veldrid;
 using Veldrid.Sdl2;
-using Helpers = SCPCB.Utility.Helpers;
 
 namespace SCPCB.Scenes;
 
@@ -59,11 +58,9 @@ public class MainScene : Scene3D {
     private bool _paused = false;
     private IUIElement? _openMenu = null;
 
-    private readonly Dictionary<string, IRoomData> _rooms;
-
     private Vector3? _measuringTape;
 
-    public MainScene(Game game, PlacedRoomInfo?[,] map) : base(game.GraphicsResources) {
+    public MainScene(Game game, Player.CollisionInfo playerCollisionInfo) : base(game.GraphicsResources) {
         _game = game;
         _input = game.InputManager;
 
@@ -71,9 +68,15 @@ public class MainScene : Scene3D {
 
         DealWithEntityBuffers();
 
-        _player = new(this);
+        _player = new(this, playerCollisionInfo);
         Camera = _player.Camera;
+        _player.Noclip = true;
+        _player.Camera.Position = new(-2.5f, -0.699f, 0.5f);
+        _player.Camera.Rotation = Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0);
+
         AddEntity(_player);
+
+        DealWithEntityBuffers();
 
         _font = Graphics.FontCache.GetFont("Assets/Fonts/Courier New.ttf", 32);
 
@@ -130,10 +133,12 @@ public class MainScene : Scene3D {
         _player.PickItem(itemmm);
 
         Graphics.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
-            Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 90, (float)window.Width / window.Height, 0.1f, 100f));
+            Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 58.69f, (float)window.Width / window.Height, 0.1f, 100f));
 
         Graphics.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
             Helpers.CreateUIProjectionMatrix(Graphics.Window.Width, Graphics.Window.Height));
+
+        Graphics.ShaderCache.SetGlobal<IAmbientLightConstantMember, float>(40f / 255);
 
         Sdl2Native.SDL_SetRelativeMouseMode(true);
 
@@ -144,11 +149,16 @@ public class MainScene : Scene3D {
         ui.Root.AddChild(_mig);
 
         _dreamFilter = new(Graphics, base.Render) {
-            TicksPerCycle = 3,
-            BlurFactor = 0f,
+            TicksPerCycle = 1,
+            BlurFactor = 0.93f,
             Offset = new(1),
         };
         AddEntity(_dreamFilter);
+
+        if (Graphics.Debug) {
+            _dreamFilter.BlurFactor = 0;
+            Graphics.ShaderCache.SetGlobal<IAmbientLightConstantMember, float>(1);
+        }
 
         var coolTexture = Graphics.TextureCache.GetTexture("Assets/173texture.jpg");
         _logoMat = Graphics.MaterialCache.GetMaterial(modelShader, [video.Texture], [gfx.PointSampler]);
@@ -163,29 +173,13 @@ public class MainScene : Scene3D {
         };
         AddEntity(billboard);
 
-        _rooms = map.Cast<PlacedRoomInfo?>()
-            .Where(x => x != null)
-            .Select(x => x.Room.Mesh)
-            .Distinct()
-            .ToDictionary(x => x, x => Graphics.LoadRoom(this, Physics, "Assets/Rooms/" + x));
-        for (var x = 0; x < map.GetLength(0); x++) {
-            for (var y = 0; y < map.GetLength(1); y++) {
-                var info = map[x, y];
-                if (info != null) {
-                    var room = _rooms[info.Room.Mesh].Instantiate(new(x * 20.5f, 0, y * 20.5f),
-                        Quaternion.CreateFromYawPitchRoll(-info.Direction.ToRadians() + MathF.PI, 0, 0));
-                    AddEntity(room);
-                }
-            }
-        }
-
         _template = Physics.ModelCache.GetModel("Assets/173_2.b3d").CreateDerivative();
 
         var template = new AssimpAnimatedModelLoader<AnimatedModelShader, AnimatedModelShader.Vertex, GraphicsResources>(Graphics,
-                "Assets/mental.b3d")
+                "Assets/087-B/mental.b3d")
             .LoadAnimatedModel(Graphics.GraphicsDevice);
         var anim = template.Animations.Single().Value;
-        
+
         AddEntities(Enumerable.Range(0, 3).Select(i => new AnimatedModel(template) {
             WorldTransform = new(Vector3.UnitY + Vector3.UnitX * (i + 4), Quaternion.Identity, new(0.3f)),
             Animation = anim,
@@ -231,6 +225,7 @@ public class MainScene : Scene3D {
                     
                     Stamina: {_player.Stamina:F3}
                     BlinkTimer: {_player.BlinkTimer:F3}
+                    Floor: {BHelpers.GetFloor(_player.Camera.Position)}
                     """;
 
         float ToDeg(float rad) => (rad / (2 * MathF.PI) * 360 + 360) % 360;
@@ -359,9 +354,8 @@ public class MainScene : Scene3D {
             case Key.F5: {
                 _serialized = SerializationHelper.SerializeTest(GetEntitiesOfType<ISerializableEntity>());
                 // TODO: Serialize items properly.
-                foreach (var i in GetEntitiesOfType<ISerializableEntity>().Cast<IEntity>().Concat(GetEntitiesOfType<IItem>())) {
-                    RemoveEntity(i);
-                }
+                RemoveEntities(GetEntitiesOfType<ISerializableEntity>());
+                RemoveEntities(GetEntitiesOfType<IItem>());
                 break;
             }
             case Key.BackSpace: {
@@ -453,9 +447,6 @@ public class MainScene : Scene3D {
     }
 
     protected override void DisposeImpl() {
-        foreach (var r in _rooms.Values) {
-            r.Dispose();
-        }
         _renderMat.Dispose();
         base.DisposeImpl();
     }

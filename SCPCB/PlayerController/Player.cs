@@ -17,10 +17,10 @@ public partial class Player : IUpdatable, ITickable {
 
     public float BlinkTimer { get; private set; } = 20f;
 
-    public Player(IScene scene) {
+    public Player(IScene scene, CollisionInfo info) {
         _scene = scene;
         _physics = scene.GetEntitiesOfType<PhysicsResources>().Single();
-        _collider = CreateCollider(_physics);
+        _collider = CreateCollider(_physics, info);
     }  
 
     public void HandleMouse(Vector2 delta) {

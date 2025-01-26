@@ -1,0 +1,36 @@
+[
+  {
+    "File": "map",
+    "Weight": 10,
+    "Default": true
+  },
+  {
+    "File": "map1",
+    "Weight": 2
+  },
+  {
+    "File": "map2",
+    "Weight": 2
+  },
+  {
+    "File": "map3",
+    "Weight": 1
+  },
+  {
+    "File": "map4",
+    "Weight": 1
+  },
+  {
+    "File": "map5",
+    "Weight": 1
+  },
+  {
+    "File": "map6",
+    "Weight": 1
+  },
+  {
+    "File": "maze",
+    "Weight": 1,
+    "MinimumFloor": 41
+  }
+]
