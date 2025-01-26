@@ -80,6 +80,12 @@ public partial class Player {
     public const float HEIGHT_OFF_GROUND = COLLIDER_TOTAL_HEIGHT / 2f + STEP_UP_HEIGHT;
     public const float CAMERA_OFFSET = COLLIDER_LENGTH / 2f;
 
+    // TODO: This needs some consideration.
+    // 1. Should the stepping velocity be constant? (Right now it effectively decays 1/2 per tick.)
+    // 2. Should this be affected by movement speed to prevent "flying off" steps.
+    // 3. Should this be represented physically at all? Maybe it could be an effect purely applied to the camera.
+    public float SteppingSmoothing { get; set; } = 3f;
+
     private CBBody CreateCollider(PhysicsResources physics) {
         var shape = new Capsule(COLLIDER_RADIUS, COLLIDER_LENGTH);
         var ret = new CBShape<Capsule>(physics, shape).CreateDynamic(1);
@@ -138,6 +144,9 @@ public partial class Player {
                 _collider.Velocity = dir * speed * Game.TICK_RATE;
             }
 
+            // TODO: It would be preferable to cast multiple rays in a circle here and average the floor position for smoother
+            // movement over steps. It would still be choppy if not combined with stepping smoothing, but we also want the "snappy"
+            // stopping behavior.
             var castLength = HEIGHT_OFF_GROUND + STEP_DOWN_HEIGHT;
             var onGround = _physics.RayCast<ClosestRayHitHandler>(_collider.Pose.Position, -Vector3.UnitY,
                 castLength, x => x.Mobility == CollidableMobility.Static)?.Pos;
@@ -160,7 +169,8 @@ public partial class Player {
                 } else {
                     // 2. We generally handle floating via the velocity, because this
                     // prevents the player from being clipped into the ceiling when stepping.
-                    _collider.Velocity = _collider.Velocity with { Linear = _collider.Velocity.Linear + Game.TICK_RATE * (targetPos - _collider.Pose.Position) };
+                    _collider.Velocity = _collider.Velocity with
+                        { Linear = _collider.Velocity.Linear + Game.TICK_RATE * (targetPos - _collider.Pose.Position) / SteppingSmoothing };
                 }
 
                 IsFalling = false;
