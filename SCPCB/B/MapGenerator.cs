@@ -116,7 +116,7 @@ public class MapGenerator {
                 continue;
             }
 
-            _scene.AddEntity(new Glimpse(_scene, _scene.Graphics.MissingTexture) {
+            _scene.AddEntity(new Glimpse(_scene, _scene.Graphics.TextureCache.GetTexture($"Assets/087-B/glimpse{1 + rng.Next(2)}.png")) {
                 WorldTransform = new(new(rng.Next(1, 8), -i * 2 - 1, i % 2 == 0 ? 0.3f : 6.55f), Quaternion.Identity, new(0.3f)),
             });
         }
