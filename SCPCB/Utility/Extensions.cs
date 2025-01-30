@@ -38,4 +38,24 @@ public static class Extensions {
             yield return selector(item, val);
         }
     }
+
+    public static int BinarySearch<T, TVal>(this IReadOnlyList<T> list, TVal value, int start, int length, Func<T, TVal, int> comparer) {
+        var low = start;
+        var high = start + length - 1;
+        while (low <= high) {
+            var mid = low + (high - low) / 2;
+            var comp = comparer(list[mid], value);
+            if (comp == 0) {
+                return mid;
+            } else if (comp < 0) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return ~low;
+    }
+
+    public static int BinarySearch<T, TVal>(this IReadOnlyList<T> list, TVal value, Func<T, TVal, int> comparer)
+        => list.BinarySearch(value, 0, list.Count, comparer);
 }

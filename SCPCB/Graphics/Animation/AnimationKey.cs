@@ -1,5 +1,7 @@
-﻿using Assimp;
+﻿using System.Diagnostics;
+using Assimp;
 using System.Numerics;
+using SCPCB.Utility;
 
 namespace SCPCB.Graphics.Animation;
 
@@ -10,16 +12,24 @@ public interface IAnimationKey<T, TVal> where T : unmanaged, IAnimationKey<T, TV
     static abstract TVal Interp(TVal a, TVal b, float interp);
 
     static TVal CalculateInterpolatedValue(IReadOnlyList<T> values, float time) {
-        // TODO: This has actual performance implications and can be optimized further.
-        var scaleKeys = values.Zip(values.Skip(1))
-            .Cast<(T, T)?>()
-            .FirstOrDefault(x => time < x!.Value.Item2.Time);
-        if (scaleKeys.HasValue) {
-            var (curr, next) = scaleKeys.Value;
-            var interp = (time - curr.Time) / (next.Time - curr.Time);
-            return T.Interp(curr.Value, next.Value, interp);
-        } else {
+        // This could likely be accelerated further, but it's probably good enough for now.
+        var index = values.BinarySearch(time, (a, b) => a.Time.CompareTo(b));
+        if (index < 0) {
+            index = ~index;
+        }
+
+        if (index == 0) {
+            return values[0].Value;
+        } else if (index == values.Count) {
             return values[^1].Value;
+        } else {
+            var curr = values[index - 1];
+            var next = values[index];
+            Debug.Assert(curr.Time <= time);
+            Debug.Assert(next.Time >= time);
+            var interp = (time - curr.Time) / (next.Time - curr.Time);
+            Debug.Assert(interp is >= 0 and <= 1);
+            return T.Interp(curr.Value, next.Value, interp);
         }
     }
 }
