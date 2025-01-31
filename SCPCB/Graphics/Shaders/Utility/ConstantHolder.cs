@@ -8,15 +8,23 @@ namespace SCPCB.Graphics.Shaders.Utility;
 
 public interface IConstantHolder : IDisposable {
     bool HasConstant<T>() where T : IConstantMember<T>;
-    // TODO: This should probably provide an overload for explicitly setting a constant which asserts that it exists.
-    void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal>;
+
+    void TrySetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal>;
+    void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal> {
+        if (!HasConstant<T>()) {
+            throw new InvalidOperationException($"Holder does not contain constant {typeof(T)}!");
+        }
+        TrySetValue<T, TVal>(val);
+    }
+
     void SetArrayValue<T, TVal>(int index, TVal val) where T : IConstantArrayMember<T, TVal>
         where TVal : unmanaged, IEquatable<TVal>;
+
     void UpdateAndSetBuffers(CommandList commands, uint index);
 }
 
 public interface IConstantHolder<TVertConstants, TFragConstants> : IConstantHolder
-        where TVertConstants : unmanaged where TFragConstants : unmanaged { }
+    where TVertConstants : unmanaged where TFragConstants : unmanaged;
 
 public partial class ConstantHolder<TVertConstants, TFragConstants> : Disposable, IConstantHolder<TVertConstants, TFragConstants>
         where TVertConstants : unmanaged where TFragConstants : unmanaged {
@@ -85,7 +93,7 @@ public partial class ConstantHolder<TVertConstants, TFragConstants> : Disposable
 
         DeviceBuffer CreateBuffer<T>() where T : unmanaged {
             // TODO: We used to assert that the size is equal to all the sizes of all properties,
-            // I think that was done as a sanity check to prevent unexepected incompatibilities between CPU and GPU.
+            // I think that was done as a sanity check to prevent unexpected incompatibilities between CPU and GPU.
             // Might make sense to reimplement, but will have to consider fixed size arrays.
             return gfx.ResourceFactory.CreateBuffer(new(Helpers.RoundUpToMultiple((uint)sizeof(T), 32),
                 BufferUsage.UniformBuffer));
@@ -131,13 +139,12 @@ public partial class ConstantHolder<TVertConstants, TFragConstants> : Disposable
     public bool HasConstant<T>() where T : IConstantMember<T>
         => _vertexBoxed is T || _fragmentBoxed is T;
 
-    public void SetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal> {
+    public void TrySetValue<T, TVal>(TVal val) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal> {
         if (_vertexBoxed is T tVert) {
             if (!tVert.Value.Equals(val)) {
                 tVert.Value = val;
                 _isDirty = true;
             }
-
         }
         if (_fragmentBoxed is T tFrag) {
             if (!tFrag.Value.Equals(val)) {

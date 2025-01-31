@@ -74,8 +74,8 @@ public class ShaderCache : BaseCache<(Type, ShaderParameters?), ICBShader> {
     // preventing inconsistencies where individual constants have their value set to a different one.
     public void SetGlobal<T, TVal>(TVal value) where T : IConstantMember<T, TVal> where TVal : unmanaged, IEquatable<TVal> {
         foreach (var (_, sh) in _dic) {
-            sh.Constants?.SetValue<T, TVal>(value);
+            sh.Constants?.TrySetValue<T, TVal>(value);
         }
-        _globals[typeof(T)] = sh => sh.Constants?.SetValue<T, TVal>(value);
+        _globals[typeof(T)] = sh => sh.Constants?.TrySetValue<T, TVal>(value);
     }
 }

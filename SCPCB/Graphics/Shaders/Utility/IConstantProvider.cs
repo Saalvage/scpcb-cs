@@ -14,7 +14,9 @@ public interface IConstantProvider<T, TVal> : IConstantProvider where T : IConst
     void ApplyToInternal(ReadOnlySpan<IConstantHolder?> holders, float interp) {
         var val = GetValue(interp);
         foreach (var holder in holders) {
-            holder?.SetValue<T, TVal>(val);
+            // TODO: I don't think we should use TrySet here, if a constant holder does
+            // not feature a constant provided by a provider, it should not be added.
+            holder?.TrySetValue<T, TVal>(val);
         }
     }
 }
