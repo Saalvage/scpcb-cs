@@ -7,14 +7,12 @@ using SCPCB.Graphics.UserInterface.Utility;
 
 namespace SCPCB.Graphics.UserInterface.Primitives;
 
-using AtlasMesh = (ICBTexture, ICBMesh<TextShader.Vertex>);
-
 public class TextElement : UIElement {
     private readonly ICBShader _shader;
     private readonly Font _font;
     private readonly GraphicsResources _gfxRes;
 
-    private AtlasMesh[] _meshes;
+    private MeshMaterial<TextShader.Vertex>[] _meshes;
     private bool _dirtyMesh = true;
 
     private record Chunk(int Begin, int Count) {
@@ -97,11 +95,12 @@ public class TextElement : UIElement {
         _offsets[Text.Length] = offset;
 
         // TODO: Reusing meshes or buffers (maybe from a pool) might make sense here.
-        _meshes = new AtlasMesh[dataChunks.Count];
+        _meshes = new MeshMaterial<TextShader.Vertex>[dataChunks.Count];
         foreach (var ((key, x), i) in dataChunks.Zip(Enumerable.Range(0, _meshes.Length))) {
-            _meshes[i] = (key, new CBMesh<TextShader.Vertex>(_gfxRes.GraphicsDevice,
-                vertices[(4 * x.Begin)..(4 * x.End)],
-                indices[(6 * x.Begin)..(6 * x.End)]));
+            _meshes[i] = new(new CBMesh<TextShader.Vertex>(_gfxRes.GraphicsDevice,
+                    vertices[(4 * x.Begin)..(4 * x.End)],
+                    indices[(6 * x.Begin)..(6 * x.End)]),
+                _gfxRes.MaterialCache.GetMaterial<TextShader, TextShader.Vertex>([key], [_gfxRes.ClampAnisoSampler]));
         }
 
         _dimensionsInternal = new(width, offset.Y + _font.Height);
@@ -147,9 +146,8 @@ public class TextElement : UIElement {
         var halfDimension = _dimensions * 0.5f;
 
         constants.SetValue<IPositionConstantMember, Vector3>(new(position + Scale * (new Vector2(0f, _font.Height) - halfDimension), z + Z));
-        foreach (var (tex, mesh) in _meshes) {
-            var mat = _gfxRes.MaterialCache.GetMaterial<TextShader, TextShader.Vertex>([tex], [_gfxRes.ClampAnisoSampler]);
-            target.Render<TextShader.Vertex>(new(mesh, mat));
+        foreach (var mesh in _meshes) {
+            target.Render(mesh);
         }
     }
 }
