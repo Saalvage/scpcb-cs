@@ -58,4 +58,10 @@ public static class Extensions {
 
     public static int BinarySearch<T, TVal>(this IReadOnlyList<T> list, TVal value, Func<T, TVal, int> comparer)
         => list.BinarySearch(value, 0, list.Count, comparer);
+
+    public static int GetSequenceHashCode<T>(this IEnumerable<T> enumerable)
+        => enumerable.Aggregate(new HashCode(), (h, t) => {
+            h.Add(t);
+            return h;
+        }).ToHashCode();
 }
