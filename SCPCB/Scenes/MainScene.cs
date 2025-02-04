@@ -12,6 +12,7 @@ using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders;
 using SCPCB.Graphics.Shaders.ConstantMembers;
 using SCPCB.Graphics.Shaders.Vertices;
+using SCPCB.Graphics.Text;
 using SCPCB.Graphics.Textures;
 using SCPCB.Graphics.UserInterface;
 using SCPCB.Graphics.UserInterface.Composites;
@@ -83,6 +84,10 @@ public class MainScene : Scene3D {
         foreach (var c in Enumerable.Range(0, 1000)) {
             _font.GetGlyphInfo((char)c);
         }
+
+        AddEntity(new TextModel3D(Graphics, _font, "test COOL!\nover\nmultiple lines!") {
+            WorldTransform = new(Vector3.Zero, Quaternion.Identity, new(0.01f)),
+        });
 
         var gfx = Graphics.GraphicsDevice;
         var window = Graphics.Window;

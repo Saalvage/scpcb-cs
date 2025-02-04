@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using SCPCB.B.Actions;
 using SCPCB.Graphics.ModelTemplates;
+using SCPCB.Graphics.Text;
 using SCPCB.Physics;
 using SCPCB.Scenes;
 using SCPCB.Utility;
@@ -100,6 +101,7 @@ public class MapGenerator {
             }
         }
 
+        // Floor meshes.
         for (var i = 0; i < floorCount; i++) {
             var newMap = _physics.ModelCache
                 .GetModel($"Assets/087-B/Floors/{acts[i]?.PredeterminedFloor ?? _picker.GetRandomFloor(rng, i)}.x", false)
@@ -111,6 +113,7 @@ public class MapGenerator {
             _scene.AddEntity(newMap);
         }
 
+        // Glimpses.
         for (var i = 1; i < floorCount; i++) {
             if (acts[i] != null || rng.Next(7) != 0) {
                 continue;
@@ -118,6 +121,32 @@ public class MapGenerator {
 
             _scene.AddEntity(new Glimpse(_scene, _scene.Graphics.TextureCache.GetTexture($"Assets/087-B/glimpse{1 + rng.Next(2)}.png")) {
                 WorldTransform = new(new(rng.Next(1, 8), -i * 2 - 1, i % 2 == 0 ? 0.3f : 6.55f), Quaternion.Identity, new(0.3f)),
+            });
+        }
+
+        // Floor markers.
+        var font = _scene.Graphics.FontCache.GetFont("Assets/087-B/Pretext.TTF", 128);
+        for (var i = 1; i <= floorCount; i++) {
+            var str = i > 140
+                ? string.Join("", Enumerable.Range(0, 4)
+                    .TakeWhile(x => x <= rng.Next(4))
+                    .Select(_ => (char)rng.Next(33, 123)))
+                : rng.Next(600) switch {
+                    0 => "",
+                    1 => rng.Next(33, 123).ToString(),
+                    2 => "NIL",
+                    3 => "?",
+                    4 => "NO",
+                    5 => "stop",
+                    _ => (i + 1).ToString(),
+                };
+
+            var y = -i * 2 - 0.6f;
+            _scene.AddEntity(new TextModel3D(_scene.Graphics, font, str) {
+                WorldTransform = new(
+                    i % 2 == 0 ? new Vector3(0.01f, y, 0.5f) : new Vector3(7.4f + 0.6f - 0.01f, y, 7 - 0.5f),
+                    Quaternion.CreateFromYawPitchRoll(MathF.PI * (0.5f + (i % 2 == 0 ? 0 : 1)), 0, 0),
+                    new(0.001f)),
             });
         }
     }

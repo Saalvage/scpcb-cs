@@ -1,5 +1,5 @@
 ﻿using FreeTypeSharp;
-using SCPCB.Graphics.UserInterface.Utility;
+using SCPCB.Graphics.Text;
 
 namespace SCPCB.Graphics.Caches;
 

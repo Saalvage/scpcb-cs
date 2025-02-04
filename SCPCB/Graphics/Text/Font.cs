@@ -6,7 +6,7 @@ using SCPCB.Utility;
 using Veldrid;
 using static FreeTypeSharp.Native.FT;
 
-namespace SCPCB.Graphics.UserInterface.Utility;
+namespace SCPCB.Graphics.Text;
 
 public class Font : Disposable {
     private readonly GraphicsResources _gfxRes;

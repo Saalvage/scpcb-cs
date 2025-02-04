@@ -5,23 +5,23 @@ using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders.ConstantMembers;
 using SCPCB.Graphics.Shaders.Fragments;
 using SCPCB.Graphics.Shaders.Utility;
+using SCPCB.Graphics.Shaders.Vertices;
 
 #pragma warning disable CS8618
 
 namespace SCPCB.Graphics.Shaders;
 
 public partial class TextShader : IAutoShader<TextShader.VertexConstants, Empty, Empty, Empty> {
-    public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector3 Position) : IUIProjectionMatrixConstantMember, IPositionConstantMember;
-
-    public record struct Vertex([PositionSemantic] Vector2 Position, [TextureCoordinateSemantic] Vector2 TexCoords);
+    public record struct VertexConstants(Matrix4x4 ProjectionMatrix, Vector3 Position, float Pad, Vector2 Scale)
+        : IUIProjectionMatrixConstantMember, IPositionConstantMember, IScale2DConstantMember;
 
     [ResourceSet(MATERIAL_OFFSET)] public Texture2DResource SurfaceTexture;
     [ResourceSet(MATERIAL_OFFSET)] public SamplerResource Sampler;
 
     [VertexShader]
-    public FPositionTexture VS(Vertex input) {
+    public FPositionTexture VS(VPositionTexture2D input) {
         FPositionTexture output;
-        var originalPos = input.Position;
+        var originalPos = input.Position * VertexBlock.Scale;
         output.Position = new(Vector3.Transform(new Vector3(originalPos, 1) + VertexBlock.Position, VertexBlock.ProjectionMatrix), 1);
         output.TextureCoord = input.TexCoords;
         return output;
