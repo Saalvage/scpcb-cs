@@ -7,7 +7,8 @@ namespace SCPCB.Utility;
 // TODO: Consider turning this into a regular ol' struct.. The inability to modify properties is annoying.
 public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Scale) {
     public Transform(Vector3 position, Quaternion rotation) : this(position, rotation, Vector3.One) { }
-    public Transform() : this(Vector3.Zero, Quaternion.Identity, Vector3.One) { }
+    public Transform(Vector3 position) : this(position, Quaternion.Identity) { }
+    public Transform() : this(Vector3.Zero) { }
 
     public Matrix4x4 GetMatrix()
         => Matrix4x4.CreateScale(Scale)
@@ -27,7 +28,7 @@ public record struct Transform(Vector3 Position, Quaternion Rotation, Vector3 Sc
     /// Transform representing the application of two transforms in series.
     /// </returns>
     public static Transform operator+(Transform a, Transform b)
-        => new(Vector3.Transform(b.Position * a.Scale, b.Rotation) + a.Position,
+        => new(Vector3.Transform(b.Position * a.Scale, a.Rotation) + a.Position,
             a.Rotation * b.Rotation,
             a.Scale * b.Scale);
 

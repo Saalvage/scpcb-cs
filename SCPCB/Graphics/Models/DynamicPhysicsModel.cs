@@ -55,6 +55,5 @@ public class DynamicPhysicsModel : PhysicsModel {
         => Transform.Lerp(_previousWorldTransform, _currentWorldTransform, interp);
 
     public override Matrix4x4 GetValue(float interp)
-        // TODO: This should be solvable by combining transformations instead.
-        => Matrix4x4.CreateTranslation(_offset) * GetInterpolatedTransform(interp).GetMatrix();
+        => (GetInterpolatedTransform(interp) + new Transform(_offset)).GetMatrix();
 }
