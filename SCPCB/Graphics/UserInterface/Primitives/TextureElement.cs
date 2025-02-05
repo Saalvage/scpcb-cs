@@ -5,6 +5,7 @@ using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders;
 using SCPCB.Graphics.Shaders.ConstantMembers;
 using SCPCB.Graphics.Textures;
+using SCPCB.Utility;
 
 namespace SCPCB.Graphics.UserInterface.Primitives;
 
@@ -38,7 +39,7 @@ public class TextureElement : UIElement, ISharedMeshProvider<TextureElement, UIS
     protected override void DrawInternal(IRenderTarget target, Vector2 position, float z) {
         _meshInstance.Material.Shader.Constants!.SetValue<IPositionConstantMember, Vector3>(new(position, Z + z));
         _meshInstance.Material.Shader.Constants!.SetValue<IUIScaleConstantMember, Vector2>(PixelSize);
-        _meshInstance.Material.Shader.Constants!.SetValue<IColorAlphaConstantMember, Vector4>(new Vector4(Color.R, Color.G, Color.B, Color.A) / 255f);
+        _meshInstance.Material.Shader.Constants!.SetValue<IColorAlphaConstantMember, Vector4>(Color.ToRGBA());
         var uvPositionEnd = UvOffset + UvSize;
         _meshInstance.Material.Shader.Constants!.SetValue<ITexCoordsConstantMember, Vector4>(new(UvOffset.X, uvPositionEnd.X,
             UvOffset.Y, uvPositionEnd.Y));

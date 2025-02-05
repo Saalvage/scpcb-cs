@@ -55,12 +55,12 @@ public class TextModel3D : Disposable, ISortableMeshInstanceHolder, IConstantPro
         => WorldTransform.GetMatrix();
 
     Vector3 IConstantProvider<IColorConstantMember, Vector3>.GetValue(float interp)
-        => new Vector3(Color.R, Color.G, Color.B) / 255f;
+        => Color.ToRGB();
 
     public void ApplyTo(ReadOnlySpan<IConstantHolder?> holders, float interp) {
         foreach (var holder in holders) {
             holder?.TrySetValue<IWorldMatrixConstantMember, Matrix4x4>(WorldTransform.GetMatrix());
-            holder?.TrySetValue<IColorConstantMember, Vector3>(new Vector3(Color.R, Color.G, Color.B) / 255f);
+            holder?.TrySetValue<IColorConstantMember, Vector3>(Color.ToRGB());
         }
     }
 }
