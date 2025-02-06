@@ -58,10 +58,13 @@ public class TextModel3D : Disposable, ISortableMeshInstanceHolder, IConstantPro
         => Color.ToRGB();
 
     public void ApplyTo(ReadOnlySpan<IConstantHolder?> holders, float interp) {
+        var off = -_text.Dimensions / 2;
+        off.Y = -off.Y;
+        var trans = WorldTransform + new Transform(new(off, 0), Quaternion.Identity);
+        var transMat = trans.GetMatrix();
         foreach (var holder in holders) {
-            holder?.TrySetValue<IWorldMatrixConstantMember, Matrix4x4>(WorldTransform.GetMatrix());
+            holder?.TrySetValue<IWorldMatrixConstantMember, Matrix4x4>(transMat);
             holder?.TrySetValue<IColorConstantMember, Vector3>(Color.ToRGB());
         }
     }
 }
-
