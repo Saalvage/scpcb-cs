@@ -1,8 +1,13 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using SCPCB.B.Actions;
+using SCPCB.Graphics;
 using SCPCB.Graphics.ModelTemplates;
+using SCPCB.Graphics.Primitives;
+using SCPCB.Graphics.Shaders;
+using SCPCB.Graphics.Shaders.Vertices;
 using SCPCB.Graphics.Text;
 using SCPCB.Physics;
 using SCPCB.Scenes;
@@ -124,6 +129,50 @@ public class MapGenerator {
             });
         }
 
+        var sign = _scene.Graphics.TextureCache.GetTexture("Assets/087-B/sign.jpg");
+
+        var cube = new CBMesh<VPositionTexture>(_scene.Graphics.GraphicsDevice, [
+            // Front.
+            new(new(-0.5f, -0.5f, 0.5f), new(0, 1)),
+            new(new(0.5f, -0.5f, 0.5f), new(1, 1)),
+            new(new(-0.5f, 0.5f, 0.5f), new(0, 0)),
+            new(new(0.5f, 0.5f, 0.5f), new(1, 0)),
+            // Back.
+            new(new(0.5f, -0.5f, -0.5f), new(0, 1)),
+            new(new(-0.5f, -0.5f, -0.5f), new(1, 1)),
+            new(new(0.5f, 0.5f, -0.5f), new(0, 0)),
+            new(new(-0.5f, 0.5f, -0.5f), new(1, 0)),
+            // Left.
+            new(new(-0.5f, -0.5f, -0.5f), new(0, 1)),
+            new(new(-0.5f, -0.5f, 0.5f), new(1, 1)),
+            new(new(-0.5f, 0.5f, -0.5f), new(0, 0)),
+            new(new(-0.5f, 0.5f, 0.5f), new(1, 0)),
+            // Right.
+            new(new(0.5f, -0.5f, 0.5f), new(0, 1)),
+            new(new(0.5f, -0.5f, -0.5f), new(1, 1)),
+            new(new(0.5f, 0.5f, 0.5f), new(0, 0)),
+            new(new(0.5f, 0.5f, -0.5f), new(1, 0)),
+            // Top.
+            new(new(-0.5f, 0.5f, 0.5f), new(0, 1)),
+            new(new(0.5f, 0.5f, 0.5f), new(1, 1)),
+            new(new(-0.5f, 0.5f, -0.5f), new(0, 0)),
+            new(new(0.5f, 0.5f, -0.5f), new(1, 0)),
+            // Bottom.
+            new(new(-0.5f, -0.5f, -0.5f), new(0, 1)),
+            new(new(0.5f, -0.5f, -0.5f), new(1, 1)),
+            new(new(-0.5f, -0.5f, 0.5f), new(0, 0)),
+            new(new(0.5f, -0.5f, 0.5f), new(1, 0)),
+        ], [0, 1, 2, 3, 2, 1, 4, 5, 6, 7, 6, 5, 8, 9, 10, 11, 10, 9, 12, 13, 14, 15, 14, 13, 16, 17, 18, 19, 18, 17, 20, 21, 22, 23, 22, 21]);
+        var signTemplate = new ModelTemplate([
+            new MeshMaterial<VPositionTexture>(cube,
+                _scene.Graphics.MaterialCache.GetMaterial<ModelShader, VPositionTexture>(
+                    [sign],
+                    [_scene.Graphics.ClampAnisoSampler])),
+        ]);
+        var model = signTemplate.Instantiate();
+        model.WorldTransform = model.WorldTransform with { Scale = new(0.25f) };
+        _scene.AddEntity(model);
+
         // Floor markers.
         var font = _scene.Graphics.FontCache.GetFont("Assets/087-B/Pretext.TTF", 128);
         for (var i = 1; i <= floorCount; i++) {
@@ -142,11 +191,16 @@ public class MapGenerator {
                 };
 
             var y = -i * 2 - 0.6f;
+            var pos = i % 2 == 0 ? new Vector3(-0.24f, y, 0.5f) : new Vector3(7.4f + 0.6f + 0.24f, y, 7 - 0.5f);
+            var markerCube = signTemplate.Instantiate();
+            markerCube.WorldTransform = markerCube.WorldTransform with { Position = pos, Scale = new(0.5f) };
+            _scene.AddEntity(markerCube);
             _scene.AddEntity(new TextModel3D(_scene.Graphics, font, str) {
                 WorldTransform = new(
-                    i % 2 == 0 ? new Vector3(0.01f, y, 0.5f) : new Vector3(7.4f + 0.6f - 0.01f, y, 7 - 0.5f),
+                    pos + new Vector3(i % 2 == 0 ? 0.251f : -0.251f, 0, 0),
                     Quaternion.CreateFromYawPitchRoll(MathF.PI * (0.5f + (i % 2 == 0 ? 0 : 1)), 0, 0),
                     new(0.001f)),
+                Color = Color.Black,
             });
         }
     }
