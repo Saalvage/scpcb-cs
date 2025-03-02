@@ -272,7 +272,7 @@ public class MainScene : Scene3D {
                             2 => _logoMat,
                         })).Cast<IMeshMaterial>().ToArray() })
                     .InstantiatePhysicsDynamic(1);
-                entity.WorldTransform = new(_player.Camera.Position, _player.Camera.Rotation, new(0.1f));
+                entity.CenterOfMassWorldTransform = new(_player.Camera.Position, _player.Camera.Rotation, new(0.1f));
                 entity.Body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
                 AddEntity(entity);
                 _last173 = entity;
@@ -282,7 +282,7 @@ public class MainScene : Scene3D {
                 if (_last173 == null) {
                     break;
                 }
-                _last173.WorldTransform = _last173.WorldTransform with {
+                _last173.CenterOfMassWorldTransform = _last173.CenterOfMassWorldTransform with {
                     Scale = _last173.WorldTransform.Scale * 1.1f,
                 };
                 break;

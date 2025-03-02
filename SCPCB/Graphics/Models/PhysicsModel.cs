@@ -16,8 +16,8 @@ public class PhysicsModel : BaseModel, IEntity {
 
     public new IPhysicsModelTemplate Template => (IPhysicsModelTemplate)base.Template;
 
-    public override Transform WorldTransform {
-        get => Collidable.Pose.ToTransform() with { Scale = _scale } + new Transform(_offset);
+    public Transform CenterOfMassWorldTransform {
+        get => Collidable.Pose.ToTransform() with { Scale = _scale };
         set {
             if (_scale != value.Scale) {
                 Collidable.Shape = Collidable.Shape.GetScaledClone(value.Scale / _scale);
@@ -26,6 +26,11 @@ public class PhysicsModel : BaseModel, IEntity {
             Collidable.Pose = new(value.Position, value.Rotation);
             _scale = value.Scale;
         }
+    }
+
+    public override Transform WorldTransform {
+        get => CenterOfMassWorldTransform + new Transform(_offset);
+        set => CenterOfMassWorldTransform = value - new Transform(_offset);
     }
 
     public PhysicsModel(IPhysicsModelTemplate template, CBCollidable collidable)
