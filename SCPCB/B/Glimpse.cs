@@ -10,7 +10,7 @@ using ShaderGen;
 
 namespace SCPCB.B;
 
-class Glimpse : IEntityHolder, ITickable {
+class Glimpse : IEntityHolder, ITickable, ITransformable {
     private readonly IScene _scene;
     private readonly Player _player;
     private readonly PhysicsResources _physics;

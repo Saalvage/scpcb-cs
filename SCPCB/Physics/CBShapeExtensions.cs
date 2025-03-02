@@ -52,7 +52,7 @@ public static class CBShapeExtensions {
     // We slightly scale the vertices to prevent z-fighting.
     private const float DEBUG_MESH_SCALE_FACTOR = 1.001f;
 
-    public static ICBMesh<VPositionNormal> CreateDebugMesh(this ICBShape<ConvexHull> shape, GraphicsDevice gfx) {
+    public static ICBMesh<VPositionNormal> CreateDebugMesh(this ICBShape<ConvexHull> shape, GraphicsDevice gfx, Vector3 offset) {
         ref var hull = ref shape.Shape;
 
         var verts = new VPositionNormal[hull.Points.Length * Vector<float>.Count];
@@ -81,23 +81,23 @@ public static class CBShapeExtensions {
         }
         for (var i = 0; i < verts.Length; i++) {
             hull.GetPoint(i, out var vec);
-            verts[i] = new(vec * DEBUG_MESH_SCALE_FACTOR, Vector3.Normalize(verts[i].Normal));
+            verts[i] = new(vec * DEBUG_MESH_SCALE_FACTOR + offset, Vector3.Normalize(verts[i].Normal));
         }
         return new CBMesh<VPositionNormal>(gfx, verts, CollectionsMarshal.AsSpan(indices));
     }
 
-    public static ICBMesh<VPositionNormal> CreateDebugMesh(this ICBShape<Mesh> shape, GraphicsDevice gfx) {
+    public static ICBMesh<VPositionNormal> CreateDebugMesh(this ICBShape<Mesh> shape, GraphicsDevice gfx, Vector3 offset) {
         ref var mesh = ref shape.Shape;
-        var scale = mesh.Scale * DEBUG_MESH_SCALE_FACTOR;
 
         var verts = new VPositionNormal[mesh.Triangles.Length * 3];
         var indices = new uint[mesh.Triangles.Length * 3];
         for (uint i = 0; i < mesh.Triangles.Length; i++) {
             ref var tri = ref mesh.Triangles[i];
             var normal = Helpers.ComputeNormal(tri.C, tri.B, tri.A);
-            verts[i * 3 + 0] = new(tri.C * scale, normal);
-            verts[i * 3 + 1] = new(tri.B * scale, normal);
-            verts[i * 3 + 2] = new(tri.A * scale, normal);
+            var extraOffset = normal * (1 - DEBUG_MESH_SCALE_FACTOR);
+            verts[i * 3 + 0] = new((tri.C + offset) * mesh.Scale - extraOffset, normal);
+            verts[i * 3 + 1] = new((tri.B + offset) * mesh.Scale - extraOffset, normal);
+            verts[i * 3 + 2] = new((tri.A + offset) * mesh.Scale - extraOffset, normal);
             indices[i * 3 + 0] = i * 3 + 0;
             indices[i * 3 + 1] = i * 3 + 1;
             indices[i * 3 + 2] = i * 3 + 2;

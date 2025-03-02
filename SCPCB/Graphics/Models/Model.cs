@@ -1,48 +1,47 @@
-﻿using System.Numerics;
-using SCPCB.Entities;
+﻿using SCPCB.Entities;
 using SCPCB.Graphics.ModelTemplates;
-using SCPCB.Graphics.Shaders.ConstantMembers;
-using SCPCB.Graphics.Shaders.Utility;
 using SCPCB.Utility;
 
 namespace SCPCB.Graphics.Models;
 
-public class Model : Disposable, ISortableMeshInstanceHolder, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4> {
-    private class ModelMeshInstance : ISortableMeshInstance {
-        private readonly Model _model;
-        public Vector3 Position => _model.WorldTransform.Position;
-        public IMeshInstance MeshInstance { get; }
-        public bool IsOpaque => true;
-
-        public ModelMeshInstance(Model model, IMeshInstance instance) {
-            _model = model;
-            MeshInstance = instance;
-        }
-    }
-
+public abstract class BaseModel : Disposable, ISortableMeshInstanceHolder, ITransformable {
     IEnumerable<ISortableMeshInstance> ISortableMeshInstanceHolder.Instances => Sortables;
     public IReadOnlyList<ISortableMeshInstance> Sortables { get; }
 
     // Keep alive.
-    private readonly IModelTemplate _template;
+    public IModelTemplate Template { get; }
 
-    public virtual Transform WorldTransform { get; set; }
+    public abstract Transform WorldTransform { get; set; }
 
-    public Model(IModelTemplate template) {
-        _template = template;
-        Sortables = template.Meshes.Instantiate().Select(x => new ModelMeshInstance(this, x)).ToArray();
+    protected BaseModel(IModelTemplate template) {
+        Template = template;
+        Sortables = template.Meshes.Instantiate().Select(x => new DependentSortableMeshInstance(x, this, true)).ToArray();
         foreach (var mesh in Sortables) {
             mesh.MeshInstance.ConstantProviders.Add(this);
         }
     }
 
-    public virtual Transform GetInterpolatedTransform(float interp) => WorldTransform;
-
-    public virtual Matrix4x4 GetValue(float interp) => WorldTransform.GetMatrix();
+    public virtual Transform GetInterpolatedWorldTransform(float interp) => WorldTransform;
 
     protected override void DisposeImpl() {
         foreach (var mi in Sortables) {
             mi.MeshInstance.Constants?.Dispose();
         }
     }
+}
+
+// This exists because it should be parentable, while the physics models (which inherit a lot of functionality) should not.
+public class Model : BaseModel, IParentableTransformable {
+    public Model(IModelTemplate template) : base(template) { }
+    public ITransformable? Parent { get; set; }
+    public Transform LocalTransform { get; set; } = new();
+    
+    // TODO: It sucks that we have to duplicate this from the default interface methods, but I don't think there's a better solution.
+    public override Transform WorldTransform {
+        get => (Parent?.WorldTransform ?? new Transform()) + LocalTransform;
+        set => LocalTransform = value - (Parent?.WorldTransform ?? new Transform());
+    }
+
+    public override Transform GetInterpolatedWorldTransform(float interp)
+        => (Parent?.GetInterpolatedWorldTransform(interp) ?? new Transform()) + LocalTransform;
 }

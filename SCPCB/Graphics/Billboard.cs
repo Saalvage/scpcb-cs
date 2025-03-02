@@ -11,7 +11,7 @@ using Veldrid;
 
 namespace SCPCB.Graphics;
 
-public class Billboard : I3DEntity, ISortableMeshInstance, IConstantProvider<IWorldMatrixConstantMember, Matrix4x4>,
+public class Billboard : ITransformable, ISortableMeshInstance,
     IConstantProvider<IColorAlphaConstantMember, Vector4>, ISharedMeshProvider<Billboard, VPositionTexture> {
     public Transform WorldTransform { get; set; } = new();
 
@@ -41,9 +41,6 @@ public class Billboard : I3DEntity, ISortableMeshInstance, IConstantProvider<IWo
         var mat = gfxRes.MaterialCache.GetMaterial(shader, [texture], [gfxRes.ClampAnisoSampler]);
         return new(gfxRes.MeshCache.GetMesh<Billboard, VPositionTexture>(), mat);
     }
-
-    public Matrix4x4 GetValue(float interp)
-        => WorldTransform.GetMatrix();
 
     Vector4 IConstantProvider<IColorAlphaConstantMember, Vector4>.GetValue(float interp) => Color;
 

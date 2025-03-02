@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using SCPCB.Graphics.ModelTemplates;
+﻿using SCPCB.Graphics.ModelTemplates;
 using SCPCB.Physics.Primitives;
 using SCPCB.Scenes;
 using SCPCB.Utility;
@@ -9,7 +8,6 @@ namespace SCPCB.Graphics.Models;
 public class DynamicPhysicsModel : PhysicsModel {
     // TODO: This should probably be moved down the hierarchy or become some sort of customization point.
     private Transform _previousWorldTransform;
-    private Transform _currentWorldTransform;
 
     public CBBody Body => (CBBody)Collidable;
 
@@ -17,7 +15,7 @@ public class DynamicPhysicsModel : PhysicsModel {
         get => base.WorldTransform;
         set {
             base.WorldTransform = value;
-            _previousWorldTransform = _currentWorldTransform = value;
+            _previousWorldTransform = value;
         }
     }
 
@@ -33,7 +31,6 @@ public class DynamicPhysicsModel : PhysicsModel {
     /// </remarks>
     public void TransformSmooth(Transform to) {
         base.WorldTransform = to;
-        _currentWorldTransform = to;
     }
 
     public override void OnAdd(IScene scene) {
@@ -47,13 +44,9 @@ public class DynamicPhysicsModel : PhysicsModel {
     }
 
     private void UpdateTransform() {
-        _previousWorldTransform = _currentWorldTransform;
-        _currentWorldTransform = Body.Pose.ToTransform() with { Scale = _scale };
+        _previousWorldTransform = WorldTransform;
     }
 
-    public override Transform GetInterpolatedTransform(float interp)
-        => Transform.Lerp(_previousWorldTransform, _currentWorldTransform, interp);
-
-    public override Matrix4x4 GetValue(float interp)
-        => (GetInterpolatedTransform(interp) + new Transform(_offset)).GetMatrix();
+    public override Transform GetInterpolatedWorldTransform(float interp)
+        => Transform.Lerp(_previousWorldTransform, WorldTransform, interp);
 }

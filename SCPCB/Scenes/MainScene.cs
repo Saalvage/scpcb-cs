@@ -297,22 +297,23 @@ public class MainScene : Scene3D {
             case Key.KeypadPlus:
                 var dic = new Dictionary<ICBShape, ModelTemplate>();
                 AddEntities(GetEntitiesOfType<PhysicsModel>()
-                    .Select(x => (Model: x, Template: CreateTemplate(x.Collidable.Shape)))
+                    .Select(x => (Model: x, Template: CreateTemplate(x.Collidable.Shape,
+                        x.Template.OffsetFromCenter * x.WorldTransform.Scale)))
                     .Where(x => x.Item2 != null)
                     .Select(x => new DebugPhysicsModelFollower(x.Template!, x.Model)));
 
                 AddEntities(_invisCollModels = GetEntitiesOfType<RoomInstance>()
                     .Where(x => x.InvisibleCollision != null)
                     // It'd be really weird if these weren't a mesh.
-                    .Select(x => new Model(CreateTemplate(x.InvisibleCollision!.Shape)!) {
+                    .Select(x => new Model(CreateTemplate(x.InvisibleCollision!.Shape, Vector3.Zero)!) {
                         WorldTransform = x.Transform,
                     }).ToArray());
 
-                ModelTemplate? CreateTemplate(ICBShape shape) {
+                ModelTemplate? CreateTemplate(ICBShape shape, Vector3 offset) {
                     if (!dic.TryGetValue(shape, out var template)) {
                         var mesh = shape switch {
-                            ICBShape<Mesh> m => m.CreateDebugMesh(Graphics.GraphicsDevice),
-                            ICBShape<ConvexHull> ch => ch.CreateDebugMesh(Graphics.GraphicsDevice),
+                            ICBShape<Mesh> m => m.CreateDebugMesh(Graphics.GraphicsDevice, offset),
+                            ICBShape<ConvexHull> ch => ch.CreateDebugMesh(Graphics.GraphicsDevice, offset),
                             _ => null,
                         };
                         if (mesh == null) {

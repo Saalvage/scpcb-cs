@@ -25,7 +25,7 @@ public class Item : IItem, IEntityHolder {
 
     public ICBTexture InventoryIcon { get; }
 
-    public Vector3 Position => _picked ? Vector3.Zero : _prop.Model.WorldTransform.Position;
+    public Vector3 Position => _prop.Model.WorldTransform.Position;
 
     public Item(IScene scene, ICBTexture inventoryIcon, string modelFile, Transform transform) {
         _scene = scene;
