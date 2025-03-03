@@ -7,6 +7,8 @@ public class AudioResources : Disposable {
     private readonly ALDevice _device;
     private readonly ALContext _ctx;
 
+    public SoundCache SoundCache { get; } = new();
+
     public static IEnumerable<string> GetDevices() {
         if (ALC.IsEnumerationExtensionPresent(ALDevice.Null)) {
             return ALC.GetStringList(GetEnumerationStringList.DeviceSpecifier);

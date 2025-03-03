@@ -20,8 +20,6 @@ public class AudioChannel3D : AudioChannel, IParentableTransformable, IRenderabl
         }
     }
 
-    public AudioChannel3D() { }
-
     public void Render(IRenderTarget target, float interp) {
         var trans = ((IParentableTransformable)this).GetInterpolatedWorldTransform(interp);
         AL.Source(_source, ALSource3f.Position, trans.Position.X, trans.Position.Y, trans.Position.Z);

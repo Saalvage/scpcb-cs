@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using BepuPhysics.Collidables;
+using FFmpeg.AutoGen;
 using SCPCB.Audio;
 using SCPCB.B;
 using SCPCB.Entities.Items;
@@ -62,11 +63,10 @@ public class MainScene : Scene3D {
 
     private Vector3? _measuringTape;
 
-    private AudioResources _audio = new();
     private AudioChannel3D _audioChannel = new();
     private AudioFile _audioFile = new("Assets/087-B/Sounds/music.mp3", Channels.Mono);
 
-    public MainScene(Game game, Player.CollisionInfo playerCollisionInfo) : base(game.GraphicsResources) {
+    public MainScene(Game game, Player.CollisionInfo playerCollisionInfo) : base(game.GraphicsResources, game.AudioResources) {
         _game = game;
         _input = game.InputManager;
 

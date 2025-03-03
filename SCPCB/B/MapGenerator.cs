@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
+using SCPCB.Audio;
 using SCPCB.B.Actions;
 using SCPCB.Graphics;
 using SCPCB.Graphics.ModelTemplates;
@@ -119,12 +120,13 @@ public class MapGenerator {
         }
 
         // Glimpses.
+        var no = _scene.Audio.SoundCache.GetSound("Assets/087-B/Sounds/no.wav", Channels.Mono);
         for (var i = 1; i < floorCount; i++) {
             if (acts[i] != null || rng.Next(7) != 0) {
                 continue;
             }
 
-            _scene.AddEntity(new Glimpse(_scene, _scene.Graphics.TextureCache.GetTexture($"Assets/087-B/glimpse{1 + rng.Next(2)}.png")) {
+            _scene.AddEntity(new Glimpse(_scene, _scene.Graphics.TextureCache.GetTexture($"Assets/087-B/glimpse{1 + rng.Next(2)}.png"), no) {
                 WorldTransform = new(new(rng.Next(1, 8), -i * 2 - 1, i % 2 == 0 ? 0.3f : 6.55f), Quaternion.Identity, new(0.3f)),
             });
         }

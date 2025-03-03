@@ -14,7 +14,7 @@ public class VideoScene : BaseScene {
 
     private readonly Game _game;
 
-    public VideoScene(Game game, string filename) : base(game.GraphicsResources) {
+    public VideoScene(Game game, string filename) : base(game.GraphicsResources, game.AudioResources) {
         _game = game;
 
         var video = new Video(Graphics, filename);

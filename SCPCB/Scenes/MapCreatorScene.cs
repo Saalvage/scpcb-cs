@@ -10,7 +10,7 @@ using SCPCB.Utility;
 namespace SCPCB.Scenes;
 
 public class MapCreatorScene : BaseScene {
-    public MapCreatorScene(Game game) : base(game.GraphicsResources) {
+    public MapCreatorScene(Game game) : base(game.GraphicsResources, game.AudioResources) {
         var input = game.InputManager;
 
         input.SetMouseCaptured(false);

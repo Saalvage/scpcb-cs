@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using SCPCB.Audio;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Shaders.ConstantMembers;
 using SCPCB.Graphics.Textures;
@@ -11,7 +12,7 @@ public abstract class Scene3D : BaseScene {
 
     public PhysicsResources Physics { get; }
 
-    protected Scene3D(GraphicsResources gfxRes) : base(gfxRes) {
+    protected Scene3D(GraphicsResources gfxRes, AudioResources audioRes) : base(gfxRes, audioRes) {
         Physics = new(Graphics); 
 
         AddEntity(new SortedRenderer(this, interp => Camera.Position));

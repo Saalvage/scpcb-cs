@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using SCPCB.Audio;
 using SCPCB.B;
 using SCPCB.Graphics;
 using SCPCB.Scenes;
@@ -8,6 +9,7 @@ namespace SCPCB;
 
 public class Game : Disposable {
     public GraphicsResources GraphicsResources { get; }
+    public AudioResources AudioResources { get; } = new();
     public InputManager InputManager { get; }
 
     private IScene _scene;
