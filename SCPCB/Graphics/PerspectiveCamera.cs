@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
+using SCPCB.Utility;
 
 namespace SCPCB.Graphics;
 
-public interface ICamera {
-    Vector3 Position { get; set; }
-    Quaternion Rotation { get; set; }
+public interface ICamera : ITransformable {
     Matrix4x4 GetViewMatrix(float interp);
 }
 
@@ -12,14 +11,15 @@ public interface ICamera {
 // which is what we need for our player camera.
 public class PerspectiveCamera : ICamera {
     private Vector3 _prevPos;
-    public Vector3 Position { get; set; }
 
-    public Quaternion Rotation { get; set; }
+    public Transform WorldTransform { get; set; }
 
-    public Matrix4x4 GetViewMatrix(float interp) => CalculateMatrix(Vector3.Lerp(_prevPos, Position, interp), Rotation);
+    public Transform GetInterpolatedWorldTransform(float interp) => WorldTransform with { Position = Vector3.Lerp(_prevPos, WorldTransform.Position, interp) };
+
+    public Matrix4x4 GetViewMatrix(float interp) => CalculateMatrix(Vector3.Lerp(_prevPos, WorldTransform.Position, interp), WorldTransform.Rotation);
 
     public void UpdatePosition() {
-        _prevPos = Position;
+        _prevPos = WorldTransform.Position;
     }
 
     private static Matrix4x4 CalculateMatrix(Vector3 pos, Quaternion rot) {

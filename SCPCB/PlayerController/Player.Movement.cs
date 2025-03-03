@@ -22,7 +22,7 @@ public partial class Player {
                 _collider.Detach();
             } else {
                 _collider.Attach();
-                _collider.Pose = _collider.Pose with { Position = Camera.Position - Vector3.UnitY * _collInfo.CameraOffset };
+                _collider.Pose = _collider.Pose with { Position = Camera.WorldTransform.Position - Vector3.UnitY * _collInfo.CameraOffset };
                 _collider.Velocity = default;
                 // Prevent being sucked onto the ground.
                 IsFalling = true;
@@ -43,7 +43,7 @@ public partial class Player {
     /// <summary>
     /// Center of the collider.
     /// </summary>
-    public Vector3 Position => Noclip ? Camera.Position - new Vector3(0, _collInfo.CameraOffset, 0) : _collider.Pose.Position;
+    public Vector3 Position => Noclip ? Camera.WorldTransform.Position - new Vector3(0, _collInfo.CameraOffset, 0) : _collider.Pose.Position;
 
     public Vector3 FeetPosition => Position - new Vector3(0, _collInfo.HeightOffGround, 0);
 
@@ -135,10 +135,10 @@ public partial class Player {
         Stamina = Math.Min(Stamina, MaxStamina);
 
         if (Noclip) {
-            var dir = Vector3.Transform(new(MoveDir.X, 0, MoveDir.Y), Camera.Rotation);
+            var dir = Vector3.Transform(new(MoveDir.X, 0, MoveDir.Y), Camera.WorldTransform.Rotation);
             var vel = dir * speed * 5;
             _noclipVelocity = vel * Game.TICK_RATE;
-            Camera.Position += vel;
+            Camera.WorldTransform = Camera.WorldTransform with { Position = Camera.WorldTransform.Position + vel };
         } else {
             if (MoveDir == Vector2.Zero) {
                 // TODO: Proper falling physics.
@@ -146,7 +146,7 @@ public partial class Player {
                     _collider.Velocity = Vector3.Zero;
                 }
             } else {
-                var forward = Vector3.Transform(Vector3.UnitZ, Camera.Rotation);
+                var forward = Vector3.Transform(Vector3.UnitZ, Camera.WorldTransform.Rotation);
                 forward.Y = 0;
                 var right = Vector3.Cross(forward, Vector3.UnitY);
                 var dir = Vector3.Normalize(forward) * MoveDir.Y + Vector3.Normalize(right) * -MoveDir.X;
@@ -189,7 +189,7 @@ public partial class Player {
                 // the velocity completely manually, the integration still has a slight effect.
                 _collider.Velocity = _collider.Velocity with { Linear = _collider.Velocity.Linear - Vector3.UnitY * delta };
             }
-            Camera.Position = _collider.Pose.Position + Vector3.UnitY * _collInfo.CameraOffset;
+            Camera.WorldTransform = Camera.WorldTransform with { Position = _collider.Pose.Position + Vector3.UnitY * _collInfo.CameraOffset };
         }
     }
 }

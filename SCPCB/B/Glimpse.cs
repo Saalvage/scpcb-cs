@@ -31,9 +31,9 @@ class Glimpse : IEntityHolder, ITickable, ITransformable {
     }
 
     public void Tick() {
-        if (BHelpers.GetFloor(_player.Camera.Position) == BHelpers.GetFloor(_billboard.WorldTransform.Position)
+        if (BHelpers.GetFloor(_player.Camera.WorldTransform.Position) == BHelpers.GetFloor(_billboard.WorldTransform.Position)
             && Vector2.DistanceSquared(_player.Position.XZ(), _billboard.WorldTransform.Position.XZ()) < 2.3f
-            && !_physics.RayCastVisible(_player.Camera.Position, _billboard.WorldTransform.Position).HasValue) {
+            && !_physics.RayCastVisible(_player.Camera.WorldTransform.Position, _billboard.WorldTransform.Position).HasValue) {
             _scene.RemoveEntity(this);
             Console.WriteLine("GOODBYE!");
         }

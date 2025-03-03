@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using SCPCB.Audio;
 using SCPCB.Entities;
 using SCPCB.Graphics;
 using SCPCB.Physics;
@@ -6,7 +7,7 @@ using SCPCB.Scenes;
 
 namespace SCPCB.PlayerController;
 
-public partial class Player : IUpdatable, ITickable {
+public partial class Player : IUpdatable, ITickable, IEntityHolder {
     private readonly IScene _scene;
     private readonly PhysicsResources _physics;
 
@@ -17,16 +18,25 @@ public partial class Player : IUpdatable, ITickable {
 
     public float BlinkTimer { get; private set; } = 20f;
 
+    private readonly AudioListener _listener = new();
+
+    public IEnumerable<IEntity> Entities {
+        get {
+            yield return _listener;
+        }
+    }
+
     public Player(IScene scene, CollisionInfo info) {
         _scene = scene;
         _physics = scene.GetEntitiesOfType<PhysicsResources>().Single();
         _collider = CreateCollider(_physics, info);
+        _listener.Parent = Camera;
     }  
 
     public void HandleMouse(Vector2 delta) {
         Yaw = (Yaw - delta.X) % (2 * MathF.PI);
         Pitch = (Pitch + delta.Y) % (2 * MathF.PI);
-        Camera.Rotation = Quaternion.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
+        Camera.WorldTransform = Camera.WorldTransform with { Rotation = Quaternion.CreateFromYawPitchRoll(Yaw, Pitch, 0f) };
     }
 
     public void Tick() {

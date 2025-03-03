@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using BepuPhysics.Collidables;
+using SCPCB.Audio;
 using SCPCB.B;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
@@ -61,9 +62,16 @@ public class MainScene : Scene3D {
 
     private Vector3? _measuringTape;
 
+    private AudioResources _audio = new();
+    private AudioChannel3D _audioChannel = new();
+    private AudioFile _audioFile = new("Assets/087-B/Sounds/music.mp3", Channels.Mono);
+
     public MainScene(Game game, Player.CollisionInfo playerCollisionInfo) : base(game.GraphicsResources) {
         _game = game;
         _input = game.InputManager;
+
+        AddEntity(_audioChannel);
+        _audioChannel.Play(_audioFile);
 
         AddEntity(Physics);
 
@@ -72,8 +80,7 @@ public class MainScene : Scene3D {
         _player = new(this, playerCollisionInfo);
         Camera = _player.Camera;
         _player.Noclip = true;
-        _player.Camera.Position = new(-2.5f, -0.699f, 0.5f);
-        _player.Camera.Rotation = Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0);
+        _player.Camera.WorldTransform = new(new(-2.5f, -0.699f, 0.5f), Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0));
 
         AddEntity(_player);
 
@@ -133,7 +140,7 @@ public class MainScene : Scene3D {
 
         var reg = new ItemRegistry(this);
         reg.RegisterItemsFromFile("Assets/Items/items.txt");
-        var itemmm = reg.CreateItem(new(_player.Camera.Position, Quaternion.Identity, new(0.1f)), "doc173");
+        var itemmm = reg.CreateItem(new(_player.Camera.WorldTransform.Position, Quaternion.Identity, new(0.1f)), "doc173");
         AddEntity(itemmm);
         _player.PickItem(itemmm);
 
@@ -222,7 +229,7 @@ public class MainScene : Scene3D {
         _str.Text = $"""
                     FPS: {_game.FPS}
                     
-                    Position: {FormatVec(_player.Camera.Position)}
+                    Position: {FormatVec(_player.Camera.WorldTransform.Position)}
                     Rotation: ({ToDeg(_player.Yaw):F3}° ({RadToDir(_player.Yaw)}), {ToDeg(_player.Pitch):F3}°)
                     Velocity: {(_player.Noclip
                         ? $"{_player.Velocity.Length():F3}"
@@ -230,7 +237,7 @@ public class MainScene : Scene3D {
                     
                     Stamina: {_player.Stamina:F3}
                     BlinkTimer: {_player.BlinkTimer:F3}
-                    Floor: {BHelpers.GetFloor(_player.Camera.Position)}
+                    Floor: {BHelpers.GetFloor(_player.Camera.WorldTransform.Position)}
                     """;
 
         float ToDeg(float rad) => (rad / (2 * MathF.PI) * 360 + 360) % 360;
@@ -272,8 +279,8 @@ public class MainScene : Scene3D {
                             2 => _logoMat,
                         })).Cast<IMeshMaterial>().ToArray() })
                     .InstantiatePhysicsDynamic(1);
-                entity.CenterOfMassWorldTransform = new(_player.Camera.Position, _player.Camera.Rotation, new(0.1f));
-                entity.Body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.Rotation));
+                entity.CenterOfMassWorldTransform = _player.Camera.WorldTransform;
+                entity.Body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.WorldTransform.Rotation));
                 AddEntity(entity);
                 _last173 = entity;
                 break;
@@ -338,8 +345,8 @@ public class MainScene : Scene3D {
                 }
                 break;
             case Key.AltLeft: {
-                var from = _player.Camera.Position;
-                var to = from + Vector3.Transform(Vector3.UnitZ, _player.Camera.Rotation) * 5f;
+                var from = _player.Camera.WorldTransform.Position;
+                var to = from + Vector3.Transform(Vector3.UnitZ, _player.Camera.WorldTransform.Rotation) * 5f;
                 var line = new DebugLine(Graphics, from, to);
                 var cast = Physics.RayCastVisible(from, to);
                 line.Color = cast is not null ? new(1, 0, 0) : new(0, 1, 0);
@@ -388,7 +395,7 @@ public class MainScene : Scene3D {
                 _player.Noclip = !_player.Noclip;
                 break;
             case Key.M:
-                var pos = _player.Camera.Position;
+                var pos = _player.Camera.WorldTransform.Position;
                 if (_measuringTape.HasValue) {
                     var from = _measuringTape.Value;
                     Log.Information("Measured distance from {From} to {To}: {Distance}", from, pos, Vector3.Distance(from, pos));

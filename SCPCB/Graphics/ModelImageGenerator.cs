@@ -24,7 +24,7 @@ public class ModelImageGenerator {
     private IModelTemplate _template;
     private Model _model;
 
-    private readonly PerspectiveCamera _cam = new() { Position = new(0, 0, -5) };
+    private readonly PerspectiveCamera _cam = new() { WorldTransform = new(new(0, 0, -5)) };
 
     public ModelImageGenerator(GraphicsResources gfxRes, PhysicsResources physics, uint width, uint height) {
         _gfxRes = gfxRes;
@@ -44,7 +44,7 @@ public class ModelImageGenerator {
         }
 
         _gfxRes.ShaderCache.SetGlobal<IViewMatrixConstantMember, Matrix4x4>(_cam.GetViewMatrix(1));
-        _gfxRes.ShaderCache.SetGlobal<IViewPositionConstantMember, Vector3>(_cam.Position);
+        _gfxRes.ShaderCache.SetGlobal<IViewPositionConstantMember, Vector3>(_cam.WorldTransform.Position);
 
         _texture.Start();
 

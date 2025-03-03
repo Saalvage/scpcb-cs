@@ -12,8 +12,8 @@ public partial class Player {
     private void UpdatePickables() {
         // Inefficient, but likely negligible impact on performance.
         var newClosestPickable = _scene.GetEntitiesOfType<IPickableEntity>()
-            .Where(x => x.CanBePicked(this) && (x.Position - Camera.Position).LengthSquared() < 4)
-            .MinBy(x => (Camera.Position - x.Position).LengthSquared());
+            .Where(x => x.CanBePicked(this) && (x.Position - Camera.WorldTransform.Position).LengthSquared() < 4)
+            .MinBy(x => (Camera.WorldTransform.Position - x.Position).LengthSquared());
 
         if (newClosestPickable != _closestPickable) {
             var ui = _scene.GetEntitiesOfType<UIManager>().Single();
