@@ -63,15 +63,9 @@ public class MainScene : Scene3D {
 
     private Vector3? _measuringTape;
 
-    private AudioChannel3D _audioChannel = new();
-    private AudioFile _audioFile = new("Assets/087-B/Sounds/music.mp3", Channels.Mono);
-
     public MainScene(Game game, Player.CollisionInfo playerCollisionInfo) : base(game.GraphicsResources, game.AudioResources) {
         _game = game;
         _input = game.InputManager;
-
-        AddEntity(_audioChannel);
-        _audioChannel.Play(_audioFile);
 
         AddEntity(Physics);
 
