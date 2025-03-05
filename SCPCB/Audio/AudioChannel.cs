@@ -21,6 +21,12 @@ public class AudioChannel : Disposable {
         set => AL.Source(_source, ALSourcef.SecOffset, value);
     }
 
+    public AudioChannel(bool positional = false) {
+        if (!positional) {
+            AL.Source(_source, ALSourceb.SourceRelative, true);
+        }
+    }
+
     public void Play(AudioFile file) {
         AL.Source(_source, ALSourcei.Buffer, file.BufferHandle);
         AL.SourcePlay(_source);

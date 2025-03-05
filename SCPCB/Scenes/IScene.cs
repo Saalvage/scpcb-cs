@@ -1,4 +1,5 @@
-﻿using SCPCB.Entities;
+﻿using SCPCB.Audio;
+using SCPCB.Entities;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Textures;
 
@@ -6,6 +7,7 @@ namespace SCPCB.Scenes;
 
 public interface IScene : IDisposable {
     GraphicsResources Graphics { get; }
+    AudioResources Audio { get; }
 
     IEnumerable<IEntity> Entities { get; }
 

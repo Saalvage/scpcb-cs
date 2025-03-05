@@ -79,7 +79,7 @@ public class MapGenerator {
 
             // There are a few actions that are defined in the same floor range,
             // this does not respect their override order. But do we care?
-            acts[rng.Next(attr.MinFloor, attr.MaxFloor + 1)] = (IFloorAction)Activator.CreateInstance(actType);
+            InstantiateAction(actType, rng.Next(attr.MinFloor, attr.MaxFloor + 1));
         }
 
         SetRandomActsInRange(9, 24, 68);
@@ -103,9 +103,24 @@ public class MapGenerator {
                     continue;
                 }
 
-                acts[placeAt] = (IFloorAction)Activator.CreateInstance(act);
+                InstantiateAction(act, placeAt);
             }
         }
+
+        void InstantiateAction(Type t, int index) {
+            IFloorAction act;
+            if (t.GetConstructor([]) is { } pc) {
+                act = (IFloorAction)pc.Invoke([]);
+            } else if (t.GetConstructor([typeof(IScene)]) is { } sc) {
+                act = (IFloorAction)sc.Invoke([_scene]);
+            } else {
+                throw new("Actions must constructor taking no arguments or an IScene");
+            }
+            _scene.AddEntity(act);
+            acts[index] = act;
+        }
+
+        _scene.AddEntity(new Map(_scene, acts));
 
         // Floor meshes.
         for (var i = 0; i < floorCount; i++) {
