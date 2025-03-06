@@ -135,7 +135,7 @@ public class MapGenerator {
         }
 
         // Glimpses.
-        var no = _scene.Audio.SoundCache.GetSound("Assets/087-B/Sounds/no.wav", Channels.Mono);
+        var no = _scene.Audio.SoundCache.GetSound("Assets/087-B/Sounds/no.ogg", Channels.Mono);
         for (var i = 1; i < floorCount; i++) {
             if (acts[i] != null || rng.Next(7) != 0) {
                 continue;
