@@ -28,15 +28,18 @@ public class AudioChannel : Disposable {
     }
 
     public void Play(AudioFile file) {
+        if (IsPlaying) {
+            Stop();
+        }
         AL.Source(_source, ALSourcei.Buffer, file.BufferHandle);
         AL.SourcePlay(_source);
     }
 
-    public void Pause(AudioFile file) {
+    public void Pause() {
         AL.SourcePause(_source);
     }
 
-    public void Stop(AudioFile file) {
+    public void Stop() {
         AL.SourceStop(_source);
     }
 

@@ -68,4 +68,7 @@ public static class Extensions {
 
     public static Vector3 ToRGB(this Color color) => new Vector3(color.R, color.G, color.B) / 255f;
     public static Vector4 ToRGBA(this Color color) => new Vector4(color.R, color.G, color.B, color.A) / 255f;
+
+    // This has an infinitesimal small bias towards min. 
+    public static float NextSingle(this Random rng, float min, float max) => rng.NextSingle() * (max - min) + min;
 }

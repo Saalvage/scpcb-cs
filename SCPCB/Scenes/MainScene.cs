@@ -35,7 +35,7 @@ public class MainScene : Scene3D {
     private readonly Game _game;
     private readonly InputManager _input;
 
-    private readonly Player _player;
+    protected readonly Player _player;
 
     private readonly ICBMaterial<VPositionTexture> _renderMat;
     private readonly ICBMaterial<VPositionTexture> _otherMat;
