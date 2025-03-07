@@ -94,6 +94,7 @@ public class Game : Disposable {
             }
             while (tickAccu >= TICK_GOAL) {
                 _scene.Tick();
+                AudioResources.Tick();
                 tickAccu -= TICK_GOAL;
             }
         }

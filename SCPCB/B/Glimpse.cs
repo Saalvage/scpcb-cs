@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using SCPCB.Audio;
+using SCPCB.Audio.Properties;
 using SCPCB.Entities;
 using SCPCB.Graphics;
 using SCPCB.Graphics.Primitives;
@@ -17,7 +18,8 @@ class Glimpse : IEntityHolder, ITickable, ITransformable {
     private readonly PhysicsResources _physics;
 
     private readonly AudioFile _noSound;
-    private readonly AudioChannel3D _channel;
+    private readonly DynamicAudioTransformProperty _audioTrans;
+    private Playback _playback;
 
     private readonly Billboard _billboard;
     public IEnumerable<IEntity> Entities { get; }
@@ -34,9 +36,9 @@ class Glimpse : IEntityHolder, ITickable, ITransformable {
         _player = scene.GetEntitiesOfType<Player>().Single();
         _physics = scene.Physics;
         _noSound = noSound;
-        _channel = new();
-        _channel.Parent = this;
-        Entities = [_billboard = Billboard.Create(scene.Graphics, texture, true), _channel];
+        _audioTrans = new();
+        _audioTrans.Parent = this;
+        Entities = [_billboard = Billboard.Create(scene.Graphics, texture, true), _audioTrans];
     }
 
     public void Tick() {
@@ -45,10 +47,11 @@ class Glimpse : IEntityHolder, ITickable, ITransformable {
                 && Vector2.DistanceSquared(_player.Position.XZ(), _billboard.WorldTransform.Position.XZ()) < 2.3f
                 && !_physics.RayCastVisible(_player.Camera.WorldTransform.Position, _billboard.WorldTransform.Position).HasValue) {
                 _scene.RemoveEntity(_billboard);
-                _channel.Play(_noSound);
+                _playback = _scene.Audio.Play(_noSound, _audioTrans);
                 _disappared = true;
             }
-        } else if (!_channel.IsPlaying) {
+        } else if (!_playback.IsPlaying) {
+            _playback.Dispose();
             _scene.RemoveEntity(this);
         }
 

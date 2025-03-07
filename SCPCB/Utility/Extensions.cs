@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace SCPCB.Utility; 
 
@@ -71,4 +72,7 @@ public static class Extensions {
 
     // This has an infinitesimal small bias towards min. 
     public static float NextSingle(this Random rng, float min, float max) => rng.NextSingle() * (max - min) + min;
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static bool IsAlive<T>(this WeakReference<T> t) where T : class => t.TryGetTarget(out _);
 }

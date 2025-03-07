@@ -9,7 +9,6 @@ public abstract class RadioActionBase : IFloorAction, ITickable {
 
     private readonly AudioResources _audio;
     private readonly AudioFile _radio;
-    private readonly AudioChannel _radioChannel = new();
 
     private readonly int _delayInTicks;
 
@@ -32,7 +31,7 @@ public abstract class RadioActionBase : IFloorAction, ITickable {
             _counter++;
 
             if (_counter >= _delayInTicks) {
-                _radioChannel.Play(_radio);
+                _audio.PlayFireAndForget(_radio);
                 _done = true;
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using BepuPhysics.Collidables;
+using SCPCB.Audio;
 using SCPCB.B;
 using SCPCB.Entities.Items;
 using SCPCB.Graphics;
@@ -230,6 +231,8 @@ public class MainScene : Scene3D {
                     Stamina: {_player.Stamina:F3}
                     BlinkTimer: {_player.BlinkTimer:F3}
                     Floor: {BHelpers.GetFloor(_player.Camera.WorldTransform.Position)}
+                    
+                    Active Audio Sources: {Source.ActiveSources}
                     """;
 
         float ToDeg(float rad) => (rad / (2 * MathF.PI) * 360 + 360) % 360;
@@ -397,6 +400,9 @@ public class MainScene : Scene3D {
                     Log.Information("Start measuring from {From}", pos);
                     _measuringTape = pos;
                 }
+                break;
+            case Key.Keypad0:
+                GC.Collect();
                 break;
         }
     }
