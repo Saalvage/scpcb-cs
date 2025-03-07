@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using NAudio.Wave;
-using NVorbis;
 using OpenTK.Audio.OpenAL;
 using SCPCB.Utility;
 

@@ -9,7 +9,7 @@ public class NVorbisReader : Disposable, ISampleProvider {
 
     public WaveFormat WaveFormat { get; }
 
-    public long Length => _vorbisReader.TotalSamples * 4;
+    public long Length => _vorbisReader.TotalSamples * WaveFormat.BitsPerSample / 8 * WaveFormat.Channels;
 
     public NVorbisReader(string path) {
         _vorbisReader = new(path);
