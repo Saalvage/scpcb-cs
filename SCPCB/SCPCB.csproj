@@ -24,7 +24,7 @@
     <PackageReference Include="AssimpNetter" Version="5.4.3.2" />
     <PackageReference Include="StbImageSharper" Version="1.0.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="NVorbis" Version="0.10.5" />
+    <PackageReference Include="VorbisPizza" Version="1.4.2" />
     <PackageReference Include="OpenTK.Audio.OpenAL" Version="5.0.0-pre.13" />
     <PackageReference Include="FFMediaToolkit" Version="4.5.1" />
     <PackageReference Include="FreeTypeSharp" Version="2.2.0" />
