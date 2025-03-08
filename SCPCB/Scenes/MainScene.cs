@@ -274,7 +274,7 @@ public class MainScene : Scene3D {
                             2 => _logoMat,
                         })).Cast<IMeshMaterial>().ToArray() })
                     .InstantiatePhysicsDynamic(1);
-                entity.CenterOfMassWorldTransform = _player.Camera.WorldTransform;
+                entity.CenterOfMassWorldTransform = _player.Camera.WorldTransform with { Scale = new(0.1f) };
                 entity.Body.Velocity = new(10 * Vector3.Transform(new(0, 0, 1), _player.Camera.WorldTransform.Rotation));
                 AddEntity(entity);
                 _last173 = entity;
