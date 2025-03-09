@@ -29,7 +29,7 @@ public class Item : IItem, IEntityHolder {
 
     public Item(IScene scene, ICBTexture inventoryIcon, string modelFile, Transform transform) {
         _scene = scene;
-        _prop = new(scene.GetEntitiesOfType<PhysicsResources>()[0], modelFile, transform, false);
+        _prop = new(scene.GetEntitiesOfType<PhysicsResources>()[0], modelFile, transform, false, new(false, true));
         InventoryIcon = inventoryIcon;
     }
 

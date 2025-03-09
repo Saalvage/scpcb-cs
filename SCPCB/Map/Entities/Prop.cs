@@ -29,11 +29,11 @@ public class Prop : Disposable, IMapEntity, IEntityHolder, ISerializableEntity {
 
     public PhysicsModel Model { get; }
 
-    public Prop(PhysicsResources physics, string file, Transform transform, bool needsPositionAdjustment = true) {
+    public Prop(PhysicsResources physics, string file, Transform transform, bool needsPositionAdjustment = true, Info? info = null) {
         _file = file;
         var infoFile = Path.ChangeExtension(file, "json");
         // TODO: Cache this.
-        var info = (File.Exists(infoFile) ? JsonSerializer.Deserialize<Info>(File.ReadAllText(infoFile)) : null) ?? new();
+        info ??= (File.Exists(infoFile) ? JsonSerializer.Deserialize<Info>(File.ReadAllText(infoFile)) : null) ?? new();
         var template = physics.ModelCache.GetModel(file, !info.UsesMesh);
         if (needsPositionAdjustment) {
             // The object origin in B3D is at the bottom.
