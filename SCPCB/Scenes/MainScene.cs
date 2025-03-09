@@ -137,8 +137,12 @@ public class MainScene : Scene3D {
         AddEntity(itemmm);
         _player.PickItem(itemmm);
 
-        Graphics.ShaderCache.SetGlobal<IProjectionMatrixConstantMember, Matrix4x4>(
-            Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 180 * 58.69f, (float)window.Width / window.Height, 0.1f, 100f));
+        var fogController = new FogController(Graphics) {
+            FieldOfView = 58.69f,
+            Near = 1,
+            Far = 2.5f,
+        };
+        AddEntity(fogController);
 
         Graphics.ShaderCache.SetGlobal<IUIProjectionMatrixConstantMember, Matrix4x4>(
             Helpers.CreateUIProjectionMatrix(Graphics.Window.Width, Graphics.Window.Height));
@@ -163,6 +167,8 @@ public class MainScene : Scene3D {
         if (Graphics.Debug) {
             _dreamFilter.BlurFactor = 0;
             Graphics.ShaderCache.SetGlobal<IAmbientLightConstantMember, float>(1);
+            fogController.Near = 0;
+            fogController.Far = float.PositiveInfinity;
         }
 
         var coolTexture = Graphics.TextureCache.GetTexture("Assets/173texture.jpg");

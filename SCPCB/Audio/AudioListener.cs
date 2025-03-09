@@ -2,20 +2,13 @@
 using OpenTK.Audio.OpenAL;
 using SCPCB.Entities;
 using SCPCB.Graphics.Textures;
-using SCPCB.Scenes;
 using SCPCB.Utility;
 
 namespace SCPCB.Audio;
 
-public class AudioListener : IRenderable, IParentableTransformable {
+public class AudioListener : ISingletonEntity<AudioListener>, IRenderable, IParentableTransformable {
     public ITransformable? Parent { get; set; }
     public Transform LocalTransform { get; set; } = new();
-
-    public void OnAdd(IScene scene) {
-        if (scene.GetEntitiesOfType<AudioListener>().Skip(1).Any()) {
-            throw new("Only one audio listener is allowed per scene!");
-        }
-    }
 
     public unsafe void Render(IRenderTarget target, float interp) {
         var trans = ((IParentableTransformable)this).GetInterpolatedWorldTransform(interp);
