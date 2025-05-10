@@ -26,10 +26,10 @@ public partial class Player : IUpdatable, ITickable, IEntityHolder {
         }
     }
 
-    public Player(IScene scene, CollisionInfo info) {
+    public Player(IScene scene, Collider.Dimensions info) {
         _scene = scene;
         _physics = scene.GetEntitiesOfType<PhysicsResources>().Single();
-        _collider = CreateCollider(_physics, info);
+        _collider = new(scene, info);
         _listener.Parent = Camera;
     }  
 

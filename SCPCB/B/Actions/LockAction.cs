@@ -1,6 +1,6 @@
 ﻿namespace SCPCB.B.Actions;
 
 [FixedFloorActionInfo(6)]
-public class LockAction : IFloorAction {
+public class LockAction : FloorActionBase {
 
 }

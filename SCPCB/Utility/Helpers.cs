@@ -66,7 +66,7 @@ public static class Helpers {
         }
         return new(properties
             .Select(x => new VertexElementDescription(x.Member.Name, TypeToFormat(x.Type), MemberToSemantic(x.Member)))
-            // If this continues causing issues, look into implementing the offset
+            // If this continues causing issues, look into implementing the offset.
             .ToArray());
     }
 
@@ -213,6 +213,45 @@ public static class Helpers {
     }
 
     public static Vector3 ComputeNormal(Vector3 a, Vector3 b, Vector3 c) => Vector3.Normalize(Vector3.Cross(b - a, c - a));
+
+    // https://stackoverflow.com/a/52551983/15262536
+    public static Quaternion CreateLookAtQuaternion(Vector3 forward, Vector3 up) {
+        var F = Vector3.Normalize(forward);
+        var R = Vector3.Normalize(Vector3.Cross(up, F));
+        var U = Vector3.Cross(F, R);
+
+        Quaternion q;
+        var trace = R.X + U.Y + F.Z;
+        if (trace > 0.0) {
+            var s = 0.5f / MathF.Sqrt(trace + 1f);
+            q.W = 0.25f / s;
+            q.X = (U.Z - F.Y) * s;
+            q.Y = (F.X - R.Z) * s;
+            q.Z = (R.Y - U.X) * s;
+        } else {
+            if (R.X > U.Y && R.X > F.Z) {
+                var s = 2f * MathF.Sqrt(1f + R.X - U.Y - F.Z);
+                q.W = (U.Z - F.Y) / s;
+                q.X = 0.25f * s;
+                q.Y = (U.X + R.Y) / s;
+                q.Z = (F.X + R.Z) / s;
+            } else if (U.Y > F.Z) {
+                var s = 2f * MathF.Sqrt(1f + U.Y - R.X - F.Z);
+                q.W = (F.X - R.Z) / s;
+                q.X = (U.X + R.Y) / s;
+                q.Y = 0.25f * s;
+                q.Z = (F.Y + U.Z) / s;
+            } else {
+                var s = 2f * MathF.Sqrt(1f + F.Z - R.X - U.Y);
+                q.W = (R.Y - U.X) / s;
+                q.X = (F.X + R.Z) / s;
+                q.Y = (F.Y + U.Z) / s;
+                q.Z = 0.25f * s;
+            }
+        }
+
+        return q;
+    }
 
     public static PlacedRoomInfo[,] GenerateDebugRooms() {
         var rooms = JsonSerializer.Deserialize<RoomInfo[]>(File.ReadAllText("Assets/Rooms/rooms.json"));

@@ -2,6 +2,6 @@
 
 [FixedFloorActionInfo(19, 21)]
 [RandomFloorActionInfo(74, 199)]
-public class LightsAction : IFloorAction {
+public class LightsAction : FloorActionBase {
 
 }

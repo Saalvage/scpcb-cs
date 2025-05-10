@@ -12,12 +12,13 @@ public class BScene : MainScene {
     public BScene(Game game) : base(game, new(1f, 0.3f, 1.8f) {
         CameraOffset = 0.303f,
     }) {
-        var music = Audio.SoundCache.GetSound("Assets/087-B/Sounds/music.ogg");
-        Audio.PlayFireAndForget(music, new LoopingAudioProperty());
+        Audio.PlayFireAndForget("Assets/087-B/Sounds/music.ogg", new LoopingAudioProperty());
 
         _ambient = Enumerable.Range(1, 8)
             .Select(x => Audio.SoundCache.GetSound($"Assets/087-B/Sounds/ambient{x}.ogg", Channels.Mono))
             .ToArray();
+
+        AddEntity(new Enemy(this));
 
         new MapGenerator(this).InstantiateNewMap(210);
     }

@@ -6,9 +6,9 @@ using SCPCB.Audio;
 using SCPCB.B.Actions;
 using SCPCB.Graphics;
 using SCPCB.Graphics.ModelTemplates;
-using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders;
 using SCPCB.Graphics.Shaders.Vertices;
+using SCPCB.Graphics.Shapes;
 using SCPCB.Graphics.Text;
 using SCPCB.Physics;
 using SCPCB.Scenes;
@@ -71,7 +71,7 @@ public class MapGenerator {
     public void InstantiateNewMap(int floorCount, int? seed = null) {
         Random rng = seed.HasValue ? new(seed.Value) : new();
 
-        var acts = new IFloorAction?[floorCount];
+        var acts = new FloorActionBase?[floorCount];
         foreach (var (attr, actType) in _fixedActs) {
             if (rng.NextDouble() > attr.Probability) {
                 continue;
@@ -108,14 +108,16 @@ public class MapGenerator {
         }
 
         void InstantiateAction(Type t, int index) {
-            IFloorAction act;
-            if (t.GetConstructor([]) is { } pc) {
-                act = (IFloorAction)pc.Invoke([]);
-            } else if (t.GetConstructor([typeof(IScene)]) is { } sc) {
-                act = (IFloorAction)sc.Invoke([_scene]);
-            } else {
+            if (acts[index] is { } prevAct) {
+                _scene.RemoveEntity(prevAct);
+            }
+
+            var obj = (t.GetConstructor([])?.Invoke([])
+                       ?? t.GetConstructor([typeof(IScene)])?.Invoke([_scene]));
+            if (obj is not FloorActionBase act) {
                 throw new("Actions must constructor taking no arguments or an IScene");
             }
+            typeof(FloorActionBase).GetProperty("Floor")!.SetValue(obj, index);
             _scene.AddEntity(act);
             acts[index] = act;
         }
@@ -148,40 +150,8 @@ public class MapGenerator {
 
         var sign = _scene.Graphics.TextureCache.GetTexture("Assets/087-B/sign.jpg");
 
-        var cube = new CBMesh<VPositionTexture>(_scene.Graphics.GraphicsDevice, [
-            // Front.
-            new(new(-0.5f, -0.5f, 0.5f), new(0, 1)),
-            new(new(0.5f, -0.5f, 0.5f), new(1, 1)),
-            new(new(-0.5f, 0.5f, 0.5f), new(0, 0)),
-            new(new(0.5f, 0.5f, 0.5f), new(1, 0)),
-            // Back.
-            new(new(0.5f, -0.5f, -0.5f), new(0, 1)),
-            new(new(-0.5f, -0.5f, -0.5f), new(1, 1)),
-            new(new(0.5f, 0.5f, -0.5f), new(0, 0)),
-            new(new(-0.5f, 0.5f, -0.5f), new(1, 0)),
-            // Left.
-            new(new(-0.5f, -0.5f, -0.5f), new(0, 1)),
-            new(new(-0.5f, -0.5f, 0.5f), new(1, 1)),
-            new(new(-0.5f, 0.5f, -0.5f), new(0, 0)),
-            new(new(-0.5f, 0.5f, 0.5f), new(1, 0)),
-            // Right.
-            new(new(0.5f, -0.5f, 0.5f), new(0, 1)),
-            new(new(0.5f, -0.5f, -0.5f), new(1, 1)),
-            new(new(0.5f, 0.5f, 0.5f), new(0, 0)),
-            new(new(0.5f, 0.5f, -0.5f), new(1, 0)),
-            // Top.
-            new(new(-0.5f, 0.5f, 0.5f), new(0, 1)),
-            new(new(0.5f, 0.5f, 0.5f), new(1, 1)),
-            new(new(-0.5f, 0.5f, -0.5f), new(0, 0)),
-            new(new(0.5f, 0.5f, -0.5f), new(1, 0)),
-            // Bottom.
-            new(new(-0.5f, -0.5f, -0.5f), new(0, 1)),
-            new(new(0.5f, -0.5f, -0.5f), new(1, 1)),
-            new(new(-0.5f, -0.5f, 0.5f), new(0, 0)),
-            new(new(0.5f, -0.5f, 0.5f), new(1, 0)),
-        ], [0, 1, 2, 3, 2, 1, 4, 5, 6, 7, 6, 5, 8, 9, 10, 11, 10, 9, 12, 13, 14, 15, 14, 13, 16, 17, 18, 19, 18, 17, 20, 21, 22, 23, 22, 21]);
         var signTemplate = new ModelTemplate([
-            new MeshMaterial<VPositionTexture>(cube,
+            new MeshMaterial<VPositionTexture>(_scene.Graphics.ShapeCache.GetMesh<Cube>(),
                 _scene.Graphics.MaterialCache.GetMaterial<ModelShader, VPositionTexture>(
                     [sign],
                     [_scene.Graphics.ClampAnisoSampler])),

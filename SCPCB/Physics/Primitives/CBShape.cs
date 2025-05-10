@@ -54,16 +54,19 @@ public class CBShape<T> : Disposable, ICBShape<T> where T : unmanaged, IShape {
         } else {
             // We're restricting ourselves to scaling, everything else seems too esoteric, I don't think we reasonably want to
             // shear our shapes. (I can't wait to be proven wrong.)
-            Matrix3x3.CreateScale(scale, out var mat);
             ICBShape copy;
             switch (this) {
                 case CBShape<ConvexHull> ch:
+                    Matrix3x3.CreateScale(scale, out var mat);
                     ConvexHullHelper.CreateTransformedCopy(ch.Shape, in mat, Physics.Simulation.BufferPool, out var scaledHull);
                     copy = new CBShape<ConvexHull>(Physics, scaledHull, _scaled, actualScale);
                     break;
                 case CBShape<Mesh> cm:
                     // TODO: This is probably not the best way to scale.
                     copy = new CBShape<Mesh>(Physics, Mesh.CreateWithSweepBuild(cm.Shape.Triangles, scale, Physics.BufferPool));
+                    break;
+                case CBShape<Box> cb:
+                    copy = new CBShape<Box>(Physics, new(cb.Shape.Width * scale.X, cb.Shape.Height * scale.Y, cb.Shape.Length * scale.Z));
                     break;
                 default:
                     throw new NotSupportedException($"Scaling a {GetType()} is not currently supported!");

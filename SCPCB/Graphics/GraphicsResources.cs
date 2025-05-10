@@ -42,7 +42,9 @@ public class GraphicsResources : Disposable {
     public TextureCache TextureCache { get; }
     public MaterialCache MaterialCache { get; }
     public MeshCache MeshCache { get; }
+    public ShapeCache ShapeCache { get; }
     public FontCache FontCache { get; }
+    public AnimatedModelCache AnimatedModelCache { get; }
 
     public ICBTexture MissingTexture { get; }
 
@@ -104,7 +106,9 @@ public class GraphicsResources : Disposable {
         TextureCache = new(this);
         MaterialCache = new(ShaderCache);
         MeshCache = new(this);
+        ShapeCache = new(this);
         FontCache = new(this, _freeType);
+        AnimatedModelCache = new(this);
 
         _mainTarget = new(this, GraphicsDevice.SwapchainFramebuffer);
 

@@ -3,6 +3,6 @@
 [FixedFloorActionInfo(39, 59)]
 [RandomFloorActionInfo(24, 68)]
 [RandomFloorActionInfo(74, 199)]
-public class TrapAction : IFloorAction {
+public class TrapAction : FloorActionBase {
 
 }

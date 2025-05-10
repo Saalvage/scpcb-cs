@@ -4,15 +4,14 @@ using SCPCB.Scenes;
 
 namespace SCPCB.B.Actions;
 
-public abstract class RadioActionBase : IFloorAction, ITickable {
-    public virtual string PredeterminedFloor => "map";
+public abstract class RadioActionBase : FloorActionBase, ITickable {
+    public override string PredeterminedFloor => "map";
 
     private readonly AudioResources _audio;
     private readonly AudioFile _radio;
 
     private readonly int _delayInTicks;
 
-    private bool _active = false;
     private bool _done = false;
     private int _counter = 0;
 
@@ -22,12 +21,8 @@ public abstract class RadioActionBase : IFloorAction, ITickable {
         _delayInTicks = delayTicks;
     }
 
-    public void OnEnter() {
-        _active = true;
-    }
-
     public void Tick() {
-        if (!_done && _active) {
+        if (!_done && IsActive) {
             _counter++;
 
             if (_counter >= _delayInTicks) {

@@ -5,7 +5,6 @@ using SCPCB.Graphics.Assimp;
 using static ShaderGen.ShaderBuiltins;
 using SCPCB.Graphics.Primitives;
 using SCPCB.Graphics.Shaders.ConstantMembers;
-using SCPCB.Graphics.Shaders.Fragments;
 using SCPCB.Graphics.Shaders.Utility;
 using SCPCB.Graphics.Shaders.Vertices;
 

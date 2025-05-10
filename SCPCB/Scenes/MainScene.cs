@@ -62,7 +62,7 @@ public class MainScene : Scene3D {
 
     private Vector3? _measuringTape;
 
-    public MainScene(Game game, Player.CollisionInfo playerCollisionInfo) : base(game.GraphicsResources, game.AudioResources) {
+    public MainScene(Game game, Collider.Dimensions playerDimensions) : base(game.GraphicsResources, game.AudioResources) {
         _game = game;
         _input = game.InputManager;
 
@@ -70,7 +70,7 @@ public class MainScene : Scene3D {
 
         DealWithEntityBuffers();
 
-        _player = new(this, playerCollisionInfo);
+        _player = new(this, playerDimensions);
         Camera = _player.Camera;
         _player.Noclip = true;
         _player.Camera.WorldTransform = new(new(-2.5f, -0.699f, 0.5f), Quaternion.CreateFromYawPitchRoll(MathF.PI, 0, 0));
@@ -186,9 +186,7 @@ public class MainScene : Scene3D {
 
         _template = Physics.ModelCache.GetModel("Assets/173_2.b3d").CreateDerivative();
 
-        var template = new AssimpAnimatedModelLoader<AnimatedModelShader, AnimatedModelShader.Vertex, GraphicsResources>(Graphics,
-                "Assets/087-B/mental.b3d")
-            .LoadAnimatedModel(Graphics.GraphicsDevice);
+        var template = Graphics.AnimatedModelCache.GetAnimatedModel("Assets/087-B/mental.b3d");
         var anim = template.Animations.Single().Value;
 
         AddEntities(Enumerable.Range(0, 3).Select(i => new AnimatedModel(template) {

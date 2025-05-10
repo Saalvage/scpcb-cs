@@ -8,11 +8,11 @@ namespace SCPCB.B;
 public class Map : ITickable {
     private readonly Player _player;
 
-    private readonly IFloorAction?[] _acts;
+    private readonly FloorActionBase?[] _acts;
 
     private int _prevFloor = -1;
 
-    public Map(IScene scene, IFloorAction?[] acts) {
+    public Map(IScene scene, FloorActionBase?[] acts) {
         _player = scene.GetEntitiesOfType<Player>().Single();
         _acts = acts;
     }
